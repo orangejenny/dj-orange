@@ -3,6 +3,10 @@ from django.db import models
 class Song(models.Model):
     name = models.CharField(max_length=255)
     artist = models.CharField(max_length=255)
+    rating = models.IntegerField(null=True)
+    mood = models.IntegerField(null=True)
+    energy = models.IntegerField(null=True)
+    starred = models.BooleanField(default=False)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.artist)
@@ -11,6 +15,7 @@ class Song(models.Model):
 class Album(models.Model):
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField()
+    starred = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

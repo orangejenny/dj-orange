@@ -1,5 +1,22 @@
-<ul>
+<table>
+    <thead>
+        <th>&nbsp;</th>
+        <th>Name</th>
+        <th>Artist</th>
+        <th>Rating</th>
+        <th>Energy</th>
+        <th>Mood</th>
+    </thead>
+    <tbody>
     {% for song in songs %}
-        <li>{{ song }}</li>
+        <tr>
+            <td>{% if song.starred %}*{% else %}&nbsp;{% endif %}</td>
+            <td>{{ song.name }}</td>
+            <td>{{ song.artist }}</td>
+            <td>{{ song.rating }}</td>
+            <td>{{ song.energy }}</td>
+            <td>{{ song.mood }}</td>
+        </tr>
     {% endfor %}
-</ul>
+    </tbody>
+</table>
