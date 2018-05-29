@@ -10,9 +10,9 @@ def index(request):
         'songs': [{
             'name': s.name,
             'artist': s.artist,
-            'rating': s.rating,
-            'energy': s.energy,
-            'mood': s.mood,
+            'rating': s.rating or '',
+            'energy': s.energy or '',
+            'mood': s.mood or '',
             'starred': s.starred,
             'tags': s.tags,
         } for s in Song.objects.all()],
