@@ -6,6 +6,7 @@
         <th>Rating</th>
         <th>Energy</th>
         <th>Mood</th>
+        <th>Tags</th>
     </thead>
     <tbody>
     {% for song in songs %}
@@ -16,6 +17,7 @@
             <td>{{ song.rating }}</td>
             <td>{{ song.energy }}</td>
             <td>{{ song.mood }}</td>
+            <td>{{ song.tags }}</td>
         </tr>
     {% endfor %}
     </tbody>

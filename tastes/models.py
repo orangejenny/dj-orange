@@ -8,6 +8,10 @@ class Song(models.Model):
     energy = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
 
+    @property
+    def tags(self):
+        return [t.tag.name for t in SongTag.objects.filter(song=self.id)]
+
     def __str__(self):
         return "{} ({})".format(self.name, self.artist)
 
@@ -28,3 +32,16 @@ class Track(models.Model):
 
     def __str__(self):
         return "{}: {}. {}".format(str(self.album), self.ordinal, str(self.song))
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SongTag(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
