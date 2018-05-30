@@ -9,6 +9,10 @@ class Song(models.Model):
     starred = models.BooleanField(default=False)
 
     @property
+    def albums(self):
+        return [t.album.name for t in Track.objects.filter(song=self.id)]
+
+    @property
     def tags(self):
         return [t.tag.name for t in SongTag.objects.filter(song=self.id)]
 
@@ -30,6 +34,9 @@ class Track(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ("song", "album")
+
     def __str__(self):
         return "{}: {}. {}".format(str(self.album), self.ordinal, str(self.song))
 
@@ -45,3 +52,6 @@ class Tag(models.Model):
 class SongTag(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("song", "tag")
