@@ -22,7 +22,7 @@ class Song(models.Model):
 
 class Album(models.Model):
     name = models.CharField(max_length=255)
-    date_acquired = models.DateTimeField()
+    date_acquired = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
 
     def __str__(self):

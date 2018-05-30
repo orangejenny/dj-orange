@@ -1,11 +1,13 @@
 from django.core.management.base import BaseCommand, CommandError
+from datetime import datetime
 import json
+import pytz
 
-from tastes.models import Song, SongTag, Tag
+from tastes.models import Album, Song, SongTag, Tag
 
 class Command(BaseCommand):
     help = 'Import items from a csv'
-    models = ('song', 'songtag')
+    models = ('album', 'song', 'songtag')
 
     def add_arguments(self, parser):
         parser.add_argument('model', help="One of {}".format(", ".join(self.models)))
@@ -18,13 +20,13 @@ class Command(BaseCommand):
             raise Exception("model {} not found in {}".format(model, ", ".join(self.models)))
 
         save = options['save']
-        counts = {model: {'new': 0, 'existing': 0} for model in ('song', 'songtag', 'tag')}
+        counts = {model: {'new': 0, 'existing': 0} for model in ('album', 'song', 'songtag', 'tag')}
 
         with open(options['filename'], encoding='utf-8') as f:
             data = json.load(f)['data']
             for item in data:
-                song = self._get_song(name=item['name'], artist=item['artist'])
                 if model == 'song':
+                    song = self._get_song(name=item['name'], artist=item['artist'])
                     if song:
                         counts['song']['existing'] += 1
                     else:
@@ -32,7 +34,15 @@ class Command(BaseCommand):
                         counts['song']['new'] += 1
                         if save:
                             song.save()
+                elif model == 'album':
+                    album = Album(name=item['name'])
+                    if item['created']:
+                        album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
+                    counts['album']['new'] += 1
+                    if save:
+                        album.save()
                 elif model == 'songtag':
+                    song = self._get_song(name=item['name'], artist=item['artist'])
                     try:
                         tag = Tag.objects.get(name=item['tag'])
                         counts['tag']['existing'] += 1
