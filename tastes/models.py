@@ -1,8 +1,9 @@
 from django.db import models
 
 class Song(models.Model):
-    name = models.CharField(max_length=255)
-    artist = models.CharField(max_length=255)
+    name = models.CharField(max_length=127)
+    artist = models.CharField(max_length=63)
+    filename = models.CharField(max_length=255, null=True)
     rating = models.IntegerField(null=True)
     mood = models.IntegerField(null=True)
     energy = models.IntegerField(null=True)
