@@ -13,58 +13,112 @@ class Importer(object):
     SONG = 'song'
     SONGTAG = 'songtag'
 
-    fields = []
+    fields = set()
 
     @property
     def query(self):
         raise Exception("Subclasses should override this method")
 
-    def __init__(self):
-        pass
+    def __init__(self, out=None):
+        self._out = out
+
+    def log(self, message):
+        if self._out:
+            self._out.write(message)
+
+    def import_item(self, save=False):
+        raise Exception("Subclasses should override this method")
+
+    def import_items(self, filename, save=False):
+        with open(filename, encoding='utf-8') as f:
+            data = json.load(f)['data']
+            for item in data:
+                if set(item.keys()) != set(self.fields):
+                    raise Exception("Mismatched fields, expected [{}] and got [{}]".format(self.fields, item.keys()))
+                self.import_item(item, save)
+            self.log("{}Imported {} items".format("" if save else "[DRY RUN] ", len(data)))
 
 
     @classmethod
-    def create(cls, item_type):
+    def create(cls, item_type, out=None):
         if item_type == cls.ALBUM:
-            return AlbumImporter()
+            return AlbumImporter(out)
         if item_type == cls.SONG:
-            return SongImporter()
+            return SongImporter(out)
         if item_type == cls.SONGTAG:
-            return SongTagImporter()
+            return SongTagImporter(out)
         raise Exception("Unrecognized item_type {}".format(item_type))
 
 
-class AlbumImporter(object):
-    fields = ['id', 'name', 'created']
+class AlbumImporter(Importer):
+    fields = set(['id', 'name', 'created'])
 
     @property
     def query(self):
         return "select {} from flavors_collection".format(", ".join(self.fields))
 
-    def __init__(self):
-        return super(AlbumImporter, self).__init__()
+    def __init__(self, out=None):
+        return super(AlbumImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        album = Album(name=item['name'])
+        album.id = item['id']
+        self.log("Importing {}".format(album))
+        if item['created']:
+            album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
+        if save:
+            if Album.objects.filter(id=album.id).exists():
+                Album.objects.get(id=album.id).delete()
+            album.save()
 
 
-class SongImporter(object):
-    fields = ['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'filename']
+class SongImporter(Importer):
+    fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'filename'])
 
     @property
     def query(self):
         return "select {} from flavors_song".format(", ".join(self.fields))
 
-    def __init__(self):
-        return super(SongImporter, self).__init__()
+    def __init__(self, out=None):
+        return super(SongImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        song = Song()
+        for field in self.fields.difference('isstarred'):
+            setattr(song, field, item[field])
+        song.isstarred = bool(item['isstarred'])
+        self.log("Importing {}".format(song))
+        if save:
+            if Song.objects.filter(id=song.id).exists():
+                Song.objects.get(id=song.id).delete()
+            song.save()
 
 
-class SongTagImporter(object):
-    fields = ['songid', 'name', 'artist', 'tag']
+class SongTagImporter(Importer):
+    fields = set(['songid', 'tag'])
 
     @property
     def query(self):
         return "select {} from flavors_song, flavors_songtag where flavors_song.id = flavors_songtag.songid".format(", ".join(self.fields))
 
-    def __init__(self):
-        return super(SongTagImporter, self).__init__()
+    def __init__(self, out=None):
+        return super(SongTagImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        try:
+            tag = Tag.objects.get(name=item['tag'])
+        except Tag.DoesNotExist:
+            tag = Tag(name=item['tag'])
+            self.log("Importing {}".format(tag))
+            if save:
+                tag.save()
+        song = Song.objects.get(id=item['songid'])
+        song_tag = SongTag(song=song, tag=tag)
+        self.log("Importing {}".format(song_tag))
+        if save:
+            if SongTag.objects.filter(song=song, tag=tag).exists():
+                SongTag.objects.get(song=song, tag=tag).delete()
+            song_tag.save()
 
 
 class Command(BaseCommand):
@@ -94,43 +148,5 @@ Queries:
         if model not in self.models:
             raise Exception("model {} not found in {}".format(model, ", ".join(self.models)))
 
-        save = options['save']
-
-        with open(options['filename'], encoding='utf-8') as f:
-            data = json.load(f)['data']
-            for item in data:
-                if model == 'song':
-                    song = self._get_song(name=item['name'], artist=item['artist'])
-                    if not song:
-                        song = Song(name=item['name'], artist=item['artist'], rating=item['rating'], energy=item['energy'], mood=item['mood'], starred=(True if item['isstarred'] else False))
-                        if save:
-                            song.save()
-                elif model == 'album':
-                    album = Album(name=item['name'])
-                    if item['created']:
-                        album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
-                    if save:
-                        album.save()
-                elif model == 'songtag':
-                    song = self._get_song(name=item['name'], artist=item['artist'])
-                    try:
-                        tag = Tag.objects.get(name=item['tag'])
-                    except Tag.DoesNotExist:
-                        tag = Tag(name=item['tag'])
-                        if save:
-                            tag.save()
-                    try:
-                        songtag = SongTag.objects.get(song=song, tag=tag)
-                    except SongTag.DoesNotExist:
-                        songtag = SongTag(song=song, tag=tag)
-                        if save:
-                            songtag.save()
-
-            self.stdout.write(self.style.SUCCESS('Finished'))
-
-    # TODO: there are a few legitimate duplicate name+artist combinations
-    def _get_song(self, name, artist):
-        try:
-            return Song.objects.get(name=name, artist=artist)
-        except Song.DoesNotExist:
-            return None
+        importer = Importer.create(options['model'], out=self.stdout)
+        importer.import_items(options['filename'], save=options['save'])

@@ -55,3 +55,6 @@ class SongTag(models.Model):
 
     class Meta:
         unique_together = ("song", "tag")
+
+    def __str__(self):
+        return "{} => {}".format(self.song, self.tag)
