@@ -1,7 +1,8 @@
 from django.urls import path
 
-from . import views
+from tastes.views import export, index
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', index, name='index'),
+    path('export/', export, name='export'),
 ]

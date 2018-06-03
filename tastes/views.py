@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 from django.template import loader
+from django.views.decorators.http import require_GET
 
 from tastes.models import Album, Song, SongTag, Track
 
 
+@require_GET
 def index(request):
     template = loader.get_template('tastes/songs.html')
     context = {
@@ -16,6 +18,13 @@ def index(request):
             'starred': s.starred,
             'albums': s.albums,
             'tags': s.tags,
-        } for s in Song.objects.all()[:10]],
+        } for s in Song.list()],
     }
     return HttpResponse(template.render(context, request))
+
+@require_GET
+def export(request):
+    filenames = ["/Volumes/Flavors/{}".format(s.filename) for s in Song.list()]
+    response = HttpResponse("\n".join(filenames))
+    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format("flavors")
+    return response

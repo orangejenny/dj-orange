@@ -9,6 +9,9 @@ class Song(models.Model):
     energy = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['-id']
+
     @property
     def albums(self):
         return [t.album.name for t in Track.objects.filter(song=self.id)]
@@ -19,6 +22,11 @@ class Song(models.Model):
 
     def __str__(self):
         return "{} ({})".format(self.name, self.artist)
+
+    @classmethod
+    def list(cls):
+        return cls.objects.all()[:20]
+
 
 
 class Album(models.Model):
