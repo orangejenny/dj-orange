@@ -11,6 +11,7 @@ from tastes.models import Album, Song, SongTag, Track
 def index(request):
     colors = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey', 'black']
     template = loader.get_template('tastes/songs.html')
+    songs = Song.list()
     context = {
         'songs': [{
             'name': s.name,
@@ -21,8 +22,9 @@ def index(request):
             'starred': s.starred,
             'albums': s.albums,
             'tags': s.tags,
-        } for s in Song.list()],
+        } for s in songs],
         'color': random.choice(colors),
+        'count': len(songs),
     }
     return HttpResponse(template.render(context, request))
 

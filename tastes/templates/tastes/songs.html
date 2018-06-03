@@ -1,9 +1,10 @@
 {% extends 'tastes/base.html' %}
+{% load humanize %}
 
 {% block body %}
 <div class="ui left labeled button {{ color }}" tabindex="0">
     <a class="ui basic right pointing label">
-        0
+        {{ count|intcomma }}
     </a>
     <a class="ui button {{ color }}" href="{% url "export" %}">
         <i class="download icon"></i> Download
