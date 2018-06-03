@@ -12,6 +12,8 @@ def index(request):
     colors = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey', 'black']
     template = loader.get_template('tastes/songs.html')
     songs = Song.list()
+    count = len(songs)
+    songs = songs[:20]
     context = {
         'songs': [{
             'name': s.name,
@@ -24,7 +26,7 @@ def index(request):
             'tags': s.tags,
         } for s in songs],
         'color': random.choice(colors),
-        'count': len(songs),
+        'count': count,
     }
     return HttpResponse(template.render(context, request))
 

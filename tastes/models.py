@@ -25,8 +25,7 @@ class Song(models.Model):
 
     @classmethod
     def list(cls):
-        return cls.objects.all()[:20]
-
+        return cls.objects.all()
 
 
 class Album(models.Model):
