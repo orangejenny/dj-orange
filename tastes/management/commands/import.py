@@ -5,13 +5,14 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from tastes.models import Album, Song, SongTag, Tag
+from tastes.models import Album, Song, SongTag, Tag, Track
 
 
 class Importer(object):
     ALBUM = 'album'
     SONG = 'song'
     SONGTAG = 'songtag'
+    TRACK = 'track'
 
     fields = set()
 
@@ -47,6 +48,8 @@ class Importer(object):
             return SongImporter(out)
         if item_type == cls.SONGTAG:
             return SongTagImporter(out)
+        if item_type == cls.TRACK:
+            return TrackImporter(out)
         raise Exception("Unrecognized item_type {}".format(item_type))
 
 
@@ -121,8 +124,39 @@ class SongTagImporter(Importer):
             song_tag.save()
 
 
+class TrackImporter(Importer):
+    fields = set(['songid', 'collectionid', 'tracknumber'])
+
+    @property
+    def query(self):
+        return "select {} from flavors_songcollection".format(", ".join(self.fields))
+
+    def __init__(self, out=None):
+        return super(TrackImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        try:
+            album = Album.objects.get(id=item['collectionid'])
+            song = Song.objects.get(id=item['songid'])
+            track = Track(album=album, song=song, ordinal=item['tracknumber'])
+            if not track.ordinal:
+                # TODO: fix data issue
+                return
+            self.log("Importing {}".format(track))
+            if save:
+                if Track.objects.filter(album=album, song=song).exists():
+                    Track.objects.get(album=album, song=song).delete()
+                track.save()
+        except Album.DoesNotExist as e:
+            # TODO: fix data issue
+            self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(item['tracknumber'], item['collectionid'], item['songid']))
+        except Song.DoesNotExist as e:
+            # TODO: fix data issue
+            self.log("FAIL: Track #{} in {} (tried songid={})".format(item['tracknumber'], album, item['songid']))
+
+
 class Command(BaseCommand):
-    models = [Importer.ALBUM, Importer.SONG, Importer.SONGTAG]
+    models = [Importer.ALBUM, Importer.SONG, Importer.SONGTAG, Importer.TRACK]
 
     def create_parser(self, *args, **kwargs):
         parser = super(Command, self).create_parser(*args, **kwargs)
