@@ -1,6 +1,6 @@
 import random
 
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
 
@@ -11,10 +11,18 @@ from tastes.models import Album, Song, SongTag, Track
 def index(request):
     colors = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey', 'black']
     template = loader.get_template('tastes/songs.html')
+    context = {
+        'color': random.choice(colors),
+    }
+    return HttpResponse(template.render(context, request))
+
+@require_GET
+def song_list(request):
     songs = Song.list()
     count = len(songs)
-    songs = songs[:20]
+    songs = songs[:50]
     context = {
+        'count': count,
         'songs': [{
             'name': s.name,
             'artist': s.artist,
@@ -25,10 +33,8 @@ def index(request):
             'albums': s.albums,
             'tags': s.tags,
         } for s in songs],
-        'color': random.choice(colors),
-        'count': count,
     }
-    return HttpResponse(template.render(context, request))
+    return JsonResponse(context)
 
 @require_GET
 def export(request):
