@@ -1,0 +1,11 @@
+#menu-column {
+    position: absolute;
+}
+
+#content-column {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    overflow-y: auto;
+}

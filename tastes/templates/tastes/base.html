@@ -3,22 +3,26 @@
     <head>
         <title>Tastes</title>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.0/semantic.min.css" />
+        <link rel="stylesheet" type="text/css" href="/static/tastes/style/tastes.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
         <script src="/static/tastes/js/tastes.js"></script>
     </head>
     <body>
         <div class="ui grid divided">
-            <div class="three wide column">
-                <div class="ui left labeled button" tabindex="0">
+            <div class="three wide column" id="menu-column">
+                <div class="ui left labeled button">
                     <a class="ui button basic {{ color }}" href="{% url "export" %}">
                         <i class="download icon"></i> Download
                     </a>
                     <a class="ui basic left pointing label {{ color }}" id="song-count"></a>
                 </div>
+                <br><a class="ui button basic {{ color }}" id="more-songs">MORE</a>
             </div>
-            <div class="thirteen wide column">
+            <div class="thirteen wide column" id="content-column">
+                <div class="scroll-container">
                 {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
         <div id="data-urls"
