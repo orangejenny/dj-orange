@@ -22,11 +22,7 @@ $(function() {
         });
     };
 
-    $("#more-songs").click(function() {
-        getNextPage();
-    });
     getNextPage();
-
     $("#content-column").scroll(function(e) {
         if (!allowScroll) {
             return;
