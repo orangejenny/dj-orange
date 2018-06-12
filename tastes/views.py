@@ -19,9 +19,10 @@ def index(request):
 @require_GET
 def song_list(request):
     page = int(request.GET['page'])
-    songs_per_page = 50
+    filters = request.GET['filters']
+    songs_per_page = 20
     start_index = (page - 1) * songs_per_page
-    songs = Song.list()
+    songs = Song.list(filters)
     count = len(songs)
     songs = songs[start_index:(start_index + songs_per_page)]
     context = {

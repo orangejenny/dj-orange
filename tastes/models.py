@@ -24,7 +24,7 @@ class Song(models.Model):
         return "{} ({})".format(self.name, self.artist)
 
     @classmethod
-    def list(cls):
+    def list(cls, filter=None):
         return cls.objects.all()
 
 

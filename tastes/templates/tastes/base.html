@@ -18,13 +18,13 @@
                         <i class="oi oi-cloud-download"></i> Download
                         <span class="badge badge-light"i id="song-count"></span>
                     </a>
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Tag' %}
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Artist' %}
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Name' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Rating' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Energy' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Mood' %}
-                    {% include 'tastes/partials/modal_filter_bool.html' with name='Starred' %}
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Name' lhs='name' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Rating' lhs='rating' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Energy' lhs='rating' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' %}
+                    {% include 'tastes/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
                 </div>
                 <div class="col-9" id="content-column">
                     <div class="scroll-container">

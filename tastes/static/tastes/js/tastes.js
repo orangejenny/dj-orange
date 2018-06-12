@@ -1,6 +1,7 @@
 $(function() {
     var page = 1,
-        allowScroll = true;
+        allowScroll = true,
+        filters = [];
     var getNextPage = function() {
         allowScroll = false;
         $.ajax({
@@ -8,11 +9,16 @@ $(function() {
             url: $("#data-urls").data("song-list"),
             data: {
                 page: page,
+                filters: serializeFilters(),
             },
             success: function(data) {
                 $("#song-count").text(data.count);
                 var $tbody = $("#song-table tbody"),
                     template = _.template($("#song-row").text());
+                if (page === 1) {
+                    $("#content-column").scrollTop(0);
+                    $tbody.empty();
+                }
                 _.each(data.songs, function(song) {
                     $tbody.append(template(song));
                 });
@@ -20,6 +26,10 @@ $(function() {
                 allowScroll = true;
             },
         });
+    };
+
+    var serializeFilters = function() {
+        return _.map(filters, function(f) { return f.lhs + f.op + f.rhs }).join("&&");
     };
 
     getNextPage();
@@ -33,5 +43,16 @@ $(function() {
         if ($column.scrollTop() / overflowHeight > 0.8) {
             getNextPage();
         }
+    });
+
+    $(".filter-modal button").click(function(e) {
+        var $button = $(e.currentTarget);
+        filters.push({
+            lhs: $button.closest("[data-lhs]").data("lhs"),
+            op: $button.data("op"),
+            rhs: $button.data("rhs") || $button.closest(".form-group").find(".rhs").val(),
+        });
+        page = 1;
+        getNextPage();
     });
 });
