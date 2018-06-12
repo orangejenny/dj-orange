@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="/static/tastes/style/tastes.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <script src="/static/tastes/js/tastes.js"></script>
     </head>
     <body>
@@ -17,13 +18,13 @@
                         <i class="oi oi-cloud-download"></i> Download
                         <span class="badge badge-light"i id="song-count"></span>
                     </a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Tag</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Artist</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Name</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Rating</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Energy</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Mood</a>
-                    <a class="btn btn-outline-info"><i class="oi oi-plus"></i> Starred</a>
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Tag' %}
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Artist' %}
+                    {% include 'tastes/partials/modal_filter_text.html' with name='Name' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Rating' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Energy' %}
+                    {% include 'tastes/partials/modal_filter_rating.html' with name='Mood' %}
+                    {% include 'tastes/partials/modal_filter_bool.html' with name='Starred' %}
                 </div>
                 <div class="col-9" id="content-column">
                     <div class="scroll-container">
