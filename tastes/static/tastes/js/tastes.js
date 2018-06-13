@@ -45,6 +45,12 @@ $(function() {
         }
     });
 
+    $(".filter-modal").on('show.bs.modal', function(e) {
+        $(e.currentTarget).find("input").each(function(index, input) {
+            $(input).val('');
+        });
+    });
+
     $(".filter-modal button").click(function(e) {
         var $button = $(e.currentTarget);
         filters.push({
