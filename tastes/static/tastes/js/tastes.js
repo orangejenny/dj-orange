@@ -50,7 +50,7 @@ $(function() {
         filters.push({
             lhs: $button.closest("[data-lhs]").data("lhs"),
             op: $button.data("op"),
-            rhs: $button.data("rhs") || $button.closest(".form-group").find(".rhs").val(),
+            rhs: $button.data("rhs") === undefined ? $button.closest(".form-group").find(".rhs").val() : $button.data("rhs"),
         });
         page = 1;
         getNextPage();

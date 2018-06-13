@@ -1,5 +1,7 @@
 from django.db import models
 
+import re
+
 class Song(models.Model):
     name = models.CharField(max_length=127)
     artist = models.CharField(max_length=63)
@@ -24,8 +26,35 @@ class Song(models.Model):
         return "{} ({})".format(self.name, self.artist)
 
     @classmethod
-    def list(cls, filter=None):
-        return cls.objects.all()
+    def list(cls, filters=None):
+        kwargs = {}
+        if filters:
+            for condition in filters.split("&&"):
+                (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
+                if lhs in ['starred']:
+                    kwargs[lhs] = rhs
+                elif lhs in ['rating', 'energy', 'mood']:
+                    if op == '>=':
+                        lhs = lhs + "__gte"
+                    elif op == '<=':
+                        lhs = lhs + "__lte"
+                    elif op != '=':
+                        raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                    kwargs[lhs] = rhs
+                elif lhs in ['name', 'artist']:
+                    if op == '=*':
+                        lhs = lhs + "__icontains"
+                    elif op == '=':
+                        lhs = lhs + "__iexact"
+                    else:
+                        raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                    kwargs[lhs] = rhs
+                elif lhs == 'tag':
+                    # TODO
+                    pass
+                else:
+                    raise Exception("Unrecognized lhs {}".format(lhs))
+        return cls.objects.filter(**kwargs)
 
 
 class Album(models.Model):
