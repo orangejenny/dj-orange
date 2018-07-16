@@ -4,7 +4,9 @@
         <title>Tastes</title>
         <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="/static/fontawesome/css/all.css" />
         <link rel="stylesheet" type="text/css" href="/static/tastes/style/tastes.css" />
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -15,7 +17,7 @@
             <div class="row">
                 <div class="col-3" id="menu-column">
                     <a class="btn btn-info" href="{% url "export" %}">
-                        <i class="oi oi-cloud-download"></i> Download
+                        <i class="fa fa-cloud-download"></i> Download
                         <span class="badge badge-light"i id="song-count"></span>
                     </a>
                     {% include 'tastes/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
