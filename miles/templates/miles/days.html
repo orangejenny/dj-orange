@@ -1,0 +1,10 @@
+{% extends 'miles/base.html' %}
+
+{% block content %}
+    Three days
+    <ul>
+        {% for day in days %}
+            <li>{{ day.weekday }}, {{ day }}</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}
