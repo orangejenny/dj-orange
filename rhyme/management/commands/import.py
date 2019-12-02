@@ -5,7 +5,7 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from tastes.models import Album, Song, SongTag, Tag, Track
+from rhyme.models import Album, Song, SongTag, Tag, Track
 
 
 class Importer(object):

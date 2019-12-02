@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tastes', '0007_auto_20180602_2206'),
+        ('rhyme', '0007_auto_20180602_2206'),
     ]
 
     operations = [

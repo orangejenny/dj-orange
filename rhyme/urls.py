@@ -1,6 +1,6 @@
 from django.urls import path
 
-from tastes.views import export, index, song_list
+from rhyme.views import export, index, song_list
 
 urlpatterns = [
     path('', index, name='index'),

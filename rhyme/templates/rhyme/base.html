@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Tastes</title>
+        <title>rhyme</title>
         <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="/static/fontawesome/css/all.css" />
-        <link rel="stylesheet" type="text/less" href="/static/tastes/style/tastes.less" />
+        <link rel="stylesheet" type="text/less" href="/static/rhyme/style/rhyme.less" />
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/3.7.1/less.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        <script src="/static/tastes/js/tastes.js"></script>
+        <script src="/static/rhyme/js/rhyme.js"></script>
     </head>
     <body>
         <div class="container-fluid">
@@ -21,13 +21,13 @@
                         <i class="fa fa-cloud-download"></i> Download
                         <span class="badge badge-light"i id="song-count"></span>
                     </a>
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
-                    {% include 'tastes/partials/modal_filter_text.html' with name='Name' lhs='name' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Rating' lhs='rating' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Energy' lhs='rating' %}
-                    {% include 'tastes/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' %}
-                    {% include 'tastes/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
+                    {% include 'rhyme/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
+                    {% include 'rhyme/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
+                    {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
+                    {% include 'rhyme/partials/modal_filter_rating.html' with name='Rating' lhs='rating' %}
+                    {% include 'rhyme/partials/modal_filter_rating.html' with name='Energy' lhs='rating' %}
+                    {% include 'rhyme/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' %}
+                    {% include 'rhyme/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
                 </div>
                 <div class="col-9" id="content-column">
                     <div class="scroll-container">
