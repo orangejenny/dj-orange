@@ -49,7 +49,7 @@ def albums(request):
                 "acronym": album.acronym,
                 "acronym_size": album.acronym_size,
                 **vars(album),
-            } for album in Album.list()
+            } for album in Album.list().order_by('-date_acquired')
         ],
     }
     return HttpResponse(template.render(context, request))
@@ -60,4 +60,16 @@ def export(request):
     filenames = ["/Volumes/Flavors/{}".format(s.filename) for s in Song.list()]
     response = HttpResponse("\n".join(filenames))
     response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format("flavors")
+    return response
+
+
+@require_GET
+def export_album(request, album_id):
+    album = Album.objects.get(id=album_id)
+    filenames = [
+        "/Volumes/Flavors/{}".format(t.song.filename)
+        for t in album.track_set.all()
+    ]
+    response = HttpResponse("\n".join(filenames))
+    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(album.name)
     return response
