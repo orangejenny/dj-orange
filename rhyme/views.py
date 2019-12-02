@@ -1,3 +1,4 @@
+from datetime import datetime
 import random
 
 from django.contrib.auth.decorators import login_required
@@ -54,6 +55,7 @@ def albums(request):
                 "acronym_size": album.acronym_size,
                 "artist": album.artist,
                 "cover_art_filename": album.cover_art_filename,
+                "export_html": album.export_html,
                 **vars(album),
             } for album in Album.list().order_by('-date_acquired')
         ],
@@ -74,6 +76,10 @@ def export(request):
 @login_required
 def export_album(request, album_id):
     album = Album.objects.get(id=album_id)
+    album.last_export = datetime.now()
+    album.export_count = album.export_count + 1
+    album.save()
+
     filenames = [
         "/Volumes/Flavors/{}".format(song.filename)
         for song in album.songs

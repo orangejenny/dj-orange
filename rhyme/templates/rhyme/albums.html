@@ -9,14 +9,15 @@
                         <img src='{{ album.cover_art_filename }}' />
                     {% else %}
                         <div class="acronym-{{ album.acronym_size }}">{{ album.acronym }}</div>
-                        <a class="btn btn-info" href="{% url "export_album" album.id %}" style="position: absolute; bottom: 10px; left: 60px;">
-                            <i class="fa fa-cloud-download"></i>
-                            Export
-                        </a>
                     {% endif %}
                     <div class="details-background">
                         <div class="details">
                             <div>Acquired {{ album.date_acquired }}</div>
+                            {{ album.export_html|safe }}<br><br>
+                            <a class="btn btn-info" href="{% url "export_album" album.id %}" style="position: absolute; bottom: 10px; left: 60px;">
+                                <i class="fa fa-cloud-download"></i>
+                                Export
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -62,6 +62,8 @@ class Song(models.Model):
 class Album(models.Model):
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
+    export_count = models.IntegerField(default=0)
+    last_export = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
 
     def __str__(self):
@@ -93,6 +95,17 @@ class Album(models.Model):
         if length == 2:
             return "xlarge"
         return "solo"
+
+    @property
+    def export_html(self):
+        if not self.export_count:
+            return "Never exported"
+
+        if self.export_count == 1:
+            return f"Exported once, on {self.last_export}"
+
+        times = "twice" if self.export_count == 2 else f"{self.export_count} times"
+        return f"Exported {times}<br>Last exported {self.last_export}"
 
     @property
     def artist(self):
