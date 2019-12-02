@@ -65,6 +65,33 @@ class Album(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def list(cls):
+        return cls.objects.all()
+
+    @property
+    def acronym(self):
+        acronym = self.name
+        acronym = re.sub(r'[^\w\s]', '', acronym)
+        acronym = re.sub(r'\s+', ' ', acronym)
+        acronym = "".join([word[0] for word in acronym.split(' ')])
+        return acronym
+
+    @property
+    def acronym_size(self):
+        length = len(self.acronym)
+        if length >= 8:
+            return "xsmall"
+        if length >= 5:
+            return "small"
+        if length == 4:
+            return "medium"
+        if length == 3:
+            return "large"
+        if length == 2:
+            return "xlarge"
+        return "solo"
+
 
 class Track(models.Model):
     ordinal = models.IntegerField()

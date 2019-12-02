@@ -1,0 +1,13 @@
+{% extends 'rhyme/base.html' %}
+
+{% block content %}
+    <div class="albums clearfix">
+        {% for album in albums %}
+            <div data-id="{{ album.id }}" class="album clearfix">
+                <div class="cover-art missing">
+                    <div class="acronym-{{ album.acronym_size }}">{{ album.acronym }} ({{ album.acronym_size }})</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}

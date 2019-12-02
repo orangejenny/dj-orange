@@ -41,6 +41,21 @@ def song_list(request):
     return JsonResponse(context)
 
 @require_GET
+def albums(request):
+    template = loader.get_template('rhyme/albums.html')
+    context = {
+        'albums': [
+            {
+                "acronym": album.acronym,
+                "acronym_size": album.acronym_size,
+                **vars(album),
+            } for album in Album.list()
+        ],
+    }
+    return HttpResponse(template.render(context, request))
+    
+
+@require_GET
 def export(request):
     filenames = ["/Volumes/Flavors/{}".format(s.filename) for s in Song.list()]
     response = HttpResponse("\n".join(filenames))
