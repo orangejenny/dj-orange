@@ -14,6 +14,13 @@
                         <div class="details">
                             <div>Acquired {{ album.date_acquired }}</div>
                             {{ album.export_html|safe }}<br><br>
+                            <div class="ratings">
+                                <div class="tags">
+                                    {% for tag in album.tags %}
+                                        <div>{{ tag }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
                             <a class="btn btn-info" href="{% url "export_album" album.id %}" style="position: absolute; bottom: 10px; left: 60px;">
                                 <i class="fa fa-cloud-download"></i>
                                 Export

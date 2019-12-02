@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 
 import os
+from random import shuffle
 import re
 
 class Song(models.Model):
@@ -130,6 +131,12 @@ class Album(models.Model):
     @property
     def songs(self):
         return [track.song for track in self.track_set.all()]
+
+    @property
+    def tags(self):
+        tags = list(set([tag for song in self.songs for tag in song.tags]))
+        shuffle(tags)
+        return tags
 
 
 class Track(models.Model):
