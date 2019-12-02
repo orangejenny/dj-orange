@@ -1,0 +1,58 @@
+@import "variables.less";
+
+body > .loading {
+    position: fixed;
+    border-radius: 0;
+    > div {
+        position: fixed;
+    }
+} 
+
+.navbar-container {
+    position: fixed;
+    padding: @spacingWide @spacingWide 0 @spacingWide;
+    width: 100%;
+    z-index: 4;
+
+    .navbar {
+        margin: 0;
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+        .dropdown-menu .fas {
+            color: @grey;
+            margin-right: @spacingNarrow;
+        }
+        li.active > a > .fas {
+            color: @white;
+        }
+    }
+
+    .controls {
+        @spacing: 14px;
+
+        float: right;
+        padding-top: @spacing;
+
+        .export-dropdown {
+            .dropdown-menu {
+                left: auto;
+                right: @spacing;
+            }
+        }
+
+        button {
+            margin-right: @spacing;
+        }
+    }
+}
+
+.post-nav {
+    position: fixed;
+    top: @navHeight + @filterContainerHeight;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    margin: @spacingWide;
+}

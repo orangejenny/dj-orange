@@ -16,7 +16,7 @@ $(function() {
                 var $tbody = $("#song-table tbody"),
                     template = _.template($("#song-row").text());
                 if (page === 1) {
-                    $("#infinite-scroll-container").scrollTop(0);
+                    $(".post-nav").scrollTop(0);
                     $tbody.empty();
                 }
                 _.each(data.songs, function(song) {
@@ -33,7 +33,7 @@ $(function() {
     };
 
     getNextPage();
-    $("#infinite-scroll-container").scroll(function(e) {
+    $(".post-nav").scroll(function(e) {
         if (!allowScroll) {
             return;
         }

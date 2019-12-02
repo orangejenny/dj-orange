@@ -1,0 +1,255 @@
+@import "mixins.less";
+@import "variables.less";
+@import "filters.less";
+
+.albums {
+    text-align: center;
+    padding: @spacingWide;
+
+    .album {
+        @albumSize: 200px;
+        position: relative;
+    
+        display: inline-block;
+        margin: 0 0 @spacingWide @spacingWide;
+        border-radius: @borderRadius;
+        cursor: pointer;
+        overflow: hidden;
+        background-color: @white;
+        max-width: @albumSize;
+
+        .name, .artist {
+            .ellipsis();
+        }
+
+        .name {
+            margin-top: @spacingNarrow;
+        }
+    
+        .details, .details-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: @albumSize;
+            height: @albumSize;
+        }
+
+        .details-background {
+            background-color: @white;
+            opacity: 0.9;
+        }
+
+        .details {
+            padding: @spacingNarrow;
+            opacity: 1;
+            text-align: left;
+
+            .rating {
+                width: 60px;
+            }
+
+            .ratings, .tags {
+                text-align: center;
+                line-height: 1.5;
+            }
+        }
+
+        &:not(:hover) .details, &:not(:hover) .details-background {
+            display: none;
+        }
+    
+        &.selected {
+            opacity: 0.3;
+        }
+    
+        .cover-art, .accepting-drop {
+            border: 1px solid @grey;
+            width: @albumSize;
+            height: @albumSize;
+        }
+
+        .cover-art {
+            position: relative;
+
+            &.missing {
+                padding: @spacingNarrow;
+                .acronym(@size) {
+                    position: relative;
+                    top: calc(~'50% - ' @size / 2);
+                    font-size: @size;
+                    line-height: @size;
+                    max-width: @albumSize - 2 * @spacingNarrow;
+                }
+                .acronym-solo { .acronym(96px) }
+                .acronym-xlarge { .acronym(80px) }
+                .acronym-large { .acronym(64px) }
+                .acronym-medium { .acronym(48px) }
+                .acronym-small { .acronym(32px) }
+                .acronym-xsmall { .acronym(24px) }
+            }
+
+            img {
+                width: @albumSize;
+                height: @albumSize;
+            }
+
+
+            &.multiple img {
+                width: @albumSize / 2;
+                height: @albumSize / 2;
+                position: absolute;
+
+                &:nth-child(1) {
+                    top: 0;
+                    left: 0;
+                }
+
+                &:nth-child(2) {
+                    bottom: 0;
+                    right: 0;
+                }
+
+                &:nth-child(3) {
+                    top: 0;
+                    right: 0;
+                }
+
+                &:nth-child(4) {
+                    bottom: 0;
+                    left: 0;
+                }
+
+            }
+        }
+
+        .accepting-drop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.9;
+            background-color: @white;
+            text-align: center;
+            padding-top: @spacingWide;
+
+            .fas {
+                font-size: 64px;
+            }
+        }
+    }
+}
+
+#song-list {
+    .modal-dialog {
+        min-width: 80%;
+
+        .modal-content {
+            opacity: 0.85;
+
+            .modal-body {
+                min-height: 100px;  // enough space for spinner
+        
+                .cover-art-thumbnails {
+                    padding: 0;
+                    margin: @spacingWide 0 0 0;
+            
+                    li {
+                        @size: 75px;
+                
+                        display: inline-block;
+                        list-style-type: none;
+                
+                        position: relative;
+                        float: left;
+                        margin-right: @spacingNarrow;
+                        border: 1px solid @grey;
+                        cursor: pointer;
+                        width: @size;
+                        height: @size;
+                
+                        img, .trash {
+                            width: @size - 2;
+                            height: @size - 2;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                        }
+                
+                        .trash {
+                            display: none;
+                        }
+                
+                        &:hover {
+                            .trash {
+                                display: block;
+                                background-color: white;
+                                opacity: 0.9;
+                                text-align: center;
+                                font-size: @size - @spacingWide * 2;
+                                padding: @spacingWide;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#new-album {
+    .modal-header {
+        input[type='text'] {
+            width: 500;
+        }
+
+        input[type='checkbox'] {
+            margin-left: @spacingNormal;
+        }
+    }
+
+    .song {
+        .ordinal {
+            display: inline-block;
+            font-size: @fontSizeLarge;
+            margin: @spacingNormal;
+        }
+
+        input {
+            margin-bottom: @spacingNormal;
+            &[name='name'], &[name='artist'], &[name='seconds'] {
+                margin-right: @spacingNormal;
+            }
+            &[name='name'] {
+                width: 300px;
+            }
+            &[name='artist'] {
+                width: 200px;
+            }
+            &[name='minutes'], &[name='seconds'] {
+                width: @inputHeight;
+                text-align: center;
+            }
+        }
+
+        .fa-trash {
+            cursor: pointer;
+            margin-top: @spacingNormal;
+        }
+    }
+
+    #add-song {
+        button, input {
+            width: @inputHeight;
+            height: @inputHeight;
+            text-align: center;
+        }
+
+        button {
+            padding: 0;
+            margin-right: @spacingNormal;
+
+            .fas {
+                margin: 0 0 3px 3px;
+            }
+        }
+    }
+}

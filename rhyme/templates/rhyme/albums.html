@@ -5,8 +5,8 @@
         {% for album in albums %}
             <div data-id="{{ album.id }}" class="album clearfix">
                 <div class="cover-art missing">
-                    <div class="acronym-{{ album.acronym_size }}">{{ album.name }} {{ album.acronym }} ({{ album.acronym_size }})</div>
-                    <a class="btn btn-info" href="{% url "export_album" album.id %}">
+                    <div class="acronym-{{ album.acronym_size }}">{{ album.acronym }}</div>
+                    <a class="btn btn-info" href="{% url "export_album" album.id %}" style="position: absolute; bottom: 10px; left: 60px;">
                         <i class="fa fa-cloud-download"></i>
                         Export
                     </a>
