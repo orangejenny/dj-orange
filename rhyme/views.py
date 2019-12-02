@@ -52,6 +52,7 @@ def albums(request):
             {
                 "acronym": album.acronym,
                 "acronym_size": album.acronym_size,
+                "artist": album.artist,
                 **vars(album),
             } for album in Album.list().order_by('-date_acquired')
         ],
@@ -73,8 +74,8 @@ def export(request):
 def export_album(request, album_id):
     album = Album.objects.get(id=album_id)
     filenames = [
-        "/Volumes/Flavors/{}".format(t.song.filename)
-        for t in album.track_set.all()
+        "/Volumes/Flavors/{}".format(song.filename)
+        for song in album.songs
     ]
     response = HttpResponse("\n".join(filenames))
     response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(album.name)

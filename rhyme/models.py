@@ -92,6 +92,17 @@ class Album(models.Model):
             return "xlarge"
         return "solo"
 
+    @property
+    def artist(self):
+        artists = [song.artist for song in self.songs]
+        if len(set(artists)) == 1:
+            return artists[0]
+        return "Various Artists"
+
+    @property
+    def songs(self):
+        return [track.song for track in self.track_set.all()]
+
 
 class Track(models.Model):
     ordinal = models.IntegerField()
