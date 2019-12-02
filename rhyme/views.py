@@ -53,6 +53,7 @@ def albums(request):
                 "acronym": album.acronym,
                 "acronym_size": album.acronym_size,
                 "artist": album.artist,
+                "cover_art_filename": album.cover_art_filename,
                 **vars(album),
             } for album in Album.list().order_by('-date_acquired')
         ],

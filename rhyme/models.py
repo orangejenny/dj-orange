@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db import models
 
+import os
 import re
 
 class Song(models.Model):
@@ -98,6 +100,19 @@ class Album(models.Model):
         if len(set(artists)) == 1:
             return artists[0]
         return "Various Artists"
+
+    @property
+    def cover_art_filename(self):
+        # TODO: standardize handling of static files
+        root = os.path.dirname(os.path.abspath(__file__))
+        relative = os.path.join("rhyme", "img", "collections", str(self.id))
+        directory = os.path.join(root, "static", relative)
+        if os.path.isdir(directory):
+            files = os.listdir(directory)
+            if len(files):
+                # TODO: this is crufty, store one file per album instead of a directory
+                return os.path.join(settings.STATIC_URL, relative, files[0])
+        return None
 
     @property
     def songs(self):
