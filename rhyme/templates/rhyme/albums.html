@@ -1,53 +1,57 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    <div class="albums clearfix">
-        {% for album in albums %}
-            <div data-id="{{ album.id }}" class="album clearfix">
-                <div class="cover-art{% if not album.cover_art_filename %} missing{% endif %}"
-                    {% if album.color %}style="background-color: #{{ album.color.hex_code }}; color: {% if album.color.white_text %}white{% else %}black{% endif %};"{% endif %}>
-                    {% if album.cover_art_filename %}
-                        <img src='{{ album.cover_art_filename }}' />
-                    {% else %}
-                        <div class="acronym-{{ album.acronym_size }}">{{ album.acronym }}</div>
-                    {% endif %}
-                    <div class="details-background">
-                        <div class="details">
-                            <div>Acquired {{ album.date_acquired }}</div>
-                            {{ album.export_html|safe }}<br><br>
-                            <div class="ratings">
-                                <div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.max icon="star" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.max icon="fire" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.max icon="heart" %}</div>
-                                </div>
-                                <div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.avg icon="star" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.avg icon="fire" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.avg icon="heart" %}</div>
-                                </div>
-                                <div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.min icon="star" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.min icon="fire" %}</div>
-                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.min icon="heart" %}</div>
-                                </div>
-                                <div>{{ album.completion_text }}</div>
-                                <div class="tags">
-                                    {% for tag in album.tags %}
-                                        <div>{{ tag }}</div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <a class="btn btn-info" href="{% url "export_album" album.id %}" style="position: absolute; bottom: 10px; left: 60px;">
-                                <i class="fa fa-cloud-download"></i>
-                                Export
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="name">{{ album.name }}</div>
-                <div class="artist">{{ album.artist }}</div>
-            </div>
-        {% endfor %}
+    <div class="infinite-scroll-container" data-url="{% url "album_list" %}" data-template="#album-template">
+        <div class="infinite-scroll-data albums clearfix"></div>
     </div>
 {% endblock content %}
+
+{% block templates %}
+    <script type="text/html" id="album-template">
+        <div data-id="<%= id %>" class="album clearfix">
+            <div class="cover-art<% if (!cover_art_filename) { %> missing<% } %>"
+                <% if (color) { %>style="background-color: #<%= color.hex_code %>; color: <% if (color.white_text) { %>white<% } else { %>black<% } %>;"<% } %>>
+                <% if (cover_art_filename) { %>
+                    <img src='<%= cover_art_filename %>' />
+                <% } else { %>
+                    <div class="acronym-<%= acronym_size %>"><%= acronym %></div>
+                <% } %>
+                <div class="details-background">
+                    <div class="details">
+                        <div>Acquired <%= date_acquired %></div>
+                        <%= export_html %><br><br>
+                        <div class="ratings">
+                            <div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.max" icon="star" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.max" icon="fire" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.max" icon="heart" %}</div>
+                            </div>
+                            <div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.avg" icon="star" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.avg" icon="fire" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.avg" icon="heart" %}</div>
+                            </div>
+                            <div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.min" icon="star" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.min" icon="fire" %}</div>
+                                <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.min" icon="heart" %}</div>
+                            </div>
+                            <div><%= completion_text %></div>
+                            <div class="tags">
+                                <% _.each(tags, function(tag) { %>
+                                    <div><%= tag %></div>
+                                <% }) %>
+                            </div>
+                        </div>
+                        <a class="btn btn-info" href="<%= export_url %>" style="position: absolute; bottom: 10px; left: 60px;">
+                            <i class="fa fa-cloud-download"></i>
+                            Export
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="name"><%= name %></div>
+            <div class="artist"><%= artist %></div>
+        </div>
+    </script>
+{% endblock templates %}

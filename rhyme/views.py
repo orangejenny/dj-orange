@@ -2,8 +2,10 @@ from datetime import datetime
 import random
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
+from django.urls import reverse
 from django.views.decorators.http import require_GET
 
 from rhyme.models import Album, Color, Song, SongTag, Track
@@ -19,19 +21,19 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 @require_GET
 @login_required
 def song_list(request):
     page = int(request.GET['page'])
     filters = request.GET['filters']
     songs_per_page = 20
-    start_index = (page - 1) * songs_per_page
-    songs = Song.list(filters)
+    paginator = Paginator(Song.list(filters), songs_per_page)
+    songs = paginator.get_page(page)
     count = len(songs)
-    songs = songs[start_index:(start_index + songs_per_page)]
     context = {
-        'count': count,
-        'songs': [{
+        'count': Song.objects.count(),
+        'items': [{
             'name': s.name,
             'artist': s.artist,
             'rating': s.rating or '',
@@ -44,12 +46,21 @@ def song_list(request):
     }
     return JsonResponse(context)
 
+
 @require_GET
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
+    return HttpResponse(template.render({}, request))
+
+
+@require_GET
+def album_list(request):
+    page = int(request.GET['page'])
+    albums_per_page = 25        # TODO: this makes the last row not full depending on screen size
+    paginator = Paginator(Album.list().order_by('-date_acquired'), albums_per_page)
     albums = []
-    for album in Album.list().order_by('-date_acquired'):
+    for album in paginator.get_page(page):
         ratings = [s.rating for s in album.songs if s.rating]
         energies = [s.energy for s in album.songs if s.energy]
         moods = [s.mood for s in album.songs if s.mood]
@@ -74,7 +85,12 @@ def albums(request):
             "artist": album.artist,
             "cover_art_filename": album.cover_art_filename,
             "export_html": album.export_html,
-            "color": color,
+            "export_url": reverse("export_album", args=[album.id]),
+            "color": {                              # TODO: use jsonpickle instead?
+                "name": color.name,
+                "hex_code": color.hex_code,
+                "white_text": color.white_text,
+            } if color else {},
             "completion_text": "({}% complete)".format(round(completion)),
             "stats": {
                 # TODO: DRY up? Move into Album model? Also move completion into Album
@@ -94,12 +110,20 @@ def albums(request):
                     "max": max(moods) if moods else None,
                 },
             },
-            **vars(album),
+            "tags": album.tags(),
+            "id": album.id,
+            "name": album.name,
+            "date_acquired": album.date_acquired,
+            "export_count": album.export_count,
+            "last_export": album.last_export,
+            "starred": album.starred,
         })
     context = {
-        'albums': albums,
+        'count': Album.objects.count(),
+        'items': albums,
     }
-    return HttpResponse(template.render(context, request))
+    return JsonResponse(context)
+
     
 
 @require_GET

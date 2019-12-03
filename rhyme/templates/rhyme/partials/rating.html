@@ -1,1 +1,1 @@
- {% load rhyme_helpers %}{% for index in rating|int_range %}{% if icon %}<span class='fas fa-{{ icon }}{% if not rating %} blank{% endif %}'></span>{% else %}*{% endif %}{% endfor %}
+<% _.each(_.range({{ rating_attribute }}), function () { %>{% if icon %}<span class='fas fa-{{ icon }}<% if (!{{ rating_attribute }}) { %> blank<% } %>'></span>{% else %}*{% endif %}<% }) %>

@@ -8,7 +8,6 @@
     <link rel="stylesheet" type="text/less" href="/static/rhyme/style/rhyme.less" />
 {% endblock style %}
 
-<<<<<<< HEAD
 {% block js %}
     <script src="/static/rhyme/js/rhyme.js"></script>
 {% endblock js %}
@@ -40,10 +39,8 @@
         </nav>
     </div>
 
-    <div id="infinite-scroll-container" style="position: absolute; overflow-y: auto; top: 100px; bottom: 0; left: 0; right: 0;">
-        <div class="scroll-container">
-            {% block content %}{% endblock %}
-        </div>
+    <div class="post-nav">
+        {% block content %}{% endblock %}
     </div>
 
     <div id="data-urls"

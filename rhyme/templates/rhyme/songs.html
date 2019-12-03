@@ -1,19 +1,21 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    <table id="song-table" class="table table-striped">
-        <thead>
-            <th>&nbsp;</th>
-            <th>Name</th>
-            <th>Artist</th>
-            <th>Albums</th>
-            <th>Rating</th>
-            <th>Energy</th>
-            <th>Mood</th>
-            <th>Tags</th>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-count-element="#song-count" data-template="#song-row">
+        <table id="song-table" class="table table-striped">
+            <thead>
+                <th>&nbsp;</th>
+                <th>Name</th>
+                <th>Artist</th>
+                <th>Albums</th>
+                <th>Rating</th>
+                <th>Energy</th>
+                <th>Mood</th>
+                <th>Tags</th>
+            </thead>
+            <tbody class="infinite-scroll-data"></tbody>
+        </table>
+    </div>
 {% endblock content %}
 
 {% block templates %}
