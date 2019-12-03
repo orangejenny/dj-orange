@@ -48,17 +48,47 @@ def song_list(request):
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
+    albums = []
+    for album in Album.list().order_by('-date_acquired'):
+        ratings = [s.rating for s in album.songs if s.rating]
+        energies = [s.energy for s in album.songs if s.energy]
+        moods = [s.mood for s in album.songs if s.mood]
+        if album.songs:
+            completion = sum([1 for s in album.songs if s.rating])
+            completion += sum([1 for s in album.songs if s.energy])
+            completion += sum([1 for s in album.songs if s.mood])
+            completion = completion * 100 / (3 * len(album.songs))
+        else:
+            completion = 0
+        albums.append({
+            "acronym": album.acronym,
+            "acronym_size": album.acronym_size,
+            "artist": album.artist,
+            "cover_art_filename": album.cover_art_filename,
+            "export_html": album.export_html,
+            "completion_text": "({}% complete)".format(round(completion)),
+            "stats": {
+                # TODO: DRY up? Move into Album model? Also move completion into Album
+                "rating": {
+                    "min": min(ratings) if ratings else None,
+                    "avg": sum(ratings) / len(ratings) if ratings else None,
+                    "max": max(ratings) if ratings else None,
+                },
+                "energy": {
+                    "min": min(energies) if energies else None,
+                    "avg": sum(energies) / len(energies) if energies else None,
+                    "max": max(energies) if energies else None,
+                },
+                "mood": {
+                    "min": min(moods) if moods else None,
+                    "avg": sum(moods) / len(moods) if moods else None,
+                    "max": max(moods) if moods else None,
+                },
+            },
+            **vars(album),
+        })
     context = {
-        'albums': [
-            {
-                "acronym": album.acronym,
-                "acronym_size": album.acronym_size,
-                "artist": album.artist,
-                "cover_art_filename": album.cover_art_filename,
-                "export_html": album.export_html,
-                **vars(album),
-            } for album in Album.list().order_by('-date_acquired')
-        ],
+        'albums': albums,
     }
     return HttpResponse(template.render(context, request))
     

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 import os
 from random import shuffle
@@ -21,7 +22,7 @@ class Song(models.Model):
     def albums(self):
         return [t.album.name for t in Track.objects.filter(song=self.id)]
 
-    @property
+    @cached_property
     def tags(self):
         return [t.tag.name for t in SongTag.objects.filter(song=self.id)]
 
@@ -115,7 +116,7 @@ class Album(models.Model):
             return artists[0]
         return "Various Artists"
 
-    @property
+    @cached_property
     def cover_art_filename(self):
         # TODO: standardize handling of static files
         root = os.path.dirname(os.path.abspath(__file__))
@@ -128,11 +129,11 @@ class Album(models.Model):
                 return os.path.join(settings.STATIC_URL, relative, files[0])
         return None
 
-    @property
+    @cached_property
     def songs(self):
         return [track.song for track in self.track_set.all()]
 
-    @property
+    @cached_property
     def tags(self):
         tags = list(set([tag for song in self.songs for tag in song.tags]))
         shuffle(tags)

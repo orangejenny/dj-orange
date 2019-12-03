@@ -15,6 +15,22 @@
                             <div>Acquired {{ album.date_acquired }}</div>
                             {{ album.export_html|safe }}<br><br>
                             <div class="ratings">
+                                <div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.max icon="star" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.max icon="fire" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.max icon="heart" %}</div>
+                                </div>
+                                <div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.avg icon="star" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.avg icon="fire" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.avg icon="heart" %}</div>
+                                </div>
+                                <div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.rating.min icon="star" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.energy.min icon="fire" %}</div>
+                                    <div class="rating">{% include "rhyme/partials/rating.html" with rating=album.stats.mood.min icon="heart" %}</div>
+                                </div>
+                                <div>{{ album.completion_text }}</div>
                                 <div class="tags">
                                     {% for tag in album.tags %}
                                         <div>{{ tag }}</div>
