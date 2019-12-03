@@ -1,10 +1,12 @@
-{% extends 'miles/base.html' %}
+{% extends 'orange/base.html' %}
 
-{% block content %}
+{% block title %}Miles{% endblock title %}
+
+{% block body %}
     Three days
     <ul>
         {% for day in days %}
             <li>{{ day.weekday }}, {{ day }}</li>
         {% endfor %}
     </ul>
-{% endblock content %}
+{% endblock body %}

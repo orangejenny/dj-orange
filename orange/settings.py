@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'miles',
+    'orange',
+    'registration',
     'rhyme',
 ]
 
@@ -50,6 +52,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'orange.urls'
+
+LOGIN_REDIRECT_URL = '/'
 
 TEMPLATES = [
     {

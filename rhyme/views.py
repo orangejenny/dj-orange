@@ -1,5 +1,6 @@
 import random
 
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
@@ -8,6 +9,7 @@ from rhyme.models import Album, Song, SongTag, Track
 
 
 @require_GET
+@login_required
 def index(request):
     colors = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey', 'black']
     template = loader.get_template('rhyme/songs.html')
@@ -17,6 +19,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 @require_GET
+@login_required
 def song_list(request):
     page = int(request.GET['page'])
     filters = request.GET['filters']
@@ -41,6 +44,7 @@ def song_list(request):
     return JsonResponse(context)
 
 @require_GET
+@login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
     context = {
@@ -56,6 +60,7 @@ def albums(request):
     
 
 @require_GET
+@login_required
 def export(request):
     filenames = ["/Volumes/Flavors/{}".format(s.filename) for s in Song.list()]
     response = HttpResponse("\n".join(filenames))
@@ -64,6 +69,7 @@ def export(request):
 
 
 @require_GET
+@login_required
 def export_album(request, album_id):
     album = Album.objects.get(id=album_id)
     filenames = [
