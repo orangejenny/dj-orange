@@ -6,7 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
 
-from rhyme.models import Album, Song, SongTag, Track
+from rhyme.models import Album, Color, Song, SongTag, Track
 
 
 @require_GET
@@ -39,7 +39,7 @@ def song_list(request):
             'mood': s.mood or '',
             'starred': s.starred,
             'albums': s.albums,
-            'tags': s.tags,
+            'tags': s.tags(),
         } for s in songs],
     }
     return JsonResponse(context)
@@ -60,12 +60,21 @@ def albums(request):
             completion = completion * 100 / (3 * len(album.songs))
         else:
             completion = 0
+
+        # TODO: move into Album model, and add tests
+        colors = album.tags(category='colors')
+        if colors:
+            color = Color.objects.filter(name=colors[0]).first()
+        else:
+            color = None
+
         albums.append({
             "acronym": album.acronym,
             "acronym_size": album.acronym_size,
             "artist": album.artist,
             "cover_art_filename": album.cover_art_filename,
             "export_html": album.export_html,
+            "color": color,
             "completion_text": "({}% complete)".format(round(completion)),
             "stats": {
                 # TODO: DRY up? Move into Album model? Also move completion into Album

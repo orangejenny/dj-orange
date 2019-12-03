@@ -22,9 +22,12 @@ class Song(models.Model):
     def albums(self):
         return [t.album.name for t in Track.objects.filter(song=self.id)]
 
-    @cached_property
-    def tags(self):
-        return [t.tag.name for t in SongTag.objects.filter(song=self.id)]
+    def tags(self, category=None):
+        tags = [t.tag.name for t in SongTag.objects.filter(song=self.id)]
+        if category:
+            tags_for_category = [t.name for t in Tag.objects.filter(category=category)]
+            tags = list(set(tags).intersection(set(tags_for_category)))
+        return tags
 
     def __str__(self):
         return "{} ({})".format(self.name, self.artist)
@@ -133,9 +136,8 @@ class Album(models.Model):
     def songs(self):
         return [track.song for track in self.track_set.all()]
 
-    @cached_property
-    def tags(self):
-        tags = list(set([tag for song in self.songs for tag in song.tags]))
+    def tags(self, category=None):
+        tags = list(set([tag for song in self.songs for tag in song.tags(category=category)]))
         shuffle(tags)
         return tags
 
@@ -153,7 +155,7 @@ class Track(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -169,3 +171,12 @@ class SongTag(models.Model):
 
     def __str__(self):
         return "{} => {}".format(self.song, self.tag)
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=255)
+    hex_code = models.CharField(max_length=8, default='ffffff')
+    white_text = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{} (#{})".format(self.name, self.hex_code)

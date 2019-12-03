@@ -4,7 +4,8 @@
     <div class="albums clearfix">
         {% for album in albums %}
             <div data-id="{{ album.id }}" class="album clearfix">
-                <div class="cover-art{% if not album.cover_art_filename %} missing{% endif %}">
+                <div class="cover-art{% if not album.cover_art_filename %} missing{% endif %}"
+                    {% if album.color %}style="background-color: #{{ album.color.hex_code }}; color: {% if album.color.white_text %}white{% else %}black{% endif %};"{% endif %}>
                     {% if album.cover_art_filename %}
                         <img src='{{ album.cover_art_filename }}' />
                     {% else %}

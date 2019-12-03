@@ -5,13 +5,14 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from rhyme.models import Album, Song, SongTag, Tag, Track
+from rhyme.models import Album, Color, Song, SongTag, Tag, Track
 
 
 class Importer(object):
     ALBUM = 'album'
+    COLOR = 'color'
     SONG = 'song'
-    SONGTAG = 'songtag'
+    TAG = 'tag'
     TRACK = 'track'
 
     fields = set()
@@ -34,7 +35,7 @@ class Importer(object):
         with open(filename, encoding='utf-8') as f:
             data = json.load(f)['data']
             for item in data:
-                if set(item.keys()) != set(self.fields):
+                if set(item.keys()) != set([f.split(".")[-1] for f in self.fields]):    # de-namespace fields
                     raise Exception("Mismatched fields, expected [{}] and got [{}]".format(self.fields, item.keys()))
                 self.import_item(item, save)
             self.log("{}Imported {} items".format("" if save else "[DRY RUN] ", len(data)))
@@ -44,10 +45,12 @@ class Importer(object):
     def create(cls, item_type, out=None):
         if item_type == cls.ALBUM:
             return AlbumImporter(out)
+        if item_type == cls.COLOR:
+            return ColorImporter(out)
         if item_type == cls.SONG:
             return SongImporter(out)
-        if item_type == cls.SONGTAG:
-            return SongTagImporter(out)
+        if item_type == cls.TAG:
+            return TagImporter(out)
         if item_type == cls.TRACK:
             return TrackImporter(out)
         raise Exception("Unrecognized item_type {}".format(item_type))
@@ -75,6 +78,25 @@ class AlbumImporter(Importer):
             album.save()
 
 
+class ColorImporter(Importer):
+    fields = set(['name', 'hex', 'whitetext'])
+
+    @property
+    def query(self):
+        return "select {} from flavors_color".format(", ".join(self.fields))
+
+    def __init__(self, out=None):
+        return super(ColorImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        color = Color(name=item['name'], hex_code=item['hex'], white_text=bool(int(item['whitetext'] or 0)))
+        if save:
+            existing_color = Color.objects.filter(name=color.name).first()
+            if existing_color:
+                existing_color.delete()
+            color.save()
+
+
 class SongImporter(Importer):
     fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'filename'])
 
@@ -97,24 +119,29 @@ class SongImporter(Importer):
             song.save()
 
 
-class SongTagImporter(Importer):
-    fields = set(['songid', 'tag'])
+class TagImporter(Importer):
+    fields = set(['songid', 'flavors_songtag.tag', 'category'])
 
     @property
     def query(self):
-        return "select {} from flavors_song, flavors_songtag where flavors_song.id = flavors_songtag.songid".format(", ".join(self.fields))
+        return """
+            select {} from flavors_song
+            inner join flavors_songtag on flavors_song.id = flavors_songtag.songid
+            left join flavors_tagcategory on flavors_songtag.tag = flavors_tagcategory.tag
+        """.format(", ".join(self.fields))
 
     def __init__(self, out=None):
-        return super(SongTagImporter, self).__init__(out)
+        return super(TagImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        try:
-            tag = Tag.objects.get(name=item['tag'])
-        except Tag.DoesNotExist:
-            tag = Tag(name=item['tag'])
-            self.log("Importing {}".format(tag))
-            if save:
-                tag.save()
+        tag = Tag.objects.filter(name=item['tag']).first()
+        if tag:
+            tag.category = item['category']
+        else:
+            tag = Tag(name=item['tag'], category=item['category'])
+        self.log("Importing {}".format(tag))
+        if save:
+            tag.save()
         song = Song.objects.get(id=item['songid'])
         song_tag = SongTag(song=song, tag=tag)
         self.log("Importing {}".format(song_tag))
@@ -156,7 +183,7 @@ class TrackImporter(Importer):
 
 
 class Command(BaseCommand):
-    models = [Importer.ALBUM, Importer.SONG, Importer.SONGTAG, Importer.TRACK]
+    models = [Importer.ALBUM, Importer.COLOR, Importer.SONG, Importer.TAG, Importer.TRACK]
 
     def create_parser(self, *args, **kwargs):
         parser = super(Command, self).create_parser(*args, **kwargs)
