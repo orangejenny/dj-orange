@@ -62,6 +62,11 @@ def album_list(request):
     albums = []
     for album in paginator.get_page(page):
         color = album.color
+        completion = album.completion
+        if completion > 0 and completion < 100:
+            completion_text = "({}% complete)".format(round(completion))
+        else:
+            completion_text = ""
         albums.append({
             "acronym": album.acronym,
             "acronym_size": album.acronym_size,
@@ -74,14 +79,14 @@ def album_list(request):
                 "hex_code": color.hex_code,
                 "white_text": color.white_text,
             } if color else {},
-            "completion_text": "({}% complete)".format(round(album.completion)),
+            "completion_text": completion_text,
             "stats": album.stats(),
-            "tags": album.tags(),
+            "tags": album.tags()[:3],
             "id": album.id,
             "name": album.name,
-            "date_acquired": album.date_acquired,
+            "date_acquired": _format_date(album.date_acquired),
             "export_count": album.export_count,
-            "last_export": album.last_export,
+            "last_export": _format_date(album.last_export),
             "starred": album.starred,
         })
     context = {
@@ -90,7 +95,12 @@ def album_list(request):
     }
     return JsonResponse(context)
 
-    
+
+def _format_date(date):
+    if not date:
+        return ""
+    return date.strftime("%b %d, %Y")
+
 
 @require_GET
 @login_required
