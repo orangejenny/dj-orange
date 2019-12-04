@@ -9,6 +9,8 @@ $(function() {
 
         function getNextPage() {
             allowScroll = false;
+            var $loading = $("<p class='loading text-center'><i class='fas fa-spinner fa-spin'></i> Loading...</p>");
+            $infiniteScrollContainer.append($loading);
             $.ajax({
                 method: 'GET',
                 url: $infiniteScrollContainer.data("url"),
@@ -17,6 +19,7 @@ $(function() {
                     filters: serializeFilters(),
                 },
                 success: function(data) {
+                    $loading.remove();
                     var countSelector = $infiniteScrollContainer.data("count-element");
                     if (countSelector) {
                         $(countSelector).text(data.count);

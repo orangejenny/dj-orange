@@ -131,33 +131,3 @@
         color: @updateInProgressColor !important;
     }
 }
-
-.loading {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    opacity: 0.5;
-    background-color: @black;
-    z-index: 1000;
-    border-radius: @borderRadius;
-    > div {
-        @size: 32px;
-        @padding: 8px;
-        position: absolute;
-        top: calc(~'50% - ' @size / 2 + @padding);
-        left: calc(~'50% - ' @size / 2 + @padding);
-        background-color: @white;
-        opacity: 1;
-        padding: @padding;
-        width: @size + @padding * 2;
-        height: @size + @padding * 2;
-        border-radius: @borderRadius;
-        > div {
-            width: @size;
-            height: @size;
-            background-image: url(../images/spinner.gif);
-        }
-    }
-} 
