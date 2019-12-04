@@ -20,10 +20,7 @@ $(function() {
                 },
                 success: function(data) {
                     $loading.remove();
-                    var countSelector = $infiniteScrollContainer.data("count-element");
-                    if (countSelector) {
-                        $(countSelector).text(data.count);
-                    }
+                    $postNav.find(".infinite-scroll-count").text(data.count);
 
                     var $dataContainer = $infiniteScrollContainer.find(".infinite-scroll-data"),
                         template = _.template($($infiniteScrollContainer.data("template")).text());
