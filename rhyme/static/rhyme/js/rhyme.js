@@ -1,64 +1,56 @@
 $(function() {
-    var page = 1,
-        allowScroll = true,
-        filters = [];
-    var getNextPage = function() {
-        allowScroll = false;
-        $.ajax({
-            method: 'GET',
-            url: $("#data-urls").data("song-list"),
-            data: {
-                page: page,
-                filters: serializeFilters(),
-            },
-            success: function(data) {
-                $("#song-count").text(data.count);
-                var $tbody = $("#song-table tbody"),
-                    template = _.template($("#song-row").text());
-                if (page === 1) {
-                    $("#infinite-scroll-container").scrollTop(0);
-                    $tbody.empty();
-                }
-                _.each(data.songs, function(song) {
-                    $tbody.append(template(song));
-                });
-                page++;
-                allowScroll = true;
-            },
-        });
-    };
+    var $postNav = $(".post-nav"),
+        $infiniteScrollContainer = $postNav.children(".infinite-scroll-container");
 
-    var serializeFilters = function() {
-        return _.map(filters, function(f) { return f.lhs + f.op + f.rhs }).join("&&");
-    };
+    if ($infiniteScrollContainer.length) {
+        var page = 1,
+            allowScroll = true,
+            filters = [];
 
-    getNextPage();
-    $("#infinite-scroll-container").scroll(function(e) {
-        if (!allowScroll) {
-            return;
-        }
+        function getNextPage() {
+            allowScroll = false;
+            $.ajax({
+                method: 'GET',
+                url: $infiniteScrollContainer.data("url"),
+                data: {
+                    page: page,
+                    filters: serializeFilters(),
+                },
+                success: function(data) {
+                    var countSelector = $infiniteScrollContainer.data("count-element");
+                    if (countSelector) {
+                        $(countSelector).text(data.count);
+                    }
 
-        var $column = $(e.currentTarget),
-            overflowHeight = $column.children(".scroll-container").height() - $column.height()
-        if ($column.scrollTop() / overflowHeight > 0.8) {
-            getNextPage();
-        }
-    });
+                    var $dataContainer = $infiniteScrollContainer.find(".infinite-scroll-data"),
+                        template = _.template($($infiniteScrollContainer.data("template")).text());
+                    if (page === 1) {
+                        $postNav.scrollTop(0);
+                        $dataContainer.empty();
+                    }
+                    _.each(data.items, function(item) {
+                        $dataContainer.append(template(item));
+                    });
+                    page++;
+                    allowScroll = true;
+                },
+            });
+        };
 
-    $(".filter-modal").on('show.bs.modal', function(e) {
-        $(e.currentTarget).find("input").each(function(index, input) {
-            $(input).val('');
-        });
-    });
+        var serializeFilters = function() {
+            return _.map(filters, function(f) { return f.lhs + f.op + f.rhs }).join("&&");
+        };
 
-    $(".filter-modal button").click(function(e) {
-        var $button = $(e.currentTarget);
-        filters.push({
-            lhs: $button.closest("[data-lhs]").data("lhs"),
-            op: $button.data("op"),
-            rhs: $button.data("rhs") === undefined ? $button.closest(".form-group").find(".rhs").val() : $button.data("rhs"),
-        });
-        page = 1;
         getNextPage();
-    });
+        $postNav.scroll(function(e) {
+            if (!allowScroll) {
+                return;
+            }
+
+            var overflowHeight = $infiniteScrollContainer.height() - $postNav.height()
+            if ($postNav.scrollTop() / overflowHeight > 0.8) {
+                getNextPage();
+            }
+        });
+    }
 });
