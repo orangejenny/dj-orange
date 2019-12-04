@@ -7,6 +7,8 @@ from random import shuffle
 import re
 
 class Song(models.Model):
+    RATING_ATTRIBUTES = ('rating', 'energy', 'mood')
+
     name = models.CharField(max_length=127)
     artist = models.CharField(max_length=63)
     filename = models.CharField(max_length=255, null=True)
@@ -101,6 +103,25 @@ class Album(models.Model):
             return "xlarge"
         return "solo"
 
+    @cached_property
+    def color(self):
+        colors = self.tags(category='colors')
+        if colors:
+            return Color.objects.filter(name=colors[0]).first()
+        return None
+
+    @property
+    def completion(self):
+        songs = self.songs
+        if not songs:
+            return 0
+
+        completion = 0
+        for attribute in Song.RATING_ATTRIBUTES:
+            completion += sum([1 for s in songs if getattr(s, attribute, None)])
+
+        return completion * 100 / (len(Song.RATING_ATTRIBUTES) * len(songs))
+
     @property
     def export_html(self):
         if not self.export_count:
@@ -135,6 +156,20 @@ class Album(models.Model):
     @cached_property
     def songs(self):
         return [track.song for track in self.track_set.all()]
+
+    def stats(self):
+        songs = self.songs
+        stats = {}
+        for attribute in Song.RATING_ATTRIBUTES:
+            values = [getattr(s, attribute) for s in songs if getattr(s, attribute, None)]
+            stats.update({
+                attribute: {
+                    "min": min(values) if values else None,
+                    "avg": sum(values) / len(values) if values else None,
+                    "max": max(values) if values else None,
+                }
+            })
+        return stats
 
     def tags(self, category=None):
         tags = list(set([tag for song in self.songs for tag in song.tags(category=category)]))

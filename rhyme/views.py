@@ -61,24 +61,7 @@ def album_list(request):
     paginator = Paginator(Album.list().order_by('-date_acquired'), albums_per_page)
     albums = []
     for album in paginator.get_page(page):
-        ratings = [s.rating for s in album.songs if s.rating]
-        energies = [s.energy for s in album.songs if s.energy]
-        moods = [s.mood for s in album.songs if s.mood]
-        if album.songs:
-            completion = sum([1 for s in album.songs if s.rating])
-            completion += sum([1 for s in album.songs if s.energy])
-            completion += sum([1 for s in album.songs if s.mood])
-            completion = completion * 100 / (3 * len(album.songs))
-        else:
-            completion = 0
-
-        # TODO: move into Album model, and add tests
-        colors = album.tags(category='colors')
-        if colors:
-            color = Color.objects.filter(name=colors[0]).first()
-        else:
-            color = None
-
+        color = album.color
         albums.append({
             "acronym": album.acronym,
             "acronym_size": album.acronym_size,
@@ -91,25 +74,8 @@ def album_list(request):
                 "hex_code": color.hex_code,
                 "white_text": color.white_text,
             } if color else {},
-            "completion_text": "({}% complete)".format(round(completion)),
-            "stats": {
-                # TODO: DRY up? Move into Album model? Also move completion into Album
-                "rating": {
-                    "min": min(ratings) if ratings else None,
-                    "avg": sum(ratings) / len(ratings) if ratings else None,
-                    "max": max(ratings) if ratings else None,
-                },
-                "energy": {
-                    "min": min(energies) if energies else None,
-                    "avg": sum(energies) / len(energies) if energies else None,
-                    "max": max(energies) if energies else None,
-                },
-                "mood": {
-                    "min": min(moods) if moods else None,
-                    "avg": sum(moods) / len(moods) if moods else None,
-                    "max": max(moods) if moods else None,
-                },
-            },
+            "completion_text": "({}% complete)".format(round(album.completion)),
+            "stats": album.stats(),
             "tags": album.tags(),
             "id": album.id,
             "name": album.name,
