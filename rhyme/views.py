@@ -1,6 +1,7 @@
 from datetime import datetime
 import random
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
@@ -8,7 +9,14 @@ from django.template import loader
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
+from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Album, Color, Song, SongTag, Track
+
+
+def _rhyme_context():
+    return {
+        "RHYME_EXPORT_CONFIGS": settings.RHYME_EXPORT_CONFIGS,
+    }
 
 
 @require_GET
@@ -18,6 +26,7 @@ def index(request):
     template = loader.get_template('rhyme/songs.html')
     context = {
         'color': random.choice(colors),
+        **_rhyme_context(),
     }
     return HttpResponse(template.render(context, request))
 
@@ -51,7 +60,7 @@ def song_list(request):
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(_rhyme_context(), request))
 
 
 @require_GET
@@ -105,10 +114,7 @@ def _format_date(date):
 @require_GET
 @login_required
 def export(request):
-    filenames = ["/Volumes/Flavors/{}".format(s.filename) for s in Song.list()]
-    response = HttpResponse("\n".join(filenames))
-    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format("flavors")
-    return response
+    return _m3u_response(request, Song.list())
 
 
 @require_GET
@@ -116,13 +122,19 @@ def export(request):
 def export_album(request, album_id):
     album = Album.objects.get(id=album_id)
     album.last_export = datetime.now()
-    album.export_count = album.export_count + 1
+    album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
     album.save()
+    return _m3u_response(request, album.songs, album.name)
 
-    filenames = [
-        "/Volumes/Flavors/{}".format(song.filename)
-        for song in album.songs
-    ]
+
+def _m3u_response(request, songs, filename="flavors"):
+    config_name = request.GET.get("config", None)
+    try:
+        config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
+    except IndexError:
+        raise ExportConfigNotFound(f"Could not find {config_name}")
+
+    filenames = [config["prefix"] + s.filename for s in songs]
     response = HttpResponse("\n".join(filenames))
-    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(album.name)
+    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(filename)
     return response

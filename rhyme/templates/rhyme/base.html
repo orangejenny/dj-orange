@@ -9,18 +9,16 @@
 {% endblock style %}
 
 {% block js %}
-    <script src="/static/rhyme/js/rhyme.js"></script>
+    <script src="/static/rhyme/js/infinite_scroll.js"></script>
 {% endblock js %}
 
 {% block body %}
     <div class="navbar-container">
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
-            <div class="pull-right">
-                <a class="btn btn-info btn-sm" href="{% url "export" %}">
-                    <i class="fa fa-cloud-download"></i> Download All Songs
-                    <span class="badge badge-light"i id="song-count"></span>
-                </a>
+            <div class="controls">
+                {% url "export" as export_url %}
+                {% include "rhyme/partials/export_action.html" with url=export_url %}
             </div>
             <ul class="nav navbar-nav">
                 <li>

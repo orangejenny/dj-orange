@@ -1,7 +1,8 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-count-element="#song-count" data-template="#song-row">
+    {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
+    <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-template="#song-row">
         <table id="song-table" class="table table-striped">
             <thead>
                 <th>&nbsp;</th>

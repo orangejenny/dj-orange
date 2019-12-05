@@ -15,5 +15,5 @@ urlpatterns = [
     path('albums/list/', album_list, name='album_list'),
     path('songs/list/', song_list, name='song_list'),
     path('export/', export, name='export'),
-    path('export/album/(?P<album_id>[0-9]+)/$', export_album, name='export_album'),
+    path('export/album/<int:album_id>/', export_album, name='export_album'),
 ]
