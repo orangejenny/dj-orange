@@ -17,8 +17,8 @@
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
             <div class="controls">
-                {% url "export" as export_url %}
-                {% include "rhyme/partials/export_action.html" with url=export_url %}
+                {% block controls %}
+                {% endblock controls %}
             </div>
             <ul class="nav navbar-nav">
                 <li>
@@ -41,4 +41,5 @@
         {% block content %}{% endblock %}
     </div>
     {% block templates %}{% endblock %}
+    {% block modals %}{% endblock %}
 {% endblock body %}

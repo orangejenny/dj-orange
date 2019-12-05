@@ -1,5 +1,10 @@
 {% extends 'rhyme/base.html' %}
 
+{% block controls %}{{ block.super }}
+    {% url "export" as export_url %}
+    {% include "rhyme/partials/export_action.html" with url=export_url %}
+{% endblock controls %}
+
 {% block content %}
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
     <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-template="#song-row">
