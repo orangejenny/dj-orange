@@ -1,3 +1,18 @@
-<a class="btn btn-info btn-sm" href="{{ url }}">
-    <i class="fa fa-cloud-download"></i> Export
-</a>
+<div class="dropdown export-dropdown pull-right">
+    <button class="btn btn-info btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <span class="fas fa-cloud-download-alt"></span>
+        Export
+        <span class="caret"></span>
+    </button>
+
+    <ul class="dropdown-menu">
+        {% for config in EXPORT_PATHS %}
+            <li>
+                <a href='#' data-name='{{ config.name }}'>
+                    <i class="fas {{ config.icon }}"></i>
+                    {{ config.name|title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

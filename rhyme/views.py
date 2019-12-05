@@ -1,6 +1,7 @@
 from datetime import datetime
 import random
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
@@ -11,6 +12,12 @@ from django.views.decorators.http import require_GET
 from rhyme.models import Album, Color, Song, SongTag, Track
 
 
+def _rhyme_context():
+    return {
+        "EXPORT_PATHS": settings.RHYME_EXPORT_PATHS,
+    }
+
+
 @require_GET
 @login_required
 def index(request):
@@ -18,6 +25,7 @@ def index(request):
     template = loader.get_template('rhyme/songs.html')
     context = {
         'color': random.choice(colors),
+        **_rhyme_context(),
     }
     return HttpResponse(template.render(context, request))
 
@@ -51,7 +59,7 @@ def song_list(request):
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(_rhyme_context(), request))
 
 
 @require_GET

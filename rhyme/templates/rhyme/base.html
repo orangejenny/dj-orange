@@ -16,7 +16,7 @@
     <div class="navbar-container">
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
-            <div class="pull-right">
+            <div class="controls">
                 {% url "export" as export_url %}
                 {% include "rhyme/partials/export_action.html" with url=export_url %}
             </div>
