@@ -1,0 +1,2 @@
+class ExportConfigNotFoundException(Exception):
+    pass

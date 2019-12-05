@@ -6,9 +6,9 @@
     </button>
 
     <ul class="dropdown-menu">
-        {% for config in EXPORT_PATHS %}
+        {% for config in RHYME_EXPORT_CONFIGS %}
             <li>
-                <a href='#' data-name='{{ config.name }}'>
+                <a href='{{ url }}?config={{ config.name }}'>
                     <i class="fas {{ config.icon }}"></i>
                     {{ config.name|title }}
                 </a>

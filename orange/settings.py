@@ -113,7 +113,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-RHYME_EXPORT_PATHS = [
+RHYME_EXPORT_CONFIGS = [
     {
         "name": "home",
         "icon": "kiwi-bird",
