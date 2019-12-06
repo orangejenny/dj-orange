@@ -71,7 +71,7 @@ $(function () {
         var data = {};
         var $modal = $("#new-album");
         var $header = $modal.find(".modal-header");
-        var $name = $header.find("[name='name']");
+        var $name = $header.find("[name='album_name']");
         if (!$name.val()) {
             alert("Missing name");
             $name.focus();
@@ -82,7 +82,7 @@ $(function () {
             ISMIX: $header.find("input[type='checkbox']").attr("checked"),
             SONGS: [],
         };
-        var attributes = ['name', 'artist', 'minutes', 'seconds'];
+        var attributes = ['song_name', 'artist', 'minutes', 'seconds'];
         $modal.find(".song:visible").each(function() {
             var values = {};
             for (var i = 0; i < attributes.length; i++) {
@@ -100,13 +100,6 @@ $(function () {
             args.SONGS.push(values);
         });
         $(this).attr("disabled", true);
-        // TODO
-        CallRemote({
-            SUB: 'Flavors::Data::album::Add',
-            ARGS: args,
-            FINISH: function() {
-                location.reload();
-            }
-        });
+        $(this).closest("form").submit();
     });
 });

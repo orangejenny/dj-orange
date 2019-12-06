@@ -2,12 +2,15 @@ from datetime import datetime
 import random
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Album, Color, Song, SongTag, Track
@@ -64,6 +67,7 @@ def albums(request):
 
 
 @require_GET
+@login_required
 def album_list(request):
     page = int(request.GET['page'])
     albums_per_page = 25        # TODO: this makes the last row not full depending on screen size
@@ -109,6 +113,30 @@ def _format_date(date):
     if not date:
         return ""
     return date.strftime("%b %d, %Y")
+
+
+@require_POST
+@login_required
+def new_album(request):
+    with transaction.atomic():
+        album_name = request.POST.get('album_name')
+        album = Album(name=album_name, is_mix=bool(request.POST.get('is_mix')), date_acquired=datetime.now())
+        album.save()
+        song_names = request.POST.getlist('song_name')
+        artists = request.POST.getlist('artist')
+        minutes = request.POST.getlist('minutes')
+        seconds = request.POST.getlist('seconds')
+        ordinal = 1
+        for index in range(len(song_names)):
+            if songs_names[index]:
+                time = minutes[index] * 60 + seconds[index]
+                song = Song(name=song_names[index], artist=artists[index], time=time)
+                song.save()
+                track = Track(song=song, album=album, ordinal=ordinal)
+                track.save()
+                ordinal += 1
+    messages.success(request, f"Album '{album_name}' created.")
+    return redirect(reverse("albums"))
 
 
 @require_GET

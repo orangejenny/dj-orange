@@ -102,7 +102,7 @@ class ColorImporter(Importer):
 
 
 class SongImporter(Importer):
-    fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'filename'])
+    fields = set(['id', 'name', 'artist', 'time', 'rating', 'mood', 'energy', 'isstarred', 'filename'])
 
     @property
     def query(self):
@@ -113,9 +113,12 @@ class SongImporter(Importer):
 
     def import_item(self, item, save=False):
         (song, created) = Song.objects.get_or_create(id=item['id'])
-        for field in self.fields.difference('isstarred'):
+        for field in self.fields.difference(['isstarred', 'time']):
             setattr(song, field, item[field])
         song.isstarred = bool(item['isstarred'])
+        if item['time']:
+            minutes, seconds = item['time'].split(":")
+            song.time = 60 * int(minutes or 0) + int(seconds or 0)
         self.log("Importing {}".format(song))
         if save:
             song.save()

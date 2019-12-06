@@ -16,6 +16,7 @@ class Song(models.Model):
     mood = models.IntegerField(null=True)
     energy = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
+    time = models.IntegerField(null=True)
 
     class Meta:
         ordering = ['-id']
