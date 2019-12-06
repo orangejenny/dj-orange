@@ -115,7 +115,7 @@ class SongImporter(Importer):
         (song, created) = Song.objects.get_or_create(id=item['id'])
         for field in self.fields.difference('isstarred'):
             setattr(song, field, item[field])
-        song.isstarred = bool(item['isstarred'])
+        song.starred = bool(item['isstarred'])
         self.log("Importing {}".format(song))
         if save:
             song.save()

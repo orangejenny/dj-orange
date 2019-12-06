@@ -1,0 +1,63 @@
+@import "base.less";
+
+#song-table {
+    tr {
+        td {
+            border: none;
+            vertical-align: middle;
+
+            &:not(:first-child) {
+                border-bottom: 1px solid @greyLightest;
+            }
+
+            &:last-child {
+                width: 35%;
+            }
+
+            &[contenteditable="true"] {
+                cursor: pointer;
+            }
+
+            &.icon-cell {
+                width: @fontSizeDefault + @spacingNarrow * 2;
+                color: @greyLight;
+                background-color: @backgroundColor;
+                border: none;
+
+                .far, .fas {
+                    cursor: pointer;
+                }
+            }
+            &.is-starred {
+                text-align: right;
+
+                .fas {
+                    &.fa-star {
+                        color: @grey;
+                    }
+
+                    &.update-in-progress {
+                        background-color: @white;
+                        color: @updateInProgressColor;
+                    }
+                }
+            }
+
+            &.has-lyrics .fas {
+                color: @grey;
+            }
+
+            &.rating {
+                width: @fontSizeDefault * 5 + @spacingNarrow * 2;
+                .fas {
+                    margin-left: -1px;    // cram icons together horizontally
+                }
+            }
+
+            &.tags {
+                min-width: 20%;
+            }
+        }
+    }
+}
+
