@@ -57,7 +57,7 @@ class Importer(object):
 
 
 class AlbumImporter(Importer):
-    fields = set(['id', 'name', 'created'])
+    fields = set(['id', 'name', 'created', 'ismix'])
 
     @property
     def query(self):
@@ -67,15 +67,18 @@ class AlbumImporter(Importer):
         return super(AlbumImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        album = Album(name=item['name'])
-        album.id = item['id']
-        self.log("Importing {}".format(album))
+        (album, created) = Album.objects.get_or_create(id=item['id'])
+        album.name = item['name']
         if item['created']:
             album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
+        if item['ismix']:
+            album.is_mix = True
+
+        self.log("Importing {}".format(album))
         if save:
-            if Album.objects.filter(id=album.id).exists():
-                Album.objects.get(id=album.id).delete()
             album.save()
+        elif created:
+            album.delete()
 
 
 class ColorImporter(Importer):
@@ -89,12 +92,13 @@ class ColorImporter(Importer):
         return super(ColorImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        color = Color(name=item['name'], hex_code=item['hex'], white_text=bool(int(item['whitetext'] or 0)))
+        (color, created) = Color.objects.get_or_create(name=item['name'])
+        color.hex_code = item['hex']
+        color.white_text = bool(int(item['whitetext'] or 0))
         if save:
-            existing_color = Color.objects.filter(name=color.name).first()
-            if existing_color:
-                existing_color.delete()
             color.save()
+        elif created:
+            color.delete()
 
 
 class SongImporter(Importer):
@@ -108,15 +112,15 @@ class SongImporter(Importer):
         return super(SongImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        song = Song()
+        (song, created) = Song.objects.get_or_create(id=item['id'])
         for field in self.fields.difference('isstarred'):
             setattr(song, field, item[field])
         song.isstarred = bool(item['isstarred'])
         self.log("Importing {}".format(song))
         if save:
-            if Song.objects.filter(id=song.id).exists():
-                Song.objects.get(id=song.id).delete()
             song.save()
+        elif created:
+            song.delete()
 
 
 class TagImporter(Importer):
@@ -134,21 +138,20 @@ class TagImporter(Importer):
         return super(TagImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        tag = Tag.objects.filter(name=item['tag']).first()
-        if tag:
-            tag.category = item['category']
-        else:
-            tag = Tag(name=item['tag'], category=item['category'])
+        (tag, tag_created) = Tag.objects.get_or_create(name=item['tag'])
+        tag.category = item['category']
         self.log("Importing {}".format(tag))
-        if save:
-            tag.save()
         song = Song.objects.get(id=item['songid'])
-        song_tag = SongTag(song=song, tag=tag)
+        (song_tag, song_tag_created) = SongTag.objects.get_or_create(song=song, tag=tag)
         self.log("Importing {}".format(song_tag))
         if save:
-            if SongTag.objects.filter(song=song, tag=tag).exists():
-                SongTag.objects.get(song=song, tag=tag).delete()
+            tag.save()
             song_tag.save()
+        else:
+            if tag_created:
+                tag.delete()
+            if song_tag_created:
+                song_tag.delete()
 
 
 class TrackImporter(Importer):
@@ -165,15 +168,12 @@ class TrackImporter(Importer):
         try:
             album = Album.objects.get(id=item['collectionid'])
             song = Song.objects.get(id=item['songid'])
-            track = Track(album=album, song=song, ordinal=item['tracknumber'])
-            if not track.ordinal:
-                # TODO: fix data issue
-                return
+            (track, created) = Track.objects.get_or_create(album=album, song=song, ordinal=item['tracknumber'])
             self.log("Importing {}".format(track))
             if save:
-                if Track.objects.filter(album=album, song=song).exists():
-                    Track.objects.get(album=album, song=song).delete()
                 track.save()
+            elif created:
+                track.delete()
         except Album.DoesNotExist as e:
             # TODO: fix data issue
             self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(item['tracknumber'], item['collectionid'], item['songid']))
