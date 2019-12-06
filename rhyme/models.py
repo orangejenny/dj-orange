@@ -72,6 +72,7 @@ class Album(models.Model):
     export_count = models.IntegerField(default=0)
     last_export = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
+    is_mix = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
