@@ -3,7 +3,7 @@
 {% block content %}
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
     <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-template="#song-row">
-        <table id="song-table" class="table table-striped table-condensed table-hover">
+        <table class="song-table table table-striped table-condensed table-hover">
             <thead>
                 <th>&nbsp;</th>
                 <th>Name</th>
@@ -21,7 +21,7 @@
 
 {% block templates %}
     <script type="text/html" id="song-row">
-        <tr>
+        <tr data-song-id="<%= id %>">
             <td class="icon-cell is-starred">
                 <i class='<% if (starred) { %>fas<% } else { %>far<% } %> fa-star'></i>
             </td>

@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import reverse
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Album, Color, Song, SongTag, Track
@@ -43,6 +43,7 @@ def song_list(request):
     context = {
         'count': Song.objects.count(),
         'items': [{
+            'id': s.id,
             'name': s.name,
             'artist': s.artist,
             'rating': s.rating or '',
@@ -54,6 +55,17 @@ def song_list(request):
         } for s in songs],
     }
     return JsonResponse(context)
+
+
+@require_POST
+@login_required
+def song_update(request):
+    song = Song.objects.get(id=request.POST.get("id"))
+    field = request.POST.get("field")
+    value = request.POST.get("value")
+    setattr(song, field, value)
+    song.save()
+    return JsonResponse({"success": 1})
 
 
 @require_GET
