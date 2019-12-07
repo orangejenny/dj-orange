@@ -1,0 +1,14 @@
+<script type="text/html" id="song-row">
+    <tr data-song-id="<%= id %>">
+        <td class="icon-cell is-starred">
+            <i class='<% if (starred) { %>fas<% } else { %>far<% } %> fa-star'></i>
+        </td>
+        <td><%= name %></td>
+        <td><%= artist %></td>
+        <td><%= albums %></td>
+        <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
+        <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
+        <td><div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
+        <td contenteditable='true' data-field='tags' class='tags'><%= tags.join(" ") %></td>
+    </tr>
+</script>
