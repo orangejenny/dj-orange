@@ -31,7 +31,7 @@
             <td><div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
             <td><div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
             <td><div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
-            <td><%= tags.join(" ") %></td>
+            <td contenteditable='true' data-field='tags' class='tags'><%= tags.join(" ") %></td>
         </tr>
     </script>
 {% endblock templates %}

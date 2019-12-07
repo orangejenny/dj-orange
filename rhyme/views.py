@@ -1,5 +1,6 @@
 from datetime import datetime
 import random
+import re
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Color, Song, SongTag, Track
+from rhyme.models import Album, Color, Song, SongTag, Tag, Track
 
 
 def _rhyme_context():
@@ -63,7 +64,24 @@ def song_update(request):
     song = Song.objects.get(id=request.POST.get("id"))
     field = request.POST.get("field")
     value = request.POST.get("value")
-    setattr(song, field, value)
+
+    if field == 'tags':
+        # TODO: extract into Song model and add test
+        value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
+        new_tags = set(value.split(" "))
+
+        # Delete old tags
+        for song_tag in SongTag.objects.filter(song=song.id):
+            if song_tag.tag.name not in new_tags:
+                song_tag.delete()
+
+        # Add new tags
+        old_tags = set(song.tags())
+        for tag in new_tags.difference(old_tags):
+            (tag, created) = Tag.objects.get_or_create(name=tag)
+            SongTag.objects.create(song=song, tag=tag)
+    else:
+        setattr(song, field, value)
     song.save()
     return JsonResponse({"success": 1})
 

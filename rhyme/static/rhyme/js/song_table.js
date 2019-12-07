@@ -5,7 +5,7 @@ var iconClasses = {
 };
 
 jQuery(document).ready(function() {
-    var selector = "[contenteditable=true][data-key]",
+    var selector = "[contenteditable=true][data-field]",
         $body = $("body"),
         oldValue = undefined;
 
@@ -22,34 +22,33 @@ jQuery(document).ready(function() {
 
     $body.on("blur", selector, function() {
         var $editable = jQuery(this),
-            key = $editable.data("key"),
+            field = $editable.data("field"),
             $container = $editable.closest("[data-song-id]"),
             value = $editable.text().trim();
         if ($editable.hasClass("rating")) {
             value = value.length;
-            $editable.html(ratingHTML(iconClasses[key], value));
+            $editable.html(ratingHTML(iconClasses[field], value));
         }
         if (oldValue != value) {
             var id = $container.data("song-id");
-            var args = {
-                id: id,
-            }
-            args[key] = value;
-            $body.trigger('song-update', {
-                id: id,
-                value: value,
-                oldValue: oldValue,
-                key: key,
-            });
 
             // Update server
             $editable.addClass("update-in-progress");
-            CallRemote({
-                SUB: 'Flavors::Data::Song::Update', 
-                ARGS: args, 
-                FINISH: function(data) {
+            $.ajax({                     // TODO: dry up with $.ajax below?
+                method: 'POST',
+                url: 'songs/update/',    // TODO: client-side reverse
+                data: {
+                    csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
+                    id: id,
+                    field: field,
+                    value: value,
+                },
+                success: function (data) {
                     $editable.removeClass("update-in-progress");
-                }
+                },
+                error: function () {
+                    $editable.addClass("danger");
+                },
             });
         }
         oldValue = undefined;
