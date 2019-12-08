@@ -4,9 +4,9 @@ from rhyme.views import (
     albums,
     album_list,
     export,
-    export_album,
     index,
     song_list,
+    song_update,
 )
 
 urlpatterns = [
@@ -14,6 +14,6 @@ urlpatterns = [
     path('albums/', albums, name='albums'),
     path('albums/list/', album_list, name='album_list'),
     path('songs/list/', song_list, name='song_list'),
+    path('songs/update/', song_update, name='song_update'),
     path('export/', export, name='export'),
-    path('export/album/<int:album_id>/', export_album, name='export_album'),
 ]

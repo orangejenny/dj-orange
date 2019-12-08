@@ -9,7 +9,9 @@
 {% endblock style %}
 
 {% block js %}
+    <script src="/static/rhyme/js/utils.js"></script>
     <script src="/static/rhyme/js/infinite_scroll.js"></script>
+    <script src="/static/rhyme/js/song_table.js"></script>
 {% endblock js %}
 
 {% block body %}
@@ -17,8 +19,8 @@
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
             <div class="controls">
-                {% url "export" as export_url %}
-                {% include "rhyme/partials/export_action.html" with url=export_url %}
+                {# TODO: add handling, for both songs page and albums page #}
+                {% include "rhyme/partials/export_action.html" %}
             </div>
             <ul class="nav navbar-nav">
                 <li>
@@ -40,5 +42,9 @@
     <div class="post-nav">
         {% block content %}{% endblock %}
     </div>
+    {% block modals %}{% endblock %}
     {% block templates %}{% endblock %}
+    <div id="csrf-token">
+        {% csrf_token %}
+    </div>
 {% endblock body %}
