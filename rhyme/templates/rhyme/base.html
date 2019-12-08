@@ -42,6 +42,7 @@
     <div class="post-nav">
         {% block content %}{% endblock %}
     </div>
+    {% block modals %}{% endblock %}
     {% block templates %}{% endblock %}
     <div id="csrf-token">
         {% csrf_token %}

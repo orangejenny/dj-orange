@@ -35,11 +35,17 @@ def index(request):
 @require_GET
 @login_required
 def song_list(request):
-    page = int(request.GET['page'])
-    filters = request.GET['filters']
-    songs_per_page = 20
-    paginator = Paginator(Song.list(filters), songs_per_page)
-    songs = paginator.get_page(page)
+    if request.GET.get("album_id"):
+        album = Album.objects.get(id=request.GET.get("album_id"))
+        songs = album.songs
+        pass
+    else:
+        page = int(request.GET.get('page', 1))
+        filters = request.GET.get('filters')
+        songs_per_page = 20
+        paginator = Paginator(Song.list(filters), songs_per_page)
+        songs = paginator.get_page(page)
+
     count = len(songs)
     context = {
         'count': Song.objects.count(),

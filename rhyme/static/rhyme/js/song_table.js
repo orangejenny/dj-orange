@@ -4,13 +4,13 @@ var iconClasses = {
     'mood': 'fa-heart',
 };
 
-jQuery(document).ready(function() {
+$(document).ready(function() {
     var selector = "[contenteditable=true][data-field]",
         $body = $("body"),
         oldValue = undefined;
 
     $body.on("focus", selector, function() {
-        var $editable = jQuery(this);
+        var $editable = $(this);
         if ($editable.hasClass("rating")) {
             oldValue = $editable.children(".fas:not(.blank)").length;
             $editable.html(StringMultiply("*", oldValue));
@@ -21,7 +21,7 @@ jQuery(document).ready(function() {
     });
 
     $body.on("blur", selector, function() {
-        var $editable = jQuery(this),
+        var $editable = $(this),
             field = $editable.data("field"),
             $container = $editable.closest("[data-song-id]"),
             value = $editable.text().trim();
@@ -36,7 +36,7 @@ jQuery(document).ready(function() {
             $editable.addClass("update-in-progress");
             $.ajax({                     // TODO: dry up with $.ajax below?
                 method: 'POST',
-                url: 'songs/update/',    // TODO: client-side reverse
+                url: '/rhyme/songs/update/',    // TODO: client-side reverse
                 data: {
                     csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
                     id: id,
@@ -54,7 +54,7 @@ jQuery(document).ready(function() {
         oldValue = undefined;
     });
 
-    $(".song-table").on("click", ".icon-cell .fa-star", function() {
+    $("body").on("click", ".song-table .icon-cell .fa-star", function() {
         var $star = $(this);
         toggleStar($star, $star.closest("tr").data("song-id"));
     });
@@ -75,7 +75,7 @@ function toggleStar($star, id, sub) {
     $star.addClass("update-in-progress");
     $.ajax({
         method: 'POST',
-        url: 'songs/update/',    // TODO: client-side reverse
+        url: '/rhyme/songs/update/',    // TODO: client-side reverse
         data: {
             csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
             id: id,
@@ -87,6 +87,43 @@ function toggleStar($star, id, sub) {
         },
         error: function () {
             $star.closest("td").addClass("danger");
+        },
+    });
+}
+
+function showSongModal(song_list_data, callback, title) {
+    var $modal = $("#song-list"),
+        $body = $modal.find(".modal-body");
+    $body.html($("body .loading").clone().removeClass("hide"));
+    $modal.find(".modal-title").text(title || "Songs");
+    $modal.modal();
+    $.ajax({
+        method: 'GET',
+        url: '/rhyme/songs/list/',    // TODO: client-side URLs
+        data: song_list_data,
+        success: function (data) {
+            var $body = $("#song-list .modal-body"),
+                $table = $("<table class='song-table'></table>"),
+                count = 0,
+                songTemplate = _.template($("#song-row").text());
+
+            _.each(data.items, function(song) {
+                $table.append(songTemplate(_.extend(song, {
+                    // TODO: track number
+                    TRACKNUMBER: ++count,
+                    ISSTARREDHTML: "<span class='" + (parseInt(song.ISSTARRED) ? "fas" : "far") + " fa-star'></span>",
+                    RATINGHTML: ratingHTML(iconClasses['rating'], song.RATING),
+                    ENERGYHTML: ratingHTML(iconClasses['energy'], song.ENERGY),
+                    MOODHTML: ratingHTML(iconClasses['mood'], song.MOOD),
+                })));
+            });
+            $body.html($table);
+            if (callback && _.isFunction(callback)) {
+                callback.apply();
+            }
+        },
+        error: {
+            // TODO
         },
     });
 }
