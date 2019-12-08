@@ -118,7 +118,6 @@ def album_list(request):
             "artist": album.artist,
             "cover_art_filename": album.cover_art_filename,
             "export_html": album.export_html,
-            "export_url": reverse("export_album", args=[album.id]),
             "color": {                              # TODO: use jsonpickle instead?
                 "name": color.name,
                 "hex_code": color.hex_code,
@@ -150,20 +149,17 @@ def _format_date(date):
 @require_GET
 @login_required
 def export(request):
+    album_id = request.GET.get('album_id')
+    if album_id:
+        album = Album.objects.get(id=album_id)
+        album.last_export = datetime.now()
+        album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
+        album.save()
+        return _m3u_response(request, album.songs)
     return _m3u_response(request, Song.list())
 
 
-@require_GET
-@login_required
-def export_album(request, album_id):
-    album = Album.objects.get(id=album_id)
-    album.last_export = datetime.now()
-    album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
-    album.save()
-    return _m3u_response(request, album.songs, album.name)
-
-
-def _m3u_response(request, songs, filename="flavors"):
+def _m3u_response(request, songs):
     config_name = request.GET.get("config", None)
     try:
         config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
@@ -172,5 +168,5 @@ def _m3u_response(request, songs, filename="flavors"):
 
     filenames = [config["prefix"] + s.filename for s in songs]
     response = HttpResponse("\n".join(filenames))
-    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(filename)
+    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
     return response

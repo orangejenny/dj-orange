@@ -14,7 +14,7 @@
 {% block templates %}
     {% include "rhyme/partials/song_row.html" %}
     <script type="text/html" id="album-template"><!-- TODO: extract? -->
-        <div data-id="<%= id %>" class="album clearfix">
+        <div class="album clearfix" data-id="<%= id %>">
             <div class="cover-art<% if (!cover_art_filename) { %> missing<% } %>"
                 <% if (color) { %>style="background-color: #<%= color.hex_code %>; color: <% if (color.white_text) { %>white<% } else { %>black<% } %>;"<% } %>>
                 <% if (cover_art_filename) { %>
@@ -68,7 +68,7 @@
                 <div class="modal-header">
                     <h4>
                         <div class="pull-right">
-                            {% include "rhyme/partials/export_action.html" with url="<%= export_url %>" %}{# TODO: support export #}
+                            {% include "rhyme/partials/export_action.html" %}
                         </div>
                         <span class="modal-title"></span>
                     </h4>

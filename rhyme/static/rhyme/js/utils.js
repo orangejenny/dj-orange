@@ -37,3 +37,20 @@ function StringMultiply(string, factor) {
     }
     return returnValue;
 }
+
+function ExportPlaylist(data) {
+    filename = prompt("Playlist name?", data.filename || "rhyme");
+    if (!filename) {
+        return;
+    }
+
+    var params = [];
+    for (var key in data) {
+        var value = data[key] ? encodeURIComponent(data[key]) : '';
+        params.push(key + '=' + value);
+    }
+
+    var url = '/rhyme/export/?' + params.join('&');   // TODO: client-side URL handling
+    console.log(url);
+    document.location = url;
+}
