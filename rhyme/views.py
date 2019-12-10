@@ -23,10 +23,8 @@ def _rhyme_context():
 @require_GET
 @login_required
 def index(request):
-    colors = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey', 'black']
     template = loader.get_template('rhyme/songs.html')
     context = {
-        'color': random.choice(colors),
         **_rhyme_context(),
     }
     return HttpResponse(template.render(context, request))
