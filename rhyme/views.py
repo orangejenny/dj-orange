@@ -72,23 +72,12 @@ def song_update(request):
     value = request.POST.get("value")
 
     if field == 'tags':
-        # TODO: extract into Song model and add test
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
-        new_tags = set(value.split(" "))
-
-        # Delete old tags
-        for song_tag in SongTag.objects.filter(song=song.id):
-            if song_tag.tag.name not in new_tags:
-                song_tag.delete()
-
-        # Add new tags
-        old_tags = set(song.tags())
-        for tag in new_tags.difference(old_tags):
-            (tag, created) = Tag.objects.get_or_create(name=tag)
-            SongTag.objects.create(song=song, tag=tag)
+        tags = value.split(" ")
+        song.save_tags(tags)
     else:
         setattr(song, field, value)
-    song.save()
+        song.save()
     return JsonResponse({"success": 1})
 
 

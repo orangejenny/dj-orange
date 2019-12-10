@@ -34,6 +34,24 @@ class Song(models.Model):
     def __str__(self):
         return "{} ({})".format(self.name, self.artist)
 
+    def save_tags(self, new_tags):
+        dirty = False
+
+        # Delete old tags
+        for song_tag in SongTag.objects.filter(song=self.id):
+            if song_tag.tag.name not in new_tags:
+                song_tag.delete()
+                dirty = True
+
+        # Add new tags
+        for tag in set(new_tags).difference(set(self.tags())):
+            (tag, created) = Tag.objects.get_or_create(name=tag)
+            SongTag.objects.create(song=self, tag=tag)
+            dirty = True
+
+        if dirty:
+            self.save()
+
     @classmethod
     def list(cls, filters=None):
         kwargs = {}
