@@ -5,6 +5,9 @@
 {% endblock js %}
 
 {% block content %}
+    {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
+    {% include 'rhyme/partials/modal_filter_bool.html' with name='Is Mix' lhs='is_mix' %}
+
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
     <div class="infinite-scroll-container" data-url="{% url "album_list" %}" data-template="#album-template">
         <div class="infinite-scroll-data albums clearfix"></div>

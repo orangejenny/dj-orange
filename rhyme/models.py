@@ -6,8 +6,53 @@ import os
 from random import shuffle
 import re
 
-class Song(models.Model):
+
+class FilterMixin():
+    bool_fields = []
+    rating_fields = []
+    text_fields = []
+
+    @classmethod
+    def kwargs_from_filters(cls, filters):
+        kwargs = {}
+        if not filters:
+            return kwargs
+
+        for condition in filters.split("&&"):
+            (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
+            if lhs in cls.bool_fields:
+                kwargs[lhs] = rhs
+            elif lhs in cls.rating_fields:
+                if op == '>=':
+                    lhs = lhs + "__gte"
+                elif op == '<=':
+                    lhs = lhs + "__lte"
+                elif op != '=':
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                kwargs[lhs] = rhs
+            elif lhs in cls.text_fields:
+                if op == '=*':
+                    lhs = lhs + "__icontains"
+                elif op == '=':
+                    lhs = lhs + "__iexact"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                kwargs[lhs] = rhs
+            elif lhs == 'tag':
+                # TODO
+                pass
+            else:
+                raise Exception("Unrecognized lhs {}".format(lhs))
+
+        return kwargs
+
+
+class Song(models.Model, FilterMixin):
     RATING_ATTRIBUTES = ('rating', 'energy', 'mood')
+
+    bool_fields = ['starred']
+    rating_fields = RATING_ATTRIBUTES
+    text_fields = ['name', 'artist']
 
     name = models.CharField(max_length=127)
     artist = models.CharField(max_length=63)
@@ -36,37 +81,13 @@ class Song(models.Model):
 
     @classmethod
     def list(cls, filters=None):
-        kwargs = {}
-        if filters:
-            for condition in filters.split("&&"):
-                (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
-                if lhs in ['starred']:
-                    kwargs[lhs] = rhs
-                elif lhs in ['rating', 'energy', 'mood']:
-                    if op == '>=':
-                        lhs = lhs + "__gte"
-                    elif op == '<=':
-                        lhs = lhs + "__lte"
-                    elif op != '=':
-                        raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                    kwargs[lhs] = rhs
-                elif lhs in ['name', 'artist']:
-                    if op == '=*':
-                        lhs = lhs + "__icontains"
-                    elif op == '=':
-                        lhs = lhs + "__iexact"
-                    else:
-                        raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                    kwargs[lhs] = rhs
-                elif lhs == 'tag':
-                    # TODO
-                    pass
-                else:
-                    raise Exception("Unrecognized lhs {}".format(lhs))
-        return cls.objects.filter(**kwargs)
+        return cls.objects.filter(**cls.kwargs_from_filters(filters))
 
 
-class Album(models.Model):
+class Album(models.Model, FilterMixin):
+    bool_fields = ['is_mix']
+    text_fields = ['name']
+
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
     export_count = models.IntegerField(default=0)
@@ -78,8 +99,8 @@ class Album(models.Model):
         return self.name
 
     @classmethod
-    def list(cls):
-        return cls.objects.all()
+    def list(cls, filters=None):
+        return cls.objects.filter(**cls.kwargs_from_filters(filters))
 
     @property
     def acronym(self):
