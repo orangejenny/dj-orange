@@ -1,0 +1,35 @@
+{% extends 'rhyme/partials/modal_filter_base.html' %}
+
+{% block body%}
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-12"><button class="btn btn-info btn-block" data-op="=" data-rhs="5" data-dismiss="modal">*****</button></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="<=" data-rhs="4" data-dismiss="modal">at most ****</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="=" data-rhs="4" data-dismiss="modal">****</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op=">=" data-rhs="4" data-dismiss="modal">at least ****</button></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="<=" data-rhs="3"data-dismiss="modal">at most ***</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="=" data-rhs="3" data-dismiss="modal">***</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op=">=" data-rhs="3" data-dismiss="modal">at least ***</button></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="<=" data-rhs="2" data-dismiss="modal">at most **</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op="=" data-rhs="2" data-dismiss="modal">**</button></div>
+            <div class="col-sm-4"><button class="btn btn-info btn-block" data-op=">=" data-rhs="2" data-dismiss="modal">at least **</button></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-12"><button class="btn btn-info btn-block" data-op="=" data-rhs="1" data-dismiss="modal">*</button></div>
+        </div>
+    </div>
+{% endblock %}
