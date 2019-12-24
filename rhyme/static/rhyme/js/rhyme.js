@@ -61,10 +61,9 @@ function rhymeModel (options) {
         $.ajax({
             method: 'GET',
             url: self.url,
-            data: {
+            data: _.extend({
                 page: page,
-                filters: self.serializeFilters(),
-            },
+            }, self.serializeFilters()),
             success: function(data) {
                 self.isLoading(false);
                 self.count(data.count);
@@ -100,15 +99,18 @@ function rhymeModel (options) {
     };
 
     self.serializeFilters = function () {
-        return _.map(self.filters(), function(f) { return f.serialize() }).join("&&");
+        return {
+            album_filters: _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&"),
+            song_filters: _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join("&&"),
+        };
     };
 
     self.exportPlaylist = function (config) {
-        ExportPlaylist({
+        ExportPlaylist(_.extend({
             config: config,
             filters: self.serializeFilters(),
             model: self.model,
-        });
+        }, self.serializeFilters()));
     };
 
     self.showModal = function () {

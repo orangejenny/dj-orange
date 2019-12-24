@@ -39,7 +39,7 @@ class FilterMixin():
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
                 kwargs[lhs] = rhs
             elif lhs == 'tag':
-                # TODO
+                # TODO: tag filtering
                 pass
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
@@ -99,8 +99,25 @@ class Album(models.Model, FilterMixin):
         return self.name
 
     @classmethod
-    def list(cls, filters=None):
-        return cls.objects.filter(**cls.kwargs_from_filters(filters))
+    def list(cls, album_filters=None, song_filters=None):
+        album_queryset = cls.objects.filter(**cls.kwargs_from_filters(album_filters)) if album_filters else None
+        if song_filters:
+            track_queryset = Track.objects.filter(song__in=Song.list(song_filters))
+            album_ids_for_tracks = track_queryset.values_list('album_id', flat=True)
+        else:
+            album_ids_for_tracks = None
+
+        if album_queryset and album_ids_for_tracks:
+            album_ids = set(album_queryset.values_list('id', flat=True))
+            return cls.objects.filter(id__in=album_ids.intersection(album_ids_for_tracks))
+
+        if album_queryset:
+            return album_queryset
+
+        if album_ids_for_tracks:
+            return cls.objects.filter(id__in=album_ids_for_tracks)
+
+        return cls.objects.all()
 
     @property
     def acronym(self):

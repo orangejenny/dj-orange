@@ -43,7 +43,7 @@ def song_list(request):
         count = len(songs)
     else:
         page = int(request.GET.get('page', 1))
-        filters = request.GET.get('filters')
+        filters = request.GET.get('song_filters')
         songs_per_page = 20
         songs = Song.list(filters)
         count = songs.count()
@@ -105,9 +105,11 @@ def albums(request):
 @require_GET
 def album_list(request):
     page = int(request.GET['page'])
-    filters = request.GET.get('filters')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
     albums_per_page = 25
-    album_queryset = Album.list(filters)
+    album_queryset = Album.list(album_filters, song_filters)
+    # TODO: when albums are filtered and the user scrolls, the paginator keeps re-fetching page 1
     paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
     for album in paginator.get_page(page):
@@ -162,9 +164,10 @@ def album_export(request):
         album.save()
         return _m3u_response(request, album.songs)
 
-    filters = request.GET.get('filters')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
     songs = []
-    for album in Album.list(filters):
+    for album in Album.list(album_filters, song_filters):       # TODO: update last_export and export_count
         songs += album.songs
     return _m3u_response(request, songs)
 
@@ -172,7 +175,7 @@ def album_export(request):
 @require_GET
 @login_required
 def song_export(request):
-    filters = request.GET.get('filters')
+    filters = request.GET.get('song_filters')
     return _m3u_response(request, Song.list(filters))
 
 
