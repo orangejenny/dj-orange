@@ -2,13 +2,13 @@
 
 {% block content %}
     <div class="item-page" data-url="{% url "song_list" %}">
-        {% include 'rhyme/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
-        {% include 'rhyme/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
-        {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
-        {% include 'rhyme/partials/modal_filter_rating.html' with name='Rating' lhs='rating' icon='star' %}
-        {% include 'rhyme/partials/modal_filter_rating.html' with name='Energy' lhs='energy' icon='fire' %}
-        {% include 'rhyme/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' icon='heart' %}
-        {% include 'rhyme/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Tag' lhs='tag' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Artist' lhs='artist' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Name' lhs='name' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Rating' lhs='rating' icon='star' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Energy' lhs='energy' icon='fire' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Mood'  lhs='mood' icon='heart' %}
+        {% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' lhs='starred' %}
 
         {% include "rhyme/partials/item_page_filters.html" %}
         {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}

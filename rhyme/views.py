@@ -153,7 +153,7 @@ def _format_date(date):
 
 @require_GET
 @login_required
-def export(request):
+def album_export(request):
     album_id = request.GET.get('album_id')
     if album_id:
         album = Album.objects.get(id=album_id)
@@ -161,8 +161,18 @@ def export(request):
         album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
         album.save()
         return _m3u_response(request, album.songs)
-    else:
-        filters = request.GET.get('filters')
+
+    filters = request.GET.get('filters')
+    songs = []
+    for album in Album.list(filters):
+        songs += album.songs
+    return _m3u_response(request, songs)
+
+
+@require_GET
+@login_required
+def song_export(request):
+    filters = request.GET.get('filters')
     return _m3u_response(request, Song.list(filters))
 
 

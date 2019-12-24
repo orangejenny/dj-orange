@@ -1,5 +1,5 @@
 function filterModel (options) {
-    AssertArgs(options, ['lhs', 'op', 'rhs']);
+    AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
 
     self.serialize = function () {
@@ -17,6 +17,7 @@ function AlbumModel(options) {
             config: config,
             album_id: self.id,
             filename: self.name,
+            model: 'album',
         });
     };
 
@@ -28,10 +29,11 @@ function SongModel(options) {
 }
 
 function rhymeModel (options) {
-    AssertArgs(options, ['itemModel', 'url']);
+    AssertArgs(options, ['model', 'url']);
 
     var self = {};
 
+    self.model = options.model;
     self.url = options.url;
     self.page = ko.observable(1);
     self.allowScroll = ko.observable(true);
@@ -68,7 +70,7 @@ function rhymeModel (options) {
                 self.count(data.count);
 
                 if (page === 1) {
-                    self.items(_.map(data.items, options.itemModel));
+                    self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
                     //$postNav.scrollTop(0);    // TODO
                 } else {
                     self.items(self.items().concat(data.items));
@@ -78,8 +80,9 @@ function rhymeModel (options) {
         });
     };
 
-    self.addFilter = function (lhs, op, rhs) {
+    self.addFilter = function (model, lhs, op, rhs) {
         self.filters.push(filterModel({
+            model: model,
             lhs: lhs,
             op: op,
             rhs: rhs,
@@ -104,6 +107,7 @@ function rhymeModel (options) {
         ExportPlaylist({
             config: config,
             filters: self.serializeFilters(),
+            model: self.model,
         });
     };
 
@@ -156,7 +160,7 @@ $(function() {
     }
 
     var model = rhymeModel({
-        itemModel: document.location.href.indexOf("albums") == -1 ? SongModel : AlbumModel,
+        model: document.location.href.indexOf("albums") == -1 ? 'song' : 'album',
         url: $itemPage.data("url"),
     });
     ko.applyBindings(model);

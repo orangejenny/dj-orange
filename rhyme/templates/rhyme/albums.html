@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class="item-page" data-url="{% url "album_list" %}">
-        {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
-        {% include 'rhyme/partials/modal_filter_bool.html' with name='Is Mix' lhs='is_mix' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with model='album' name='Name' lhs='name' %}
+        {% include 'rhyme/partials/modal_filter_bool.html' with model='album' name='Is Mix' lhs='is_mix' %}
 
         {% include "rhyme/partials/item_page_filters.html" %}
         {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}

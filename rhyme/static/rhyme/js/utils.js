@@ -54,7 +54,7 @@ function ExportPlaylist(data) {
         params.push(key + '=' + value);
     }
 
-    var url = reverse('export') + '?' + params.join('&');
+    var url = reverse(data.model === "album" ? 'album_export' : 'song_export') + '?' + params.join('&');
     console.log(url);
     document.location = url;
 }
