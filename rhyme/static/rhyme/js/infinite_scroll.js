@@ -134,11 +134,7 @@ $(function() {
     var model = itemPageModel({
         url: $itemPage.data("url"),
     });
-    koApplyBindings(model, $itemPage);
-    var $modal = $("#song-list");
-    if ($modal.length) {
-        koApplyBindings(model, $modal);
-    }
+    ko.applyBindings(model);
 
     $itemPage.scroll(function(e) {
         var overflowHeight = $itemPage.find(".infinite-scroll-container").height() - $itemPage.height()

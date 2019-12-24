@@ -58,10 +58,3 @@ function ExportPlaylist(data) {
     console.log(url);
     document.location = url;
 }
-
-function koApplyBindings(model, $el) {
-    if (!$el.length) {
-        throw new Error("No element passed to koApplyBindings");
-    }
-    ko.applyBindings(model, $el.get(0));
-}
