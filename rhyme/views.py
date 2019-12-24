@@ -106,7 +106,7 @@ def albums(request):
 def album_list(request):
     page = int(request.GET['page'])
     filters = request.GET.get('filters')
-    albums_per_page = 25        # TODO: this makes the last row not full depending on screen size
+    albums_per_page = 25
     album_queryset = Album.list(filters)
     paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
