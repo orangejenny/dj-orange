@@ -14,6 +14,10 @@
         <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
             {% include "rhyme/partials/album.html" %}
         </div>
+        <p class='loading text-center' data-bind='visible: isLoading'>
+            <i class='fas fa-spinner fa-spin'></i>
+            Loading...
+        </p>
     </div>
 {% endblock content %}
 

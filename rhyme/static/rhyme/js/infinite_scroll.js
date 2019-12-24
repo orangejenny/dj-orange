@@ -20,6 +20,7 @@ function itemPageModel(options) {
     self.items = ko.observableArray();
     self.filters = ko.observableArray();
     self.count = ko.observable(0);
+    self.isLoading = ko.observable(true);
 
     self.modalTitle = ko.observable('Songs');
     self.modalSongs = ko.observableArray();
@@ -36,8 +37,7 @@ function itemPageModel(options) {
 
     self.goToPage = function (page) {
         self.allowScroll(false);
-        // TODO
-        //var $loading = $("<p class='loading text-center'><i class='fas fa-spinner fa-spin'></i> Loading...</p>");
+        self.isLoading(true);
         $.ajax({
             method: 'GET',
             url: self.url,
@@ -46,8 +46,7 @@ function itemPageModel(options) {
                 filters: self.serializeFilters(),
             },
             success: function(data) {
-                // TODO
-                //$loading.remove();
+                self.isLoading(false);
                 self.count(data.count);
 
                 if (page === 1) {

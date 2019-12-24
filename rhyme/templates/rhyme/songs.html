@@ -28,5 +28,9 @@
                 {% include "rhyme/partials/song_row.html" %}
             </tbody>
         </table>
+        <p class='loading text-center' data-bind='visible: isLoading'>
+            <i class='fas fa-spinner fa-spin'></i>
+            Loading...
+        </p>
     </div>
 {% endblock content %}
