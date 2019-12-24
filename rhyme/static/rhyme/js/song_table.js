@@ -34,9 +34,9 @@ $(document).ready(function() {
 
             // Update server
             $editable.addClass("update-in-progress");
-            $.ajax({                     // TODO: dry up with $.ajax below?
+            $.ajax({
                 method: 'POST',
-                url: '/rhyme/songs/update/',    // TODO: client-side reverse
+                url: reverse('song_update'),
                 data: {
                     csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
                     id: id,
@@ -75,7 +75,7 @@ function toggleStar($star, id, sub) {
     $star.addClass("update-in-progress");
     $.ajax({
         method: 'POST',
-        url: '/rhyme/songs/update/',    // TODO: client-side reverse
+        url: reverse('song_update'),
         data: {
             csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
             id: id,
@@ -87,43 +87,6 @@ function toggleStar($star, id, sub) {
         },
         error: function () {
             $star.closest("td").addClass("danger");
-        },
-    });
-}
-
-function showSongModal(song_list_data, callback, title) {
-    var $modal = $("#song-list"),
-        $body = $modal.find(".modal-body");
-    $body.html($("body .loading").clone().removeClass("hide"));
-    $modal.find(".modal-title").text(title || "Songs");
-    $modal.modal();
-    $.ajax({
-        method: 'GET',
-        url: '/rhyme/songs/list/',    // TODO: client-side URLs
-        data: song_list_data,
-        success: function (data) {
-            var $body = $("#song-list .modal-body"),
-                $table = $("<table class='song-table'></table>"),
-                count = 0,
-                songTemplate = _.template($("#song-row").text());
-
-            _.each(data.items, function(song) {
-                $table.append(songTemplate(_.extend(song, {
-                    // TODO: track number
-                    TRACKNUMBER: ++count,
-                    ISSTARREDHTML: "<span class='" + (parseInt(song.ISSTARRED) ? "fas" : "far") + " fa-star'></span>",
-                    RATINGHTML: ratingHTML(iconClasses['rating'], song.RATING),
-                    ENERGYHTML: ratingHTML(iconClasses['energy'], song.ENERGY),
-                    MOODHTML: ratingHTML(iconClasses['mood'], song.MOOD),
-                })));
-            });
-            $body.html($table);
-            if (callback && _.isFunction(callback)) {
-                callback.apply();
-            }
-        },
-        error: {
-            // TODO
         },
     });
 }

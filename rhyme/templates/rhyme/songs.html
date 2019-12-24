@@ -1,9 +1,12 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
+    {% include "rhyme/partials/song_filters.html" %}
+    {% include "rhyme/partials/item_page_filters.html" %}
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
-    <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-template="#song-row">
-        <table class="song-table table table-striped table-condensed table-hover">
+
+    <div class="item-page" data-url="{% url "song_list" %}">
+        <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
             <thead>
                 <th>&nbsp;</th>
                 <th>Name</th>
@@ -14,11 +17,13 @@
                 <th>Mood</th>
                 <th>Tags</th>
             </thead>
-            <tbody class="infinite-scroll-data"></tbody>
+            <tbody data-bind="foreach: items">
+                {% include "rhyme/partials/song_row.html" %}
+            </tbody>
         </table>
+        <p class='loading text-center' data-bind='visible: isLoading'>
+            <i class='fas fa-spinner fa-spin'></i>
+            Loading...
+        </p>
     </div>
 {% endblock content %}
-
-{% block templates %}
-    {% include "rhyme/partials/song_row.html" %}
-{% endblock templates %}

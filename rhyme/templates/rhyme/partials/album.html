@@ -1,46 +1,47 @@
-<script type="text/html" id="album-template">
-    <div class="album clearfix" data-id="<%= id %>">
-        <div class="cover-art<% if (!cover_art_filename) { %> missing<% } %>"
-            <% if (color) { %>style="background-color: #<%= color.hex_code %>; color: <% if (color.white_text) { %>white<% } else { %>black<% } %>;"<% } %>>
-            <% if (cover_art_filename) { %>
-                <img src='<%= cover_art_filename %>' />
-            <% } else { %>
-                <div class="acronym-<%= acronym_size %>"><%= acronym %></div>
-            <% } %>
-            <div class="details-background">
-                <div class="details">
-                    <div>Acquired <%= date_acquired %></div>
-                    <%= export_html %><br><br>
-                    <div class="ratings">
-                        <div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.max" icon="star" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.max" icon="fire" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.max" icon="heart" %}</div>
-                        </div>
-                        <div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.avg" icon="star" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.avg" icon="fire" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.avg" icon="heart" %}</div>
-                        </div>
-                        <div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.min" icon="star" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.min" icon="fire" %}</div>
-                            <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.min" icon="heart" %}</div>
-                        </div>
-                        <br>
-                        <% if (completion_text) { %>
-                            <div><%= completion_text %></div>
-                        <% } %>
-                        <div class="tags">
-                            <% _.each(tags, function(tag) { %>
-                                <div><%= tag %></div>
-                            <% }) %>
-                        </div>
+<div class="album clearfix" data-bind="attr: {'data-id': id}, click: $root.showModal">
+    <div class="cover-art"
+         data-bind="
+            css: {'missing': !cover_art_filename},
+            style: {
+                'background-color': '#' + color.hex_code,
+                'color': color.white_text ? 'white' : 'black',
+            },
+         ">
+        <div data-bind="if: cover_art_filename">
+            <img data-bind="attr: {src: cover_art_filename}" />
+        </div>
+        <div data-bind="ifnot: cover_art_filename, class: 'acronym-' + acronym_size">
+            <span data-bind="text: acronym"></span>
+        </div>
+        <div class="details-background">
+            <div class="details">
+                <div>Acquired <span data-bind="text: date_acquired"></span></div>
+                <div data-bind="html: export_html"></div><br><br>
+                <div class="ratings">
+                    <div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.max" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.max" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.max" icon="heart" %}</div>
+                    </div>
+                    <div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.avg" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.avg" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.avg" icon="heart" %}</div>
+                    </div>
+                    <div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.min" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.min" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.min" icon="heart" %}</div>
+                    </div>
+                    <br>
+                    <div data-bind="html: completion_text"></div>
+                    <div class="tags" data-bind="foreach: tags">
+                        <div data-bind="text: $data"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="name"><%= name %></div>
-        <div class="artist"><%= artist %></div>
     </div>
-</script>
+    <div class="name" data-bind="text: name"></div>
+    <div class="artist" data-bind="text: artist"></div>
+</div>

@@ -22,6 +22,10 @@ function AssertArgs(args, required, optional) {
     }
 }
 
+function reverse(name) {
+    return $("#rhyme-urls").find("[data-name='" + name + "']").data("url");
+}
+
 /*
  * StringMultiply
  *
@@ -39,8 +43,8 @@ function StringMultiply(string, factor) {
 }
 
 function ExportPlaylist(data) {
-    filename = prompt("Playlist name?", data.filename || "rhyme");
-    if (!filename) {
+    data.filename = prompt("Playlist name?", data.filename || "rhyme");
+    if (!data.filename) {
         return;
     }
 
@@ -50,7 +54,7 @@ function ExportPlaylist(data) {
         params.push(key + '=' + value);
     }
 
-    var url = '/rhyme/export/?' + params.join('&');   // TODO: client-side URL handling
+    var url = reverse(data.model === "album" ? 'album_export' : 'song_export') + '?' + params.join('&');
     console.log(url);
     document.location = url;
 }

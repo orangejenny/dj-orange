@@ -1,0 +1,7 @@
+<!-- TODO: filters read-only list is ugly -->
+<ul data-bind="foreach: filters">
+    <li>
+        <span data-bind="text: serialize()"></span>
+        <i class="fa fa-times clickable" data-bind="click: $root.removeFilter"></i>
+    </li>
+</ul>

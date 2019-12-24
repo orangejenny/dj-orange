@@ -8,9 +8,10 @@
 {% endblock style %}
 
 {% block js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
     <script src="/static/rhyme/js/utils.js"></script>
-    <script src="/static/rhyme/js/infinite_scroll.js"></script>
     <script src="/static/rhyme/js/song_table.js"></script>
+    <script src="/static/rhyme/js/rhyme.js"></script>
 {% endblock js %}
 
 {% block body %}
@@ -41,9 +42,16 @@
     <div class="post-nav">
         {% block content %}{% endblock %}
     </div>
+
     {% block modals %}{% endblock %}
-    {% block templates %}{% endblock %}
+
     <div id="csrf-token">
         {% csrf_token %}
+    </div>
+
+    <div id="rhyme-urls" class="hidex">
+        {% for name, url in RHYME_URLS.items %}
+            <span data-name="{{ name }}" data-url="{{ url }}"></span>
+        {% endfor %}
     </div>
 {% endblock body %}

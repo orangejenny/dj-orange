@@ -15,8 +15,12 @@ from rhyme.models import Album, Color, Song, SongTag, Tag, Track
 
 
 def _rhyme_context():
+    from rhyme.urls import urlpatterns
     return {
         "RHYME_EXPORT_CONFIGS": settings.RHYME_EXPORT_CONFIGS,
+        "RHYME_URLS": {
+            p.name: reverse(p.name) for p in urlpatterns
+        },
     }
 
 
@@ -36,17 +40,18 @@ def song_list(request):
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
         songs = album.songs
-        pass
+        count = len(songs)
     else:
         page = int(request.GET.get('page', 1))
-        filters = request.GET.get('filters')
+        filters = request.GET.get('song_filters')
         songs_per_page = 20
-        paginator = Paginator(Song.list(filters), songs_per_page)
+        songs = Song.list(filters)
+        count = songs.count()
+        paginator = Paginator(songs, songs_per_page)
         songs = paginator.get_page(page)
 
-    count = len(songs)
     context = {
-        'count': Song.objects.count(),
+        'count': count,
         'items': [{
             'id': s.id,
             'name': s.name,
@@ -100,8 +105,12 @@ def albums(request):
 @require_GET
 def album_list(request):
     page = int(request.GET['page'])
-    albums_per_page = 25        # TODO: this makes the last row not full depending on screen size
-    paginator = Paginator(Album.list().order_by('-date_acquired'), albums_per_page)
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+    albums_per_page = 25
+    album_queryset = Album.list(album_filters, song_filters)
+    # TODO: when albums are filtered and the user scrolls, the paginator keeps re-fetching page 1
+    paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
     for album in paginator.get_page(page):
         color = album.color
@@ -132,7 +141,7 @@ def album_list(request):
             "starred": album.starred,
         })
     context = {
-        'count': Album.objects.count(),
+        'count': album_queryset.count(),
         'items': albums,
     }
     return JsonResponse(context)
@@ -146,7 +155,7 @@ def _format_date(date):
 
 @require_GET
 @login_required
-def export(request):
+def album_export(request):
     album_id = request.GET.get('album_id')
     if album_id:
         album = Album.objects.get(id=album_id)
@@ -154,7 +163,20 @@ def export(request):
         album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
         album.save()
         return _m3u_response(request, album.songs)
-    return _m3u_response(request, Song.list())
+
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+    songs = []
+    for album in Album.list(album_filters, song_filters):       # TODO: update last_export and export_count
+        songs += album.songs
+    return _m3u_response(request, songs)
+
+
+@require_GET
+@login_required
+def song_export(request):
+    filters = request.GET.get('song_filters')
+    return _m3u_response(request, Song.list(filters))
 
 
 def _m3u_response(request, songs):
