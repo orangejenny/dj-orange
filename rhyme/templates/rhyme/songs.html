@@ -1,11 +1,11 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    <div class="item-page" data-url="{% url "song_list" %}">
-        {% include "rhyme/partials/song_filters.html" %}
-        {% include "rhyme/partials/item_page_filters.html" %}
-        {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
+    {% include "rhyme/partials/song_filters.html" %}
+    {% include "rhyme/partials/item_page_filters.html" %}
+    {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
 
+    <div class="item-page" data-url="{% url "song_list" %}">
         <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
             <thead>
                 <th>&nbsp;</th>
