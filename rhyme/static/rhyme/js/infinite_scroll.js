@@ -92,7 +92,7 @@ function itemPageModel(options) {
         // TODO: loading indicator
         $.ajax({
             method: 'GET',
-            url: '/rhyme/songs/list/',    // TODO: client-side URLs
+            url: reverse('song_list'),
             data: {
                 album_id: album.id,
             },

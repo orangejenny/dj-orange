@@ -15,8 +15,12 @@ from rhyme.models import Album, Color, Song, SongTag, Tag, Track
 
 
 def _rhyme_context():
+    from rhyme.urls import urlpatterns
     return {
         "RHYME_EXPORT_CONFIGS": settings.RHYME_EXPORT_CONFIGS,
+        "RHYME_URLS": {
+            p.name: reverse(p.name) for p in urlpatterns
+        },
     }
 
 

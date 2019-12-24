@@ -36,7 +36,7 @@ $(document).ready(function() {
             $editable.addClass("update-in-progress");
             $.ajax({                     // TODO: dry up with $.ajax below?
                 method: 'POST',
-                url: '/rhyme/songs/update/',    // TODO: client-side reverse
+                url: reverse('song_update'),
                 data: {
                     csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
                     id: id,
@@ -75,7 +75,7 @@ function toggleStar($star, id, sub) {
     $star.addClass("update-in-progress");
     $.ajax({
         method: 'POST',
-        url: '/rhyme/songs/update/',    // TODO: client-side reverse
+        url: reverse('song_update'),
         data: {
             csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
             id: id,

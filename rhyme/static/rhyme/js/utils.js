@@ -22,6 +22,10 @@ function AssertArgs(args, required, optional) {
     }
 }
 
+function reverse(name) {
+    return $("#rhyme-urls").find("[data-name='" + name + "']").data("url");
+}
+
 /*
  * StringMultiply
  *
@@ -50,7 +54,7 @@ function ExportPlaylist(data) {
         params.push(key + '=' + value);
     }
 
-    var url = '/rhyme/export/?' + params.join('&');   // TODO: client-side URL handling
+    var url = reverse('export') + '?' + params.join('&');
     console.log(url);
     document.location = url;
 }
