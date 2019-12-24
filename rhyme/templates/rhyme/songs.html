@@ -1,17 +1,19 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    {% include 'rhyme/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
-    {% include 'rhyme/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
-    {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
-    {% include 'rhyme/partials/modal_filter_rating.html' with name='Rating' lhs='rating' %}
-    {% include 'rhyme/partials/modal_filter_rating.html' with name='Energy' lhs='rating' %}
-    {% include 'rhyme/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' %}
-    {% include 'rhyme/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
+    <div class="item-page" data-url="{% url "song_list" %}">
+        {% include 'rhyme/partials/modal_filter_text.html' with name='Tag' lhs='tag' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with name='Artist' lhs='artist' %}
+        {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with name='Rating' lhs='rating' icon='star' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with name='Energy' lhs='energy' icon='fire' %}
+        {% include 'rhyme/partials/modal_filter_rating.html' with name='Mood'  lhs='mood' icon='heart' %}
+        {% include 'rhyme/partials/modal_filter_bool.html' with name='Starred' lhs='starred' %}
 
-    {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
-    <div class="infinite-scroll-container" data-url="{% url "song_list" %}" data-template="#song-row">
-        <table class="song-table table table-striped table-condensed table-hover">
+        {% include "rhyme/partials/item_page_filters.html" %}
+        {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
+
+        <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
             <thead>
                 <th>&nbsp;</th>
                 <th>Name</th>
@@ -22,11 +24,9 @@
                 <th>Mood</th>
                 <th>Tags</th>
             </thead>
-            <tbody class="infinite-scroll-data"></tbody>
+            <tbody data-bind="foreach: items">
+                {% include "rhyme/partials/song_row.html" %}
+            </tbody>
         </table>
     </div>
 {% endblock content %}
-
-{% block templates %}
-    {% include "rhyme/partials/song_row.html" %}
-{% endblock templates %}

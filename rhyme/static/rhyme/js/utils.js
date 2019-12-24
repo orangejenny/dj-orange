@@ -39,8 +39,8 @@ function StringMultiply(string, factor) {
 }
 
 function ExportPlaylist(data) {
-    filename = prompt("Playlist name?", data.filename || "rhyme");
-    if (!filename) {
+    data.filename = prompt("Playlist name?", data.filename || "rhyme");
+    if (!data.filename) {
         return;
     }
 
@@ -53,4 +53,11 @@ function ExportPlaylist(data) {
     var url = '/rhyme/export/?' + params.join('&');   // TODO: client-side URL handling
     console.log(url);
     document.location = url;
+}
+
+function koApplyBindings(model, $el) {
+    if (!$el.length) {
+        throw new Error("No element passed to koApplyBindings");
+    }
+    ko.applyBindings(model, $el.get(0));
 }

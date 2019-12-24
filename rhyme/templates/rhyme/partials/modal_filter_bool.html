@@ -2,9 +2,9 @@
 
 {% block body %}
     <div class="form-group">
-        <button class="btn btn-info btn-block" data-op="=" data-rhs="1" data-dismiss="modal">On</button>
+        <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ lhs }}', '=', 1) }" data-dismiss="modal">On</button>
     </div>
     <div class="form-group">
-        <button class="btn btn-info btn-block" data-op="=" data-rhs="0" data-dismiss="modal">Off</button>
+        <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ lhs }}', '=', 0) }" data-dismiss="modal">Off</button>
     </div>
 {% endblock %}

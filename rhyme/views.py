@@ -36,17 +36,18 @@ def song_list(request):
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
         songs = album.songs
-        pass
+        count = len(songs)
     else:
         page = int(request.GET.get('page', 1))
         filters = request.GET.get('filters')
         songs_per_page = 20
-        paginator = Paginator(Song.list(filters), songs_per_page)
+        songs = Song.list(filters)
+        count = songs.count()
+        paginator = Paginator(songs, songs_per_page)
         songs = paginator.get_page(page)
 
-    count = len(songs)
     context = {
-        'count': Song.objects.count(),
+        'count': count,
         'items': [{
             'id': s.id,
             'name': s.name,
@@ -102,7 +103,8 @@ def album_list(request):
     page = int(request.GET['page'])
     filters = request.GET.get('filters')
     albums_per_page = 25        # TODO: this makes the last row not full depending on screen size
-    paginator = Paginator(Album.list(filters).order_by('-date_acquired'), albums_per_page)
+    album_queryset = Album.list(filters)
+    paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
     for album in paginator.get_page(page):
         color = album.color
@@ -133,7 +135,7 @@ def album_list(request):
             "starred": album.starred,
         })
     context = {
-        'count': Album.objects.count(),
+        'count': album_queryset.count(),
         'items': albums,
     }
     return JsonResponse(context)

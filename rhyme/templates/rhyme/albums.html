@@ -5,19 +5,17 @@
 {% endblock js %}
 
 {% block content %}
-    {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
-    {% include 'rhyme/partials/modal_filter_bool.html' with name='Is Mix' lhs='is_mix' %}
+    <div class="item-page" data-url="{% url "album_list" %}">
+        {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
+        {% include 'rhyme/partials/modal_filter_bool.html' with name='Is Mix' lhs='is_mix' %}
 
-    {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
-    <div class="infinite-scroll-container" data-url="{% url "album_list" %}" data-template="#album-template">
-        <div class="infinite-scroll-data albums clearfix"></div>
+        {% include "rhyme/partials/item_page_filters.html" %}
+        {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
+        <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
+            {% include "rhyme/partials/album.html" %}
+        </div>
     </div>
 {% endblock content %}
-
-{% block templates %}
-    {% include "rhyme/partials/song_row.html" %}
-    {% include "rhyme/partials/album.html" %}
-{% endblock templates %}
 
 {% block modals %}
     <div id="song-list" class="modal">
@@ -28,10 +26,16 @@
                         <div class="pull-right">
                             {% include "rhyme/partials/export_action.html" %}
                         </div>
-                        <span class="modal-title"></span>
+                        <span class="modal-title" data-bind="text: modalTitle"></span>
                     </h4>
                 </div>
-                <div class="modal-body"></div>
+                <div class="modal-body">
+                    <table class='song-table'>
+                        <tbody data-bind="foreach: modalSongs">
+                            {% include "rhyme/partials/song_row.html" %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

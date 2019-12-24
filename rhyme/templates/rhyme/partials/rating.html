@@ -1,1 +1,1 @@
-<% _.each(_.range({{ rating_attribute }} || 5), function () { %>{% if icon %}<span class='fas fa-{{ icon }}<% if (!{{ rating_attribute }}) { %> blank<% } %>'></span>{% else %}*{% endif %}<% }) %>
+<div data-bind="foreach: _.range({{ rating_attribute }} || 5)">{% if icon %}<span class="fas fa-{{ icon }}" data-bind="css: {'blank': !$parent.{{ rating_attribute }}}"></span>{% else %}*{% endif %}</div>

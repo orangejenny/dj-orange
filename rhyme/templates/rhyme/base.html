@@ -8,6 +8,7 @@
 {% endblock style %}
 
 {% block js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
     <script src="/static/rhyme/js/utils.js"></script>
     <script src="/static/rhyme/js/infinite_scroll.js"></script>
     <script src="/static/rhyme/js/song_table.js"></script>
@@ -42,7 +43,6 @@
         {% block content %}{% endblock %}
     </div>
     {% block modals %}{% endblock %}
-    {% block templates %}{% endblock %}
     <div id="csrf-token">
         {% csrf_token %}
     </div>
