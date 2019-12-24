@@ -88,7 +88,6 @@ function rhymeModel (options) {
 
         var $modal = $("#song-list");
         $modal.modal();
-        // TODO: loading indicator
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
