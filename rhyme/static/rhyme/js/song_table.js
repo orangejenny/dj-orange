@@ -34,7 +34,7 @@ $(document).ready(function() {
 
             // Update server
             $editable.addClass("update-in-progress");
-            $.ajax({                     // TODO: dry up with $.ajax below?
+            $.ajax({
                 method: 'POST',
                 url: reverse('song_update'),
                 data: {
