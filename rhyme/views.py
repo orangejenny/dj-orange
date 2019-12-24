@@ -161,7 +161,9 @@ def export(request):
         album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
         album.save()
         return _m3u_response(request, album.songs)
-    return _m3u_response(request, Song.list())
+    else:
+        filters = request.GET.get('filters')
+    return _m3u_response(request, Song.list(filters))
 
 
 def _m3u_response(request, songs):

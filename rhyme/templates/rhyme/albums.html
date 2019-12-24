@@ -1,9 +1,5 @@
 {% extends 'rhyme/base.html' %}
 
-{% block js %}{{ block.super }}
-    <script src="/static/rhyme/js/albums.js"></script>
-{% endblock js %}
-
 {% block content %}
     <div class="item-page" data-url="{% url "album_list" %}">
         {% include 'rhyme/partials/modal_filter_text.html' with name='Name' lhs='name' %}
@@ -22,7 +18,7 @@
 {% endblock content %}
 
 {% block modals %}
-    <div id="song-list" class="modal">
+    <div id="song-list" class="modal" data-bind="with: modalAlbum">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -30,12 +26,12 @@
                         <div class="pull-right">
                             {% include "rhyme/partials/export_action.html" %}
                         </div>
-                        <span class="modal-title" data-bind="text: modalTitle"></span>
+                        <span class="modal-title" data-bind="text: name"></span>
                     </h4>
                 </div>
                 <div class="modal-body">
                     <table class='song-table'>
-                        <tbody data-bind="foreach: modalSongs">
+                        <tbody data-bind="foreach: $root.modalSongs">
                             {% include "rhyme/partials/song_row.html" %}
                         </tbody>
                     </table>

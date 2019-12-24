@@ -9,8 +9,26 @@ function filterModel (options) {
     return self;
 }
 
+function AlbumModel(options) {
+    var self = _.extend({}, options);
+
+    self.exportPlaylist = function (config) {
+        ExportPlaylist({
+            config: config,
+            album_id: self.id,
+            filename: self.name,
+        });
+    };
+
+    return self;
+}
+
+function SongModel(options) {
+    return _.extend({}, options);
+}
+
 function rhymeModel (options) {
-    AssertArgs(options, ['url']);
+    AssertArgs(options, ['itemModel', 'url']);
 
     var self = {};
 
@@ -22,8 +40,8 @@ function rhymeModel (options) {
     self.count = ko.observable(0);
     self.isLoading = ko.observable(true);
 
-    self.modalTitle = ko.observable('Songs');
-    self.modalSongs = ko.observableArray();
+    self.modalAlbum = ko.observable();
+    self.modalSongs = ko.observableArray();     // TODO: move into AlbumModel
 
     self.page.subscribe(function (newValue) {
         self.goToPage(newValue);
@@ -50,7 +68,7 @@ function rhymeModel (options) {
                 self.count(data.count);
 
                 if (page === 1) {
-                    self.items(data.items);
+                    self.items(_.map(data.items, options.itemModel));
                     //$postNav.scrollTop(0);    // TODO
                 } else {
                     self.items(self.items().concat(data.items));
@@ -82,9 +100,16 @@ function rhymeModel (options) {
         return _.map(self.filters(), function(f) { return f.serialize() }).join("&&");
     };
 
+    self.exportPlaylist = function (config) {
+        ExportPlaylist({
+            config: config,
+            filters: self.serializeFilters(),
+        });
+    };
+
     self.showModal = function () {
         var album = this;
-        self.modalTitle(album.name);
+        self.modalAlbum(album);
 
         var $modal = $("#song-list");
         $modal.modal();
@@ -131,6 +156,7 @@ $(function() {
     }
 
     var model = rhymeModel({
+        itemModel: document.location.href.indexOf("albums") == -1 ? SongModel : AlbumModel,
         url: $itemPage.data("url"),
     });
     ko.applyBindings(model);
