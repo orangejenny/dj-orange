@@ -9,7 +9,7 @@ function filterModel (options) {
     return self;
 }
 
-function itemPageModel(options) {
+function rhymeModel (options) {
     AssertArgs(options, ['url']);
 
     var self = {};
@@ -131,7 +131,7 @@ $(function() {
         return;
     }
 
-    var model = itemPageModel({
+    var model = rhymeModel({
         url: $itemPage.data("url"),
     });
     ko.applyBindings(model);
