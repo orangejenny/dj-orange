@@ -9,6 +9,7 @@ $(document).ready(function() {
         $body = $("body"),
         oldValue = undefined;
 
+    // TODO: move to knockout
     $body.on("focus", selector, function() {
         var $editable = $(this);
         if ($editable.hasClass("rating")) {
@@ -20,6 +21,7 @@ $(document).ready(function() {
         }
     });
 
+    // TODO: move to knockout
     $body.on("blur", selector, function() {
         var $editable = $(this),
             field = $editable.data("field"),
