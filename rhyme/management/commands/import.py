@@ -5,7 +5,7 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from rhyme.models import Album, Color, Song, SongTag, Tag, Track
+from rhyme.models import Album, Color, Song, Tag, Track
 
 
 class Importer(object):
@@ -142,16 +142,13 @@ class TagImporter(Importer):
         tag.category = item['category']
         self.log("Importing {}".format(tag))
         song = Song.objects.get(id=item['songid'])
-        (song_tag, song_tag_created) = SongTag.objects.get_or_create(song=song, tag=tag)
-        self.log("Importing {}".format(song_tag))
+        song.tag_set.add(tag)
         if save:
             tag.save()
-            song_tag.save()
+            song.save()
         else:
             if tag_created:
                 tag.delete()
-            if song_tag_created:
-                song_tag.delete()
 
 
 class TrackImporter(Importer):

@@ -70,7 +70,7 @@ class Song(models.Model, FilterMixin):
         return [t.album.name for t in Track.objects.filter(song=self.id)]
 
     def tags(self, category=None):
-        tags = [t.tag.name for t in SongTag.objects.filter(song=self.id)]
+        tags = [t.name for t in self.tag_set.all()]
         if category:
             tags_for_category = [t.name for t in Tag.objects.filter(category=category)]
             tags = list(set(tags).intersection(set(tags_for_category)))
@@ -231,20 +231,10 @@ class Track(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
+    songs = models.ManyToManyField(Song)
 
     def __str__(self):
         return self.name
-
-
-class SongTag(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ("song", "tag")
-
-    def __str__(self):
-        return "{} => {}".format(self.song, self.tag)
 
 
 class Color(models.Model):

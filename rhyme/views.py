@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Color, Song, SongTag, Tag, Track
+from rhyme.models import Album, Color, Song, Tag, Track
 
 
 def _rhyme_context():
@@ -75,20 +75,13 @@ def song_update(request):
     value = request.POST.get("value")
 
     if field == 'tags':
-        # TODO: extract into Song model and add test
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
-        new_tags = set(value.split(" "))
-
-        # Delete old tags
-        for song_tag in SongTag.objects.filter(song=song.id):
-            if song_tag.tag.name not in new_tags:
-                song_tag.delete()
-
-        # Add new tags
-        old_tags = set(song.tags())
-        for tag in new_tags.difference(old_tags):
-            (tag, created) = Tag.objects.get_or_create(name=tag)
-            SongTag.objects.create(song=song, tag=tag)
+        song.tag_set.clear()
+        for name in set(value.split(" ")):
+            (tag, tag_created) = Tag.objects.get_or_create(name=name)
+            song.tag_set.add(tag)
+            if tag_created:
+                tag.save()
     else:
         setattr(song, field, value)
     song.save()
