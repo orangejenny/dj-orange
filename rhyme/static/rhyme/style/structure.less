@@ -45,12 +45,27 @@ body > .loading {
     }
 }
 
-.post-nav .item-page {
-    position: fixed;
-    top: @navHeight + @filterContainerHeight;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    overflow-y: auto;
-    margin: @spacingWide;
+.post-nav {
+    #filter-container {
+        margin-top: @spacingNormal;
+        text-align: center;
+
+        #read-only-filters {
+            margin-top: @spacingNormal;
+        }
+
+        .modal-header {
+            text-align: left;
+        }
+    }
+
+    .item-page {
+        position: fixed;
+        top: @navHeight + @filterContainerHeight;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow-y: auto;
+        margin: @spacingWide;
+    }
 }

@@ -6,13 +6,13 @@
             <div class="col-sm-6">
                 <div class="input-group">
                     <div class="input-group-addon">
-                        is
+                        contains
                     </div>
                     <input class="form-control rhs" />
                 </div>
             </div>
             <div class="col-sm-6">
-                <button class="btn btn-info btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }" data-dismiss="modal">Onward</button>
+                <button class="btn btn-info btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=*', getFilterValue(e)) }" data-dismiss="modal">Onward</button>
             </div>
         </div>
     </div>
@@ -21,13 +21,13 @@
             <div class="col-sm-6">
                 <div class="input-group">
                     <div class="input-group-addon">
-                        like
+                        is
                     </div>
                     <input class="form-control rhs" />
                 </div>
             </div>
             <div class="col-sm-6">
-                <button class="btn btn-info btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=*', getFilterValue(e)) }" data-dismiss="modal">Onward</button>
+                <button class="btn btn-info btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }" data-dismiss="modal">Onward</button>
             </div>
         </div>
     </div>

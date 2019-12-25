@@ -1,10 +1,12 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' lhs='name' %}
-    {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' lhs='is_mix' %}
-    {% include "rhyme/partials/song_filters.html" %}
-    {% include "rhyme/partials/item_page_filters.html" %}
+    <div id="filter-container">
+        {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' lhs='name' %}
+        {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' lhs='is_mix' %}
+        {% include "rhyme/partials/song_filters.html" %}
+        {% include "rhyme/partials/item_page_filters.html" %}
+    </div>
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
 
     <div class="item-page" data-url="{% url "album_list" %}">

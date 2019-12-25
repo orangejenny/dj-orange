@@ -6,6 +6,17 @@ function filterModel (options) {
         return self.lhs + self.op + self.rhs
     };
 
+    self.readOnly = function () {
+        var op = self.op;
+        op = {
+            '=': 'is',
+            '=*': 'contains',
+            '<=': 'at most',
+            '>=': 'at least',
+        }[op] || op;
+        return self.lhs + ' ' + op + ' ' + self.rhs
+    };
+
     return self;
 }
 

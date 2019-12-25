@@ -1,7 +1,8 @@
-<!-- TODO: filters read-only list is ugly -->
-<ul data-bind="foreach: filters">
+<ul id="read-only-filters" class="horizontal" data-bind="foreach: filters">
     <li>
-        <span data-bind="text: serialize()"></span>
-        <i class="fa fa-times clickable" data-bind="click: $root.removeFilter"></i>
+        <span class="label label-info">
+            <span data-bind="text: readOnly()"></span>
+            <i class="fa fa-times clickable" data-bind="click: $root.removeFilter"></i>
+        </span>
     </li>
 </ul>
