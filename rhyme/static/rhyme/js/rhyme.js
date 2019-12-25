@@ -115,6 +115,14 @@ function rhymeModel (options) {
         self.goToPage(1);
     };
 
+    self.focusFilter = function (model, e) {
+        $modal = $(e.target);
+        $modal.find("input").each(function(index, input) {
+            $(input).val('');
+        });
+        $modal.find("input:first").focus();
+    };
+
     self.serializeFilters = function () {
         return {
             album_filters: _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&"),
@@ -184,17 +192,11 @@ $(function() {
     });
     ko.applyBindings(model);
 
+    // TODO: move to knockout
     $itemPage.scroll(function(e) {
         var overflowHeight = $itemPage.find(".infinite-scroll-container").height() - $itemPage.height()
         if ($itemPage.scrollTop() / overflowHeight > 0.8) {
             model.nextPage();
         }
-    });
-
-    // TODO: clear filter inputs
-    $(".filter-modal").on('show.bs.modal', function(e) {
-        $(e.currentTarget).find("input").each(function(index, input) {
-            $(input).val('');
-        });
     });
 });
