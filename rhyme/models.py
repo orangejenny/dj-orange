@@ -21,7 +21,7 @@ class FilterMixin():
         for condition in filters.split("&&"):
             (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
             if lhs in cls.bool_fields:
-                kwargs[lhs] = rhs
+                pass
             elif lhs in cls.rating_fields:
                 if op == '>=':
                     lhs = lhs + "__gte"
@@ -29,7 +29,6 @@ class FilterMixin():
                     lhs = lhs + "__lte"
                 elif op != '=':
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                kwargs[lhs] = rhs
             elif lhs in cls.text_fields:
                 if op == '=*':
                     lhs = lhs + "__icontains"
@@ -37,12 +36,16 @@ class FilterMixin():
                     lhs = lhs + "__iexact"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                kwargs[lhs] = rhs
             elif lhs == 'tag':
-                # TODO: tag filtering
-                pass
+                if op == '=*':
+                    lhs = "tag__name__icontains"
+                elif op == '=':
+                    lhs = "tag__name"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
+            kwargs[lhs] = rhs
 
         return kwargs
 
