@@ -14,7 +14,13 @@ function filterModel (options) {
             '<=': 'at most',
             '>=': 'at least',
         }[op] || op;
-        return self.lhs + ' ' + op + ' ' + self.rhs
+
+        var rhs = self.rhs;
+        if (_.isNaN(parseInt(rhs))) {
+            rhs = '"' + rhs + '"';
+        }
+
+        return self.lhs + ' ' + op + ' ' + rhs;
     };
 
     return self;
