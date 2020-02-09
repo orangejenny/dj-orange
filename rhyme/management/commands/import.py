@@ -172,10 +172,8 @@ class TrackImporter(Importer):
             elif created:
                 track.delete()
         except Album.DoesNotExist as e:
-            # TODO: fix data issue
             self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(item['tracknumber'], item['collectionid'], item['songid']))
         except Song.DoesNotExist as e:
-            # TODO: fix data issue
             self.log("FAIL: Track #{} in {} (tried songid={})".format(item['tracknumber'], album, item['songid']))
 
 
