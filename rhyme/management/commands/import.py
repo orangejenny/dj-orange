@@ -61,7 +61,7 @@ class AlbumImporter(Importer):
 
     @property
     def query(self):
-        return "select {} from flavors_collection".format(", ".join(self.fields))
+        return "select {} from collection".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(AlbumImporter, self).__init__(out)
@@ -86,7 +86,7 @@ class ColorImporter(Importer):
 
     @property
     def query(self):
-        return "select {} from flavors_color".format(", ".join(self.fields))
+        return "select {} from color".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(ColorImporter, self).__init__(out)
@@ -106,7 +106,7 @@ class SongImporter(Importer):
 
     @property
     def query(self):
-        return "select {} from flavors_song".format(", ".join(self.fields))
+        return "select {} from song".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(SongImporter, self).__init__(out)
@@ -124,14 +124,14 @@ class SongImporter(Importer):
 
 
 class TagImporter(Importer):
-    fields = set(['songid', 'flavors_songtag.tag', 'category'])
+    fields = set(['songid', 'songtag.tag', 'category'])
 
     @property
     def query(self):
         return """
-            select {} from flavors_song
-            inner join flavors_songtag on flavors_song.id = flavors_songtag.songid
-            left join flavors_tagcategory on flavors_songtag.tag = flavors_tagcategory.tag
+            select {} from song
+            inner join songtag on song.id = songtag.songid
+            left join tagcategory on songtag.tag = tagcategory.tag
         """.format(", ".join(self.fields))
 
     def __init__(self, out=None):
@@ -156,7 +156,7 @@ class TrackImporter(Importer):
 
     @property
     def query(self):
-        return "select {} from flavors_songcollection".format(", ".join(self.fields))
+        return "select {} from songcollection".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(TrackImporter, self).__init__(out)
