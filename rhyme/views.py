@@ -39,7 +39,8 @@ def index(request):
 def song_list(request):
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
-        tracks = [(track.disc, track.ordinal, track.song) for track in album.tracks]
+        tracks = [(track.disc, track.ordinal, track.song)
+                  for track in album.tracks]
         if album.disc_set.count():
             disc_names = [disc.name for disc in album.disc_set.all()]
         else:

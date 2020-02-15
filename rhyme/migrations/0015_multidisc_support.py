@@ -14,10 +14,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Disc',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('ordinal', models.IntegerField(default=1)),
                 ('name', models.CharField(max_length=255, null=True)),
-                ('album', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='rhyme.Album')),
+                ('album', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='rhyme.Album')),
             ],
         ),
         migrations.AddField(

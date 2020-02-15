@@ -117,18 +117,21 @@ class DiscImporter(Importer):
     def import_item(self, item, save=False):
         try:
             album = Album.objects.get(id=item['collectionid'])
-            (disc, created) = Disc.objects.get_or_create(album=album, name=item['name'], ordinal=item['discnumber'])
+            (disc, created) = Disc.objects.get_or_create(
+                album=album, name=item['name'], ordinal=item['discnumber'])
             self.log("Importing {}".format(disc))
             if save:
                 disc.save()
             elif created:
                 disc.delete()
         except Album.DoesNotExist as e:
-            self.log("FAIL: Disc {}, (tried albumid={})".format(item['name'], item['collectionid']))
+            self.log("FAIL: Disc {}, (tried albumid={})".format(
+                item['name'], item['collectionid']))
 
 
 class SongImporter(Importer):
-    fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'year', 'time', 'filename'])
+    fields = set(['id', 'name', 'artist', 'rating', 'mood',
+                  'energy', 'isstarred', 'year', 'time', 'filename'])
 
     @property
     def query(self):
@@ -196,22 +199,26 @@ class TrackImporter(Importer):
         try:
             album = Album.objects.get(id=item['collectionid'])
             song = Song.objects.get(id=item['songid'])
-            (track, created) = Track.objects.get_or_create(album=album, song=song, disc=item['discnumber'], ordinal=item['tracknumber'])
+            (track, created) = Track.objects.get_or_create(album=album,
+                                                           song=song, disc=item['discnumber'], ordinal=item['tracknumber'])
             self.log("Importing {}".format(track))
             if save:
                 track.save()
             elif created:
                 track.delete()
         except Album.DoesNotExist as e:
-            self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(item['tracknumber'], item['collectionid'], item['songid']))
+            self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(
+                item['tracknumber'], item['collectionid'], item['songid']))
         except Song.DoesNotExist as e:
-            self.log("FAIL: Track #{} in {} (tried songid={})".format(item['tracknumber'], album, item['songid']))
+            self.log("FAIL: Track #{} in {} (tried songid={})".format(
+                item['tracknumber'], album, item['songid']))
 
 
 class Command(BaseCommand):
     models = [
         Importer.ALBUM, Importer.COLOR, Importer.SONG,      # These are indepentdent
-        Importer.DISC, Importer.TAG, Importer.TRACK,        # These depend on songs and/or albums existing
+        # These depend on songs and/or albums existing
+        Importer.DISC, Importer.TAG, Importer.TRACK,
     ]
 
     def create_parser(self, *args, **kwargs):

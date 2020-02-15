@@ -230,7 +230,8 @@ class Album(models.Model, FilterMixin):
         return stats
 
     def tags(self, category=None):
-        tags = list(set([tag for song in self.songs for tag in song.tags(category=category)]))
+        tags = list(
+            set([tag for song in self.songs for tag in song.tags(category=category)]))
         shuffle(tags)
         return tags
 
