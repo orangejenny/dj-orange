@@ -209,7 +209,11 @@ class Album(models.Model, FilterMixin):
 
     @cached_property
     def songs(self):
-        return [track.song for track in self.track_set.all()]
+        return [track.song for track in self.tracks]
+
+    @cached_property
+    def tracks(self):
+        return self.track_set.order_by("disc", "ordinal")
 
     def stats(self):
         songs = self.songs
