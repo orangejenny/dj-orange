@@ -110,9 +110,9 @@ class Album(models.Model, FilterMixin):
     @classmethod
     def list(cls, album_filters=None, song_filters=None):
         if album_filters:
-            objects = cls.objects.all()
+            album_queryset = cls.objects.all()
             for lhs, rhs in cls.kwargs_from_filters(album_filters):
-                objects = objects.filter(**{lhs: rhs})
+                album_queryset = album_queryset.filter(**{lhs: rhs})
         else:
             album_queryset = None
 
@@ -209,7 +209,11 @@ class Album(models.Model, FilterMixin):
 
     @cached_property
     def songs(self):
-        return [track.song for track in self.track_set.all()]
+        return [track.song for track in self.tracks]
+
+    @cached_property
+    def tracks(self):
+        return self.track_set.order_by("disc", "ordinal")
 
     def stats(self):
         songs = self.songs
@@ -226,13 +230,25 @@ class Album(models.Model, FilterMixin):
         return stats
 
     def tags(self, category=None):
-        tags = list(set([tag for song in self.songs for tag in song.tags(category=category)]))
+        tags = list(
+            set([tag for song in self.songs for tag in song.tags(category=category)]))
         shuffle(tags)
         return tags
 
 
+# Only named discs have entries here
+class Disc(models.Model):
+    ordinal = models.IntegerField(default=1)
+    name = models.CharField(max_length=255, null=True)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("ordinal", "album")
+
+
 class Track(models.Model):
     ordinal = models.IntegerField()
+    disc = models.IntegerField(default=1)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
