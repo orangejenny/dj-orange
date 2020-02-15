@@ -5,12 +5,13 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from rhyme.models import Album, Color, Song, Tag, Track
+from rhyme.models import Album, Color, Disc, Song, Tag, Track
 
 
 class Importer(object):
     ALBUM = 'album'
     COLOR = 'color'
+    DISC = 'disc'
     SONG = 'song'
     TAG = 'tag'
     TRACK = 'track'
@@ -47,6 +48,8 @@ class Importer(object):
             return AlbumImporter(out)
         if item_type == cls.COLOR:
             return ColorImporter(out)
+        if item_type == cls.DISC:
+            return DiscImporter(out)
         if item_type == cls.SONG:
             return SongImporter(out)
         if item_type == cls.TAG:
@@ -99,6 +102,29 @@ class ColorImporter(Importer):
             color.save()
         elif created:
             color.delete()
+
+
+class DiscImporter(Importer):
+    fields = set(['collectionid', 'discnumber', 'name'])
+
+    @property
+    def query(self):
+        return "select {} from collectiondisc".format(", ".join(self.fields))
+
+    def __init__(self, out=None):
+        return super(DiscImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        try:
+            album = Album.objects.get(id=item['collectionid'])
+            (disc, created) = Disc.objects.get_or_create(album=album, name=item['name'], ordinal=item['discnumber'])
+            self.log("Importing {}".format(disc))
+            if save:
+                disc.save()
+            elif created:
+                disc.delete()
+        except Album.DoesNotExist as e:
+            self.log("FAIL: Disc {}, (tried albumid={})".format(item['name'], item['collectionid']))
 
 
 class SongImporter(Importer):
@@ -157,7 +183,7 @@ class TagImporter(Importer):
 
 
 class TrackImporter(Importer):
-    fields = set(['songid', 'collectionid', 'tracknumber'])
+    fields = set(['songid', 'collectionid', 'tracknumber', 'discnumber'])
 
     @property
     def query(self):
@@ -170,7 +196,7 @@ class TrackImporter(Importer):
         try:
             album = Album.objects.get(id=item['collectionid'])
             song = Song.objects.get(id=item['songid'])
-            (track, created) = Track.objects.get_or_create(album=album, song=song, ordinal=item['tracknumber'])
+            (track, created) = Track.objects.get_or_create(album=album, song=song, disc=item['discnumber'], ordinal=item['tracknumber'])
             self.log("Importing {}".format(track))
             if save:
                 track.save()
@@ -183,7 +209,10 @@ class TrackImporter(Importer):
 
 
 class Command(BaseCommand):
-    models = [Importer.ALBUM, Importer.COLOR, Importer.SONG, Importer.TAG, Importer.TRACK]
+    models = [
+        Importer.ALBUM, Importer.COLOR, Importer.SONG,      # These are indepentdent
+        Importer.DISC, Importer.TAG, Importer.TRACK,        # These depend on songs and/or albums existing
+    ]
 
     def create_parser(self, *args, **kwargs):
         parser = super(Command, self).create_parser(*args, **kwargs)
