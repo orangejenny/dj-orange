@@ -60,6 +60,7 @@ def song_list(request):
             'energy': s.energy or '',
             'mood': s.mood or '',
             'starred': s.starred,
+            'year': s.year,
             'albums': s.albums,
             'tags': s.tags(),
         } for s in songs],

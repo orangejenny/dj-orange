@@ -1,0 +1,42 @@
+{% extends 'rhyme/partials/modal_filter_base.html' %}
+
+{% block body %}
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        at least
+                    </div>
+                    <input class="form-control rhs" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <button class="btn btn-info btn-block"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '>=', getTimeFilterValue(e)) }"
+                        data-dismiss="modal">
+                    Onward
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        at most
+                    </div>
+                    <input class="form-control rhs" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <button class="btn btn-info btn-block"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '<=', getTimeFilterValue(e)) }"
+                        data-dismiss="modal">
+                    Onward
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
