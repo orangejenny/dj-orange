@@ -28,6 +28,7 @@ function filterModel (options) {
 
 function AlbumModel(options) {
     var self = _.extend({}, options);
+    self.songs = ko.observableArray();
 
     self.exportPlaylist = function (config) {
         ExportPlaylist({
@@ -60,7 +61,6 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
 
     self.modalAlbum = ko.observable();
-    self.modalSongs = ko.observableArray();     // TODO: move into AlbumModel
 
     self.page.subscribe(function (newValue) {
         self.goToPage(newValue);
@@ -160,7 +160,7 @@ function rhymeModel (options) {
                 album_id: album.id,
             },
             success: function (data) {
-                self.modalSongs(data.items);
+                album.songs(data.items);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();
                 $image.css("background-color", "transparent")

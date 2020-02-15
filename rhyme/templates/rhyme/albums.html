@@ -34,7 +34,7 @@
                 </div>
                 <div class="modal-body">
                     <table class='song-table'>
-                        <tbody data-bind="foreach: $root.modalSongs">
+                        <tbody data-bind="foreach: songs">
                             {% include "rhyme/partials/song_row.html" with include_index=True %}
                         </tbody>
                     </table>
