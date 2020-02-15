@@ -8,3 +8,5 @@ files:
     - 'node_modules/*'
 fixers:
   enable: true
+eslint:
+  config: ./.eslintrc.js
