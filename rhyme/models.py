@@ -55,7 +55,7 @@ class Song(models.Model, FilterMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
-    numeric_fields = RATING_ATTRIBUTES + ['time']
+    numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
     text_fields = ['name', 'artist']
 
     name = models.CharField(max_length=127)
