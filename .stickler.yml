@@ -1,6 +1,6 @@
 linters:
   flake8:
-    fixer: true
+    max-line-length: 115
   csslint: {  }
 files:
   ignore:
