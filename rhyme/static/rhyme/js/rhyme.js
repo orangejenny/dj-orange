@@ -61,6 +61,7 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
 
     self.modalAlbum = ko.observable();
+    self.modalDiscs = ko.observableArray();
 
     self.page.subscribe(function (newValue) {
         self.goToPage(newValue);
@@ -150,6 +151,7 @@ function rhymeModel (options) {
     self.showModal = function () {
         var album = this;
         self.modalAlbum(album);
+        self.modalDiscs([]);
 
         var $modal = $("#song-list");
         $modal.modal();
@@ -161,6 +163,7 @@ function rhymeModel (options) {
             },
             success: function (data) {
                 album.songs(data.items);
+                self.modalDiscs(data.disc_names);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();
                 $image.css("background-color", "transparent")

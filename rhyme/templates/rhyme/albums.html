@@ -33,7 +33,17 @@
                     </h4>
                 </div>
                 <div class="modal-body">
-                    <table class='song-table'>
+                    <div data-bind="if: $root.modalDiscs().length > 1">
+                        <div data-bind="foreach: $root.modalDiscs()">
+                            <h4 data-bind="text: $data"></h4>
+                            <table class='song-table'>
+                                <tbody data-bind="foreach: _.filter($parent.songs(), function (song) { return song.disc_number === $index() + 1; })">
+                                    {% include "rhyme/partials/song_row.html" %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <table data-bind="ifnot: $root.modalDiscs().length > 1" class='song-table'>
                         <tbody data-bind="foreach: songs">
                             {% include "rhyme/partials/song_row.html" %}
                         </tbody>

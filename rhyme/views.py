@@ -40,6 +40,10 @@ def song_list(request):
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
         tracks = [(track.disc, track.ordinal, track.song) for track in album.tracks]
+        if album.disc_set.count():
+            disc_names = [disc.name for disc in album.disc_set.all()]
+        else:
+            disc_names = [f"Disc {index + 1}" for index in range(max([disc for disc, ordinal, song in tracks]))]
         count = len(tracks)
     else:
         page = int(request.GET.get('page', 1))
@@ -49,6 +53,7 @@ def song_list(request):
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
         tracks = [(None, None, song) for song in paginator.get_page(page)]
+        disc_names = []
 
     context = {
         'count': count,
@@ -66,6 +71,7 @@ def song_list(request):
             'disc_number': disc_number,
             'track_number': track_number,
         } for disc_number, track_number, song in tracks],
+        'disc_names': disc_names,
     }
     return JsonResponse(context)
 
