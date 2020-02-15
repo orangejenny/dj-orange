@@ -110,9 +110,9 @@ class Album(models.Model, FilterMixin):
     @classmethod
     def list(cls, album_filters=None, song_filters=None):
         if album_filters:
-            objects = cls.objects.all()
+            album_queryset = cls.objects.all()
             for lhs, rhs in cls.kwargs_from_filters(album_filters):
-                objects = objects.filter(**{lhs: rhs})
+                album_queryset = album_queryset.filter(**{lhs: rhs})
         else:
             album_queryset = None
 
