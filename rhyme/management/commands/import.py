@@ -102,7 +102,7 @@ class ColorImporter(Importer):
 
 
 class SongImporter(Importer):
-    fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'time', 'filename'])
+    fields = set(['id', 'name', 'artist', 'rating', 'mood', 'energy', 'isstarred', 'year', 'time', 'filename'])
 
     @property
     def query(self):

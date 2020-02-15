@@ -66,6 +66,7 @@ class Song(models.Model, FilterMixin):
     energy = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
     time = models.IntegerField(null=True)   # in seconds
+    year = models.IntegerField(null=True)
 
     class Meta:
         ordering = ['-id']
