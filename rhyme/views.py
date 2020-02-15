@@ -1,4 +1,3 @@
-from datetime import datetime
 import random
 import re
 
@@ -161,16 +160,15 @@ def album_export(request):
     album_id = request.GET.get('album_id')
     if album_id:
         album = Album.objects.get(id=album_id)
-        album.last_export = datetime.now()
-        album.export_count = album.export_count + 1     # TODO: do songs have a last_export and export_count? should they?
-        album.save()
+        album.audit_export()
         return _m3u_response(request, album.songs)
 
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
     songs = []
-    for album in Album.list(album_filters, song_filters):       # TODO: update last_export and export_count
+    for album in Album.list(album_filters, song_filters):
         songs += album.songs
+        album.audit_export()
     return _m3u_response(request, songs)
 
 
@@ -187,6 +185,9 @@ def _m3u_response(request, songs):
         config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
     except IndexError:
         raise ExportConfigNotFound(f"Could not find {config_name}")
+
+    for song in songs:
+        song.audit_export()
 
     filenames = [config["prefix"] + s.filename for s in songs]
     response = HttpResponse("\n".join(filenames))

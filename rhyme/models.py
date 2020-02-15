@@ -1,10 +1,12 @@
+import os
+import re
+
+from datetime import datetime
+from random import shuffle
+
 from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
-
-import os
-from random import shuffle
-import re
 
 
 class FilterMixin():
@@ -51,7 +53,14 @@ class FilterMixin():
         return kwargs
 
 
-class Song(models.Model, FilterMixin):
+class ExportableMixin(object):
+    def audit_export(self):
+        self.last_export = datetime.now()
+        self.export_count = self.export_count + 1
+        self.save()
+
+
+class Song(models.Model, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
@@ -67,6 +76,9 @@ class Song(models.Model, FilterMixin):
     starred = models.BooleanField(default=False)
     time = models.IntegerField(null=True)   # in seconds
     year = models.IntegerField(null=True)
+
+    export_count = models.IntegerField(default=0)
+    last_export = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ['-id']
@@ -93,16 +105,17 @@ class Song(models.Model, FilterMixin):
         return objects
 
 
-class Album(models.Model, FilterMixin):
+class Album(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
 
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
-    export_count = models.IntegerField(default=0)
-    last_export = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
     is_mix = models.BooleanField(default=False)
+
+    export_count = models.IntegerField(default=0)
+    last_export = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.name
