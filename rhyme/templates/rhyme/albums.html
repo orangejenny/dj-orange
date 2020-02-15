@@ -35,7 +35,7 @@
                 <div class="modal-body">
                     <table class='song-table'>
                         <tbody data-bind="foreach: $root.modalSongs">
-                            {% include "rhyme/partials/song_row.html" %}
+                            {% include "rhyme/partials/song_row.html" with include_index=True %}
                         </tbody>
                     </table>
                 </div>

@@ -2,6 +2,9 @@
     <td class="icon-cell is-starred">
         <i data-bind="css: {'fas': starred, 'far': !starred}" class='fa-star'></i>
     </td>
+    {% if include_index %}
+        <td data-bind="text: $index() + 1 + '.'"></td>
+    {% endif %}
     <td data-bind="text: name"></td>
     <td data-bind="text: artist"></td>
     <td data-bind="text: albums"></td>
