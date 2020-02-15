@@ -231,8 +231,19 @@ class Album(models.Model, FilterMixin):
         return tags
 
 
+# Only named discs have entries here
+class Disc(models.Model):
+    ordinal = models.IntegerField(default=1)
+    name = models.CharField(max_length=255, null=True)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("ordinal", "album")
+
+
 class Track(models.Model):
     ordinal = models.IntegerField()
+    disc = models.IntegerField(default=1)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
