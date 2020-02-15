@@ -125,7 +125,6 @@ def album_list(request):
             } if color else {},
             "completion_text": completion_text,
             "stats": album.stats(),
-            "tags": album.tags()[:3],
             "id": album.id,
             "name": album.name,
             "date_acquired": _format_date(album.date_acquired),
