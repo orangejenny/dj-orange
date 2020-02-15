@@ -110,6 +110,15 @@ function rhymeModel (options) {
         return $(e.target).closest(".form-group").find("input").val();
     };
 
+    self.getTimeFilterValue = function (e) {
+        var value = $(e.target).closest(".form-group").find("input").val(),
+            match = value.match(/^(\d+):(\d+)$/);
+        if (!match) {
+            alert("Invalid time, please enter MM:SS value")
+        }
+        return match[1] * 60 + match[2] * 1;
+    };
+
     self.removeFilter = function (filter) {
         self.filters.remove(filter);
         self.goToPage(1);

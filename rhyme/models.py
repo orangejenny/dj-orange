@@ -9,7 +9,7 @@ import re
 
 class FilterMixin():
     bool_fields = []
-    rating_fields = []
+    numeric_fields = []
     text_fields = []
 
     @classmethod
@@ -22,7 +22,7 @@ class FilterMixin():
             (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
             if lhs in cls.bool_fields:
                 pass
-            elif lhs in cls.rating_fields:
+            elif lhs in cls.numeric_fields:
                 if op == '>=':
                     lhs = lhs + "__gte"
                 elif op == '<=':
@@ -45,16 +45,17 @@ class FilterMixin():
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
+
             kwargs.append((lhs, rhs))
 
         return kwargs
 
 
 class Song(models.Model, FilterMixin):
-    RATING_ATTRIBUTES = ('rating', 'energy', 'mood')
+    RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
-    rating_fields = RATING_ATTRIBUTES
+    numeric_fields = RATING_ATTRIBUTES + ['time']
     text_fields = ['name', 'artist']
 
     name = models.CharField(max_length=127)
@@ -64,6 +65,7 @@ class Song(models.Model, FilterMixin):
     mood = models.IntegerField(null=True)
     energy = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
+    time = models.IntegerField(null=True)   # in seconds
 
     class Meta:
         ordering = ['-id']
