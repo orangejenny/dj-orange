@@ -14,7 +14,7 @@ class FilterMixin():
 
     @classmethod
     def kwargs_from_filters(cls, filters):
-        kwargs = {}
+        kwargs = []
         if not filters:
             return kwargs
 
@@ -45,7 +45,7 @@ class FilterMixin():
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
-            kwargs[lhs] = rhs
+            kwargs.append((lhs, rhs))
 
         return kwargs
 
@@ -84,7 +84,10 @@ class Song(models.Model, FilterMixin):
 
     @classmethod
     def list(cls, filters=None):
-        return cls.objects.filter(**cls.kwargs_from_filters(filters))
+        objects = cls.objects.all()
+        for lhs, rhs in cls.kwargs_from_filters(filters):
+            objects = objects.filter(**{lhs: rhs})
+        return objects
 
 
 class Album(models.Model, FilterMixin):
@@ -103,7 +106,13 @@ class Album(models.Model, FilterMixin):
 
     @classmethod
     def list(cls, album_filters=None, song_filters=None):
-        album_queryset = cls.objects.filter(**cls.kwargs_from_filters(album_filters)) if album_filters else None
+        if album_filters:
+            objects = cls.objects.all()
+            for lhs, rhs in cls.kwargs_from_filters(album_filters):
+                objects = objects.filter(**{lhs: rhs})
+        else:
+            album_queryset = None
+
         if song_filters:
             track_queryset = Track.objects.filter(song__in=Song.list(song_filters))
             album_ids_for_tracks = track_queryset.values_list('album_id', flat=True)
