@@ -108,7 +108,7 @@ function rhymeModel (options) {
     };
 
     self.getFilterValue = function (e) {
-        return $(e.target).closest(".form-group").find("input").val();
+        return $(e.target).closest(".form-group").find("input, select").val();
     };
 
     self.getTimeFilterValue = function (e) {

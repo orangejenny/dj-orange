@@ -45,6 +45,11 @@ class FilterMixin():
                     lhs = "tag__name"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == 'genre':
+                if op == '=':
+                    lhs = "artist__genre"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
@@ -60,6 +65,18 @@ class ExportableMixin(object):
         self.save()
 
 
+class Artist(models.Model):
+    name = models.CharField(max_length=63, unique=True)
+    genre = models.CharField(max_length=63)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def all_genres(cls):
+        return sorted(list(set([artist.genre for artist in Artist.objects.all() if artist.genre])))
+
+
 class Song(models.Model, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
@@ -68,7 +85,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     text_fields = ['name', 'artist']
 
     name = models.CharField(max_length=127)
-    artist = models.CharField(max_length=63)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
     rating = models.IntegerField(null=True)
     mood = models.IntegerField(null=True)
@@ -95,7 +112,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         return tags
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.artist)
+        return "{} ({})".format(self.name, self.artist.name)
 
     @classmethod
     def list(cls, filters=None):
@@ -204,7 +221,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     def artist(self):
         artists = [song.artist for song in self.songs]
         if len(set(artists)) == 1:
-            return artists[0]
+            return artists[0].name
         return "Various Artists"
 
     @cached_property

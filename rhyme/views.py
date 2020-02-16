@@ -10,13 +10,14 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Color, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Song, Tag, Track
 
 
 def _rhyme_context():
     from rhyme.urls import urlpatterns
     return {
         "RHYME_EXPORT_CONFIGS": settings.RHYME_EXPORT_CONFIGS,
+        "RHYME_GENRES": Artist.all_genres(),
         "RHYME_URLS": {
             p.name: reverse(p.name) for p in urlpatterns
         },
@@ -60,7 +61,7 @@ def song_list(request):
         'items': [{
             'id': song.id,
             'name': song.name,
-            'artist': song.artist,
+            'artist': song.artist.name,
             'rating': song.rating or '',
             'energy': song.energy or '',
             'mood': song.mood or '',
