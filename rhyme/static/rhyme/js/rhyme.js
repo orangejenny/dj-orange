@@ -211,4 +211,12 @@ $(function() {
             model.nextPage();
         }
     });
+
+    // TODO: move to knockout
+    $(".select2.in-modal").each(function (index, element) {
+        $(element).select2({
+            dropdownParent: $(element).closest(".modal"),
+            width: "100%",
+        });
+    });
 });
