@@ -45,6 +45,11 @@ class FilterMixin():
                     lhs = "tag__name"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == 'genre':
+                if op == '=':
+                    lhs = "artist__genre"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
@@ -66,6 +71,10 @@ class Artist(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def all_genres(cls):
+        return sorted(list(set([artist.genre for artist in Artist.objects.all() if artist.genre])))
 
 
 class Song(models.Model, FilterMixin, ExportableMixin):
