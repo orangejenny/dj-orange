@@ -214,9 +214,26 @@ $(function() {
 
     // TODO: move to knockout
     $(".select2.in-modal").each(function (index, element) {
-        $(element).select2({
-            dropdownParent: $(element).closest(".modal"),
-            width: "100%",
-        });
+        var $element = $(element),
+            data = $element.data(),
+            options = {
+                dropdownParent: $element.closest(".modal"),
+                width: "100%",
+            };
+        if (data.url) {
+            options.ajax = {
+                url: reverse(data.url),
+                dataType: 'json',
+                processResults: function (data) {
+                    return {
+                        results: data.items,
+                        pagination: {
+                            more: false,
+                        },
+                    };
+                },
+            };
+        }
+        $element.select2(options);
     });
 });

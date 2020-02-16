@@ -1,5 +1,5 @@
 {% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Tag' lhs='tag' %}
-{% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Artist' lhs='artist' %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' lhs='artist' url='artist_select2' %}
 {% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Song Name' lhs='name' %}
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' lhs='genre' options=RHYME_GENRES %}
 {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Rating' lhs='rating' icon='star' %}

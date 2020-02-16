@@ -157,6 +157,22 @@ def _format_date(date):
 
 @require_GET
 @login_required
+def artist_select2(request):
+    artists = Artist.objects.all()
+    query = request.GET.get("term")
+    if query:
+        artists = artists.filter(name__icontains=query)
+    artists = sorted(artists, key=lambda a: a.name)
+    return JsonResponse({
+        "items": [{
+            "text": artist.name,
+            "id": artist.name,
+        } for artist in artists],
+    })
+
+
+@require_GET
+@login_required
 def album_export(request):
     album_id = request.GET.get('album_id')
     if album_id:
