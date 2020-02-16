@@ -5,11 +5,12 @@ import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 
-from rhyme.models import Album, Color, Disc, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Disc, Song, Tag, Track
 
 
 class Importer(object):
     ALBUM = 'album'
+    ARTIST = 'artist'
     COLOR = 'color'
     DISC = 'disc'
     SONG = 'song'
@@ -46,6 +47,8 @@ class Importer(object):
     def create(cls, item_type, out=None):
         if item_type == cls.ALBUM:
             return AlbumImporter(out)
+        if item_type == cls.ARTIST:
+            return ArtistImporter(out)
         if item_type == cls.COLOR:
             return ColorImporter(out)
         if item_type == cls.DISC:
@@ -82,6 +85,26 @@ class AlbumImporter(Importer):
             album.save()
         elif created:
             album.delete()
+
+
+class ArtistImporter(Importer):
+    fields = set(['artist', 'genre'])
+
+    @property
+    def query(self):
+        return "select {} from artistgenre".format(", ".join(self.fields))
+
+    def __init__(self, out=None):
+        return super(ArtistImporter, self).__init__(out)
+
+    def import_item(self, item, save=False):
+        (artist, created) = Artist.objects.get_or_create(name=item['artist'])
+        artist.genre = item['genre']
+        self.log("Importing {}".format(artist.name))
+        if save:
+            artist.save()
+        elif created:
+            artist.delete()
 
 
 class ColorImporter(Importer):
@@ -141,9 +164,11 @@ class SongImporter(Importer):
         return super(SongImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        (song, created) = Song.objects.get_or_create(id=item['id'])
-        for field in self.fields.difference({'isstarred', 'time'}):
+        (song, song_created) = Song.objects.get_or_create(id=item['id'])
+        for field in self.fields.difference({'artist', 'isstarred', 'time'}):
             setattr(song, field, item[field])
+        (artist, artist_created) = Artist.objects.get_or_create(name=item['artist'])
+        song.artist = artist
         song.starred = bool(item['isstarred'])
         (minutes, seconds) = item['time'].split(':') if item['time'] else (0, 0)
         try:
@@ -153,8 +178,12 @@ class SongImporter(Importer):
         self.log("Importing {}".format(song))
         if save:
             song.save()
-        elif created:
-            song.delete()
+            artist.save()
+        else:
+            if song_created:
+                song.delete()
+            if artist_created:
+                artist.delete()
 
 
 class TagImporter(Importer):
@@ -216,7 +245,7 @@ class TrackImporter(Importer):
 
 class Command(BaseCommand):
     models = [
-        Importer.ALBUM, Importer.COLOR, Importer.SONG,      # These are indepentdent
+        Importer.ALBUM, Importer.ARTIST, Importer.COLOR, Importer.SONG,      # These are indepentdent
         # These depend on songs and/or albums existing
         Importer.DISC, Importer.TAG, Importer.TRACK,
     ]
