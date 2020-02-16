@@ -45,6 +45,11 @@ class FilterMixin():
                     lhs = "tag__name"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == 'artist':
+                if op == '=':
+                    lhs = "artist__name"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             elif lhs == 'genre':
                 if op == '=':
                     lhs = "artist__genre"
@@ -82,7 +87,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     bool_fields = ['starred']
     numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
-    text_fields = ['name', 'artist']
+    text_fields = ['name']
 
     name = models.CharField(max_length=127)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
