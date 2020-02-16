@@ -1,0 +1,22 @@
+{% extends 'rhyme/partials/modal_filter_base.html' %}
+
+{% block body %}
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-6">
+                <select class="rhs form-control select2" placeholder="{{ attribute }} is">
+                    {% for option in options %}
+                        <option>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <button class="btn btn-info btn-block"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
+                        data-dismiss="modal">
+                    Onward
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
