@@ -108,7 +108,15 @@ function rhymeModel (options) {
     };
 
     self.getFilterValue = function (e) {
-        return $(e.target).closest(".form-group").find("input, select").val();
+        var $input = $(e.target).closest(".form-group").find("input, select");
+        if (!$input.length) {
+            $input = $(e.target).closest(".modal").find("input, select");
+        }
+        var value = $input.val();
+        if (_.isArray(value)) {
+            value = value.join(",");
+        }
+        return value;
     };
 
     self.getTimeFilterValue = function (e) {
@@ -127,8 +135,8 @@ function rhymeModel (options) {
 
     self.focusFilter = function (model, e) {
         $modal = $(e.target);
-        $modal.find("input").each(function(index, input) {
-            $(input).val('');
+        $modal.find("input, select").each(function(index, input) {
+            $(input).val('').trigger('change');
         });
         $modal.find("input:first").focus();
     };
