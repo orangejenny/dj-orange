@@ -38,21 +38,12 @@ class FilterMixin():
                     lhs = lhs + "__iexact"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-            elif lhs == 'tag':
+            elif lhs in cls.related_fields:
+                field = cls.related_fields[lhs]
                 if op == '=*':
-                    lhs = "tag__name__icontains"
+                    lhs = f"{field}__icontains"
                 elif op == '=':
-                    lhs = "tag__name"
-                else:
-                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-            elif lhs == 'artist':
-                if op == '=':
-                    lhs = "artist__name"
-                else:
-                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-            elif lhs == 'genre':
-                if op == '=':
-                    lhs = "artist__genre"
+                    lhs = field
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
@@ -88,6 +79,11 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['starred']
     numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
     text_fields = ['name']
+    related_fields = {
+        'tag': 'tag__name',
+        'artist': 'artist__name',
+        'genre': 'artist__genre',
+    }
 
     name = models.CharField(max_length=127)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
@@ -130,6 +126,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 class Album(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
+    related_fields = {}
 
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
