@@ -50,12 +50,25 @@ class FilterMixin():
                         objects = objects.exclude(**{f"{field}__iexact": value})
                 elif op == '*=':    # any
                     values = rhs.split(",")
-                    condition = models.Q(**{f"{field}__iexact": values[0]})
+                    qcondition = models.Q(**{f"{field}__iexact": values[0]})
                     for value in values[1:]:
-                        condition = condition | models.Q(**{f"{field}__iexact": value})
-                    objects = objects.filter(condition)
+                        qcondition = qcondition | models.Q(**{f"{field}__iexact": value})
+                    objects = objects.filter(qcondition)
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == 'tag_year':
+                rhs = int(rhs)
+                year_tags = [int(tag.name) for tag in Tag.objects.filter(category="years")]
+                if op == '>=':
+                    year_tags = [tag for tag in year_tags if tag >= rhs]
+                elif op == '<=':
+                    year_tags = [tag for tag in year_tags if tag <= rhs]
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
+                for value in year_tags[1:]:
+                    qcondition = qcondition | models.Q(**{"tag__name__exact": value})
+                objects = objects.filter(qcondition)
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 

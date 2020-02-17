@@ -173,12 +173,12 @@ def _select2_list(request, objects):
         objects = objects.filter(name__icontains=query)
     else:
         objects = objects.all()
-    objects = sorted(objects, key=lambda o: o.name)
+    names = sorted(objects.values_list('name', flat=True))
     return JsonResponse({
         "items": [{
-            "text": o.name,
-            "id": o.name,
-        } for o in objects],
+            "text": name,
+            "id": name,
+        } for name in names],
     })
 
 
