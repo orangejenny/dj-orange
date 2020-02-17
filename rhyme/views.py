@@ -158,16 +158,27 @@ def _format_date(date):
 @require_GET
 @login_required
 def artist_select2(request):
-    artists = Artist.objects.all()
+    return _select2_list(request, Artist.objects)
+
+
+@require_GET
+@login_required
+def tag_select2(request):
+    return _select2_list(request, Tag.objects)
+
+
+def _select2_list(request, objects):
     query = request.GET.get("term")
     if query:
-        artists = artists.filter(name__icontains=query)
-    artists = sorted(artists, key=lambda a: a.name)
+        objects = objects.filter(name__icontains=query)
+    else:
+        objects = objects.all()
+    objects = sorted(objects, key=lambda o: o.name)
     return JsonResponse({
         "items": [{
-            "text": artist.name,
-            "id": artist.name,
-        } for artist in artists],
+            "text": o.name,
+            "id": o.name,
+        } for o in objects],
     })
 
 

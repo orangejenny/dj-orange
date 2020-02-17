@@ -9,6 +9,7 @@ from rhyme.views import (
     song_list,
     song_update,
     song_export,
+    tag_select2,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path('songs/list/', song_list, name='song_list'),
     path('songs/update/', song_update, name='song_update'),
     path('songs/export/', song_export, name='song_export'),
+    path('tags/select2/', tag_select2, name='tag_select2'),
 ]
