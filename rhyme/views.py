@@ -157,6 +157,33 @@ def _format_date(date):
 
 @require_GET
 @login_required
+def artist_select2(request):
+    return _select2_list(request, Artist.objects)
+
+
+@require_GET
+@login_required
+def tag_select2(request):
+    return _select2_list(request, Tag.objects)
+
+
+def _select2_list(request, objects):
+    query = request.GET.get("term")
+    if query:
+        objects = objects.filter(name__icontains=query)
+    else:
+        objects = objects.all()
+    names = sorted(objects.values_list('name', flat=True))
+    return JsonResponse({
+        "items": [{
+            "text": name,
+            "id": name,
+        } for name in names],
+    })
+
+
+@require_GET
+@login_required
 def album_export(request):
     album_id = request.GET.get('album_id')
     if album_id:

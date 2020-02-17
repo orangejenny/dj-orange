@@ -3,18 +3,38 @@
 {% block body %}
     <div class="form-group">
         <div class="row">
-            <div class="col-sm-6">
-                <select class="rhs form-control select2" placeholder="{{ attribute }} is">
+            <div class="col-sm-12">
+                <select class="lhs form-control select2 in-modal" multiple data-url="{{ url }}">
                     {% for option in options %}
                         <option>{{ option }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-sm-6">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            {% if include_all %}
+                <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
+                    <button class="btn btn-info btn-block"
+                            data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
+                            data-dismiss="modal">
+                        All
+                    </button>
+                </div>
+            {% endif %}
+            <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
                 <button class="btn btn-info btn-block"
-                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '*=', getFilterValue(e)) }"
                         data-dismiss="modal">
-                    Onward
+                    Any
+                </button>
+            </div>
+            <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
+                <button class="btn btn-info btn-block"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '!=', getFilterValue(e)) }"
+                        data-dismiss="modal">
+                    None
                 </button>
             </div>
         </div>

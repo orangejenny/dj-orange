@@ -108,7 +108,15 @@ function rhymeModel (options) {
     };
 
     self.getFilterValue = function (e) {
-        return $(e.target).closest(".form-group").find("input, select").val();
+        var $input = $(e.target).closest(".form-group").find("input, select");
+        if (!$input.length) {
+            $input = $(e.target).closest(".modal").find("input, select");
+        }
+        var value = $input.val();
+        if (_.isArray(value)) {
+            value = value.join(",");
+        }
+        return value;
     };
 
     self.getTimeFilterValue = function (e) {
@@ -127,8 +135,8 @@ function rhymeModel (options) {
 
     self.focusFilter = function (model, e) {
         $modal = $(e.target);
-        $modal.find("input").each(function(index, input) {
-            $(input).val('');
+        $modal.find("input, select").each(function(index, input) {
+            $(input).val('').trigger('change');
         });
         $modal.find("input:first").focus();
     };
@@ -210,5 +218,30 @@ $(function() {
         if ($itemPage.scrollTop() / overflowHeight > 0.8) {
             model.nextPage();
         }
+    });
+
+    // TODO: move to knockout
+    $(".select2.in-modal").each(function (index, element) {
+        var $element = $(element),
+            data = $element.data(),
+            options = {
+                dropdownParent: $element.closest(".modal"),
+                width: "100%",
+            };
+        if (data.url) {
+            options.ajax = {
+                url: reverse(data.url),
+                dataType: 'json',
+                processResults: function (data) {
+                    return {
+                        results: data.items,
+                        pagination: {
+                            more: false,
+                        },
+                    };
+                },
+            };
+        }
+        $element.select2(options);
     });
 });

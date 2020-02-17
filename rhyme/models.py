@@ -15,15 +15,14 @@ class FilterMixin():
     text_fields = []
 
     @classmethod
-    def kwargs_from_filters(cls, filters):
-        kwargs = []
+    def filter_queryset(cls, objects, filters):
         if not filters:
-            return kwargs
+            return objects
 
         for condition in filters.split("&&"):
-            (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*]*)\s*(\S.*)', condition).groups()
+            (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*!]*)\s*(\S.*)', condition).groups()
             if lhs in cls.bool_fields:
-                pass
+                objects = objects.filter(**{lhs: rhs})
             elif lhs in cls.numeric_fields:
                 if op == '>=':
                     lhs = lhs + "__gte"
@@ -31,6 +30,7 @@ class FilterMixin():
                     lhs = lhs + "__lte"
                 elif op != '=':
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                objects = objects.filter(**{lhs: rhs})
             elif lhs in cls.text_fields:
                 if op == '=*':
                     lhs = lhs + "__icontains"
@@ -38,24 +38,41 @@ class FilterMixin():
                     lhs = lhs + "__iexact"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-            elif lhs == 'tag':
-                if op == '=*':
-                    lhs = "tag__name__icontains"
-                elif op == '=':
-                    lhs = "tag__name"
+                objects = objects.filter(**{lhs: rhs})
+            elif lhs in cls.related_fields:
+                field = cls.related_fields[lhs]
+                value = rhs.split(",")
+                if op == '=':       # all
+                    for value in rhs.split(","):
+                        objects = objects.filter(**{f"{field}__iexact": value})
+                elif op == '!=':    # none
+                    for value in rhs.split(","):
+                        objects = objects.exclude(**{f"{field}__iexact": value})
+                elif op == '*=':    # any
+                    values = rhs.split(",")
+                    qcondition = models.Q(**{f"{field}__iexact": values[0]})
+                    for value in values[1:]:
+                        qcondition = qcondition | models.Q(**{f"{field}__iexact": value})
+                    objects = objects.filter(qcondition)
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-            elif lhs == 'genre':
-                if op == '=':
-                    lhs = "artist__genre"
+            elif lhs == 'tag_year':
+                rhs = int(rhs)
+                year_tags = [int(tag.name) for tag in Tag.objects.filter(category="years")]
+                if op == '>=':
+                    year_tags = [tag for tag in year_tags if tag >= rhs]
+                elif op == '<=':
+                    year_tags = [tag for tag in year_tags if tag <= rhs]
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
+                for value in year_tags[1:]:
+                    qcondition = qcondition | models.Q(**{"tag__name__exact": value})
+                objects = objects.filter(qcondition)
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
-            kwargs.append((lhs, rhs))
-
-        return kwargs
+        return objects
 
 
 class ExportableMixin(object):
@@ -82,7 +99,12 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     bool_fields = ['starred']
     numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
-    text_fields = ['name', 'artist']
+    text_fields = ['name']
+    related_fields = {
+        'tag': 'tag__name',
+        'artist': 'artist__name',
+        'genre': 'artist__genre',
+    }
 
     name = models.CharField(max_length=127)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
@@ -116,15 +138,13 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     @classmethod
     def list(cls, filters=None):
-        objects = cls.objects.all()
-        for lhs, rhs in cls.kwargs_from_filters(filters):
-            objects = objects.filter(**{lhs: rhs})
-        return objects
+        return cls.filter_queryset(cls.objects.all(), filters)
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
+    related_fields = {}
 
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
@@ -140,9 +160,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     @classmethod
     def list(cls, album_filters=None, song_filters=None):
         if album_filters:
-            album_queryset = cls.objects.all()
-            for lhs, rhs in cls.kwargs_from_filters(album_filters):
-                album_queryset = album_queryset.filter(**{lhs: rhs})
+            album_queryset = cls.filter_queryset(cls.objects.all(), album_filters)
         else:
             album_queryset = None
 
