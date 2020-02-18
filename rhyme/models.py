@@ -15,9 +15,17 @@ class FilterMixin():
     text_fields = []
 
     @classmethod
-    def filter_queryset(cls, objects, filters):
+    def filter_queryset(cls, objects, filters, omni_filter=''):
+        if omni_filter and cls.omni_fields:
+            for value in re.split(r'\s+', omni_filter):
+                fields = [cls.related_fields[f] if f in cls.related_fields else f for f in cls.omni_fields]
+                qcondition = models.Q(**{f"{fields[0]}__icontains": value})
+                for field in fields[1:]:
+                    qcondition = qcondition | models.Q(**{f"{field}__icontains": value})
+                objects = objects.filter(qcondition)
+
         if not filters:
-            return objects
+            return objects.distinct()
 
         for condition in filters.split("&&"):
             (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*!]*)\s*(\S.*)', condition).groups()
@@ -32,7 +40,7 @@ class FilterMixin():
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
                 objects = objects.filter(**{lhs: rhs})
             elif lhs in cls.text_fields:
-                if op == '=*':
+                if op == '*=':
                     lhs = lhs + "__icontains"
                 elif op == '=':
                     lhs = lhs + "__iexact"
@@ -72,7 +80,7 @@ class FilterMixin():
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
-        return objects
+        return objects.distinct()
 
 
 class ExportableMixin(object):
@@ -106,6 +114,8 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         'genre': 'artist__genre',
     }
 
+    omni_fields = ['name', 'artist', 'tag']
+
     name = models.CharField(max_length=127)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
@@ -137,8 +147,8 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         return "{} ({})".format(self.name, self.artist.name)
 
     @classmethod
-    def list(cls, filters=None):
-        return cls.filter_queryset(cls.objects.all(), filters)
+    def list(cls, filters=None, omni_filter=''):
+        return cls.filter_queryset(cls.objects.all(), filters, omni_filter)
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):

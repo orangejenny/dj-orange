@@ -2,6 +2,7 @@
 
 {% block content %}
     <div id="filter-container">
+        <input data-bind="value: omniFilter, valueUpdate: 'keyup'" />
         {% include "rhyme/partials/song_filters.html" %}
         {% include "rhyme/partials/item_page_filters.html" %}
     </div>

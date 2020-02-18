@@ -10,7 +10,7 @@ function filterModel (options) {
         var op = self.op;
         op = {
             '=': 'is',
-            '=*': 'contains',
+            '*=': 'contains',
             '<=': 'at most',
             '>=': 'at least',
         }[op] || op;
@@ -59,6 +59,7 @@ function rhymeModel (options) {
     self.filters = ko.observableArray();
     self.count = ko.observable(0);
     self.isLoading = ko.observable(true);
+    self.omniFilter = ko.observable('');
 
     self.modalAlbum = ko.observable();
     self.modalDiscs = ko.observableArray();
@@ -81,6 +82,7 @@ function rhymeModel (options) {
             url: self.url,
             data: _.extend({
                 page: page,
+                omni_filter: self.omniFilter(),
             }, self.serializeFilters()),
             success: function(data) {
                 self.isLoading(false);
@@ -106,6 +108,10 @@ function rhymeModel (options) {
         }));
         self.goToPage(1);
     };
+
+    self.omniFilter.subscribe(_.throttle(function (newValue) {
+        self.goToPage(1);
+    }, {leading: false}));
 
     self.getFilterValue = function (e) {
         var $input = $(e.target).closest(".form-group").find("input, select");
@@ -170,6 +176,9 @@ function rhymeModel (options) {
                 album_id: album.id,
             },
             success: function (data) {
+                if (data.omni_filter !== self.omniFilter()) {
+                    return;
+                }
                 album.songs(data.items);
                 self.modalDiscs(data.disc_names);
                 var $backdrop = $(".modal-backdrop.in"),
