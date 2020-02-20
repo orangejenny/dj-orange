@@ -156,6 +156,8 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     text_fields = ['name']
     related_fields = {}
 
+    omni_fields = ['name']
+
     name = models.CharField(max_length=255)
     date_acquired = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
@@ -168,14 +170,14 @@ class Album(models.Model, FilterMixin, ExportableMixin):
         return self.name
 
     @classmethod
-    def list(cls, album_filters=None, song_filters=None):
-        if album_filters:
-            album_queryset = cls.filter_queryset(cls.objects.all(), album_filters)
+    def list(cls, album_filters=None, song_filters=None, omni_filter=''):
+        if album_filters or omni_filter:
+            album_queryset = cls.filter_queryset(cls.objects.all(), album_filters, omni_filter)
         else:
             album_queryset = None
 
-        if song_filters:
-            track_queryset = Track.objects.filter(song__in=Song.list(song_filters))
+        if song_filters or omni_filter:
+            track_queryset = Track.objects.filter(song__in=Song.list(song_filters, omni_filter))
             album_ids_for_tracks = track_queryset.values_list('album_id', flat=True)
         else:
             album_ids_for_tracks = None

@@ -85,6 +85,10 @@ function rhymeModel (options) {
                 omni_filter: self.omniFilter(),
             }, self.serializeFilters()),
             success: function(data) {
+                if (data.omni_filter !== self.omniFilter()) {
+                    return;
+                }
+
                 self.isLoading(false);
                 self.count(data.count);
 
@@ -176,9 +180,6 @@ function rhymeModel (options) {
                 album_id: album.id,
             },
             success: function (data) {
-                if (data.omni_filter !== self.omniFilter()) {
-                    return;
-                }
                 album.songs(data.items);
                 self.modalDiscs(data.disc_names);
                 var $backdrop = $(".modal-backdrop.in"),
