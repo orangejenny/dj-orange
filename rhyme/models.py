@@ -184,7 +184,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
         if album_queryset and album_ids_for_tracks:
             album_ids = set(album_queryset.values_list('id', flat=True))
-            return cls.objects.filter(id__in=album_ids.intersection(album_ids_for_tracks))
+            return cls.objects.filter(id__in=album_ids.union(album_ids_for_tracks))
 
         if album_queryset:
             return album_queryset
