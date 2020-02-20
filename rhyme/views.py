@@ -37,6 +37,7 @@ def index(request):
 @require_GET
 @login_required
 def song_list(request):
+    omni_filter = request.GET.get('omni_filter', '')
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
         tracks = [(track.disc, track.ordinal, track.song)
@@ -50,7 +51,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         filters = request.GET.get('song_filters')
         songs_per_page = 20
-        songs = Song.list(filters)
+        songs = Song.list(filters, omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
         tracks = [(None, None, song) for song in paginator.get_page(page)]
@@ -58,6 +59,7 @@ def song_list(request):
 
     context = {
         'count': count,
+        'omni_filter': omni_filter,
         'items': [{
             'id': song.id,
             'name': song.name,
@@ -108,10 +110,11 @@ def albums(request):
 @require_GET
 def album_list(request):
     page = int(request.GET['page'])
+    omni_filter = request.GET.get('omni_filter', '')
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
     albums_per_page = 25
-    album_queryset = Album.list(album_filters, song_filters)
+    album_queryset = Album.list(album_filters, song_filters, omni_filter)
     # TODO: when albums are filtered and the user scrolls, the paginator keeps re-fetching page 1
     paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
@@ -144,6 +147,7 @@ def album_list(request):
         })
     context = {
         'count': album_queryset.count(),
+        'omni_filter': omni_filter,
         'items': albums,
     }
     return JsonResponse(context)
