@@ -197,8 +197,9 @@ def album_export(request):
 
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
+    omni_filter = request.GET.get('omni_filter')
     songs = []
-    for album in Album.list(album_filters, song_filters):
+    for album in Album.list(album_filters, song_filters, omni_filter):
         songs += album.songs
         album.audit_export()
     return _m3u_response(request, songs)
@@ -207,8 +208,9 @@ def album_export(request):
 @require_GET
 @login_required
 def song_export(request):
-    filters = request.GET.get('song_filters')
-    return _m3u_response(request, Song.list(filters))
+    song_filters = request.GET.get('song_filters')
+    omni_filter = request.GET.get('omni_filter')
+    return _m3u_response(request, Song.list(song_filters, omni_filter))
 
 
 def _m3u_response(request, songs):

@@ -155,13 +155,13 @@ function rhymeModel (options) {
         return {
             album_filters: _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&"),
             song_filters: _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join("&&"),
+            omni_filter: self.omniFilter(),
         };
     };
 
     self.exportPlaylist = function (config) {
         ExportPlaylist(_.extend({
             config: config,
-            filters: self.serializeFilters(),
             model: self.model,
         }, self.serializeFilters()));
     };
