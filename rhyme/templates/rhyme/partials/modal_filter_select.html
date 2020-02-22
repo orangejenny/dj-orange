@@ -14,6 +14,13 @@
     </div>
     <div class="form-group">
         <div class="row">
+            <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
+                <button class="btn btn-info btn-block"
+                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '*=', getFilterValue(e)) }"
+                        data-dismiss="modal">
+                    Any
+                </button>
+            </div>
             {% if include_all %}
                 <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
                     <button class="btn btn-info btn-block"
@@ -23,13 +30,6 @@
                     </button>
                 </div>
             {% endif %}
-            <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
-                <button class="btn btn-info btn-block"
-                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '*=', getFilterValue(e)) }"
-                        data-dismiss="modal">
-                    Any
-                </button>
-            </div>
             <div class="{% if include_all %}col-sm-4{% else %}col-sm-6{% endif %}">
                 <button class="btn btn-info btn-block"
                         data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '!=', getFilterValue(e)) }"
