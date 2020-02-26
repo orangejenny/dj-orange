@@ -214,16 +214,18 @@ def song_export(request):
 
 
 def _m3u_response(request, songs):
-    config_name = request.GET.get("config", None)
+    for song in songs:
+        song.audit_export()     # TODO: move to filenames
+
+    response = HttpResponse("\n".join(filenames(request.GET.get("config"), songs)))
+    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
+    return response
+
+
+def filenames(config_name, songs):       # TODO: move to models
     try:
         config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
     except IndexError:
-        raise ExportConfigNotFound(f"Could not find {config_name}")
+        raise ExportConfigNotFoundException(f"Could not find {config_name}")
 
-    for song in songs:
-        song.audit_export()
-
-    filenames = [config["prefix"] + s.filename for s in songs]
-    response = HttpResponse("\n".join(filenames))
-    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
-    return response
+    return [config["prefix"] + s.filename for s in songs]
