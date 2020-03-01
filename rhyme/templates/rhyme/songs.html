@@ -1,11 +1,9 @@
 {% extends 'rhyme/base.html' %}
 
 {% block content %}
-    <div id="filter-container" class="form-inline">
-        {% include "rhyme/partials/omni_filter.html" %}
-        {% include "rhyme/partials/song_filters.html" %}
-        {% include "rhyme/partials/item_page_filters.html" %}
-    </div>
+    {% include "rhyme/partials/omni_filter.html" %}
+    {% include "rhyme/partials/song_filters.html" %}
+    {% include "rhyme/partials/item_page_filters.html" %}
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="songs" %}
 
     <div class="item-page" data-url="{% url "song_list" %}">
