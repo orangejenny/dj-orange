@@ -1,0 +1,3 @@
+{% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' lhs='name' %}
+{% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' lhs='is_mix' %}
+<input name="album_filters" type="text" data-bind="value: albumFilters" />

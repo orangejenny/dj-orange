@@ -161,6 +161,16 @@ def _format_date(date):
 
 @require_GET
 @login_required
+def playlist(request):
+    template = loader.get_template('rhyme/playlist.html')
+    context = {
+        **_rhyme_context(),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
 def artist_select2(request):
     return _select2_list(request, Artist.objects)
 
@@ -199,10 +209,57 @@ def album_export(request):
     song_filters = request.GET.get('song_filters')
     omni_filter = request.GET.get('omni_filter')
     songs = []
+    # TODO: use tracks to do this, either with an Album.list_songs method or by adding album_filters to Song.list
     for album in Album.list(album_filters, song_filters, omni_filter):
         songs += album.songs
         album.audit_export()
     return _m3u_response(request, songs)
+
+
+@require_GET
+@login_required
+def playlist_export(request):
+    album_filters = request.GET.get('album_filters')    # TODO: use these
+    song_filters = request.GET.get('song_filters')
+    filtered_songs = Song.list(song_filters)
+
+    # TODO: DRYer with command
+    attrs = ["rating", "energy", "mood"]
+    start_values = {}
+    end_values = {}
+    ranges = {}
+    for attr in attrs:
+        start = request.GET.get(attr + "_start")
+        end = request.GET.get(attr + "_end")
+        if start and end:
+            start_values[attr] = int(start)
+            end_values[attr] = int(end)
+            ranges[attr] = end_values[attr] - start_values[attr]
+
+    # TODO: DRYer with command
+    total_time = 60 * 60
+    accumulated_time = 0
+    songs = set()
+    stop = False
+    while not stop and accumulated_time < total_time:
+        kwargs = {}
+        for attr in attrs:
+            if attr not in ranges:
+                continue
+
+            ratio = accumulated_time / total_time
+            filter_value = round(start_values[attr] + ratio * ranges[attr])
+            kwargs[attr] = filter_value
+        candidates = filtered_songs.filter(time__isnull=False, **kwargs).order_by('?')
+        candidates = candidates.exclude(id__in=[song.id for song in songs])
+        song = candidates.first()
+        if song:
+            songs.add(song)
+            accumulated_time += song.time
+        else:
+            stop = True
+
+    return _m3u_response(request, songs)    # TODO: name playlist
 
 
 @require_GET

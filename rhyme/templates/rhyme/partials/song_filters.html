@@ -9,3 +9,4 @@
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' lhs='tag_year' %}
 {% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' lhs='time' %}
 {% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' lhs='starred' %}
+<input name="song_filters" type="text" data-bind="value: songFilters" />

@@ -3,8 +3,7 @@
 {% block content %}
     <div id="filter-container">
         {% include "rhyme/partials/omni_filter.html" %}
-        {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' lhs='name' %}
-        {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' lhs='is_mix' %}
+        {% include "rhyme/partials/album_filters.html" %}
         {% include "rhyme/partials/song_filters.html" %}
         {% include "rhyme/partials/item_page_filters.html" %}
     </div>

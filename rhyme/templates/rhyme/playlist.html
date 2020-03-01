@@ -1,0 +1,72 @@
+{% extends 'rhyme/base.html' %}
+
+{% block content %}
+    <form action="{% url "playlist_export" %}" method="GET">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Transitions</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4 text-center form-inline">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-star"></i>
+                            </div>
+                            <input type="text" class="form-control" name="rating_start" placeholder="start" />
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-star"></i>
+                            </div>
+                            <input type="text" class="form-control" name="rating_end" placeholder="end" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 text-center form-inline">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fire"></i>
+                            </div>
+                            <input type="text" class="form-control" name="energy_start" placeholder="start" />
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fire"></i>
+                            </div>
+                            <input type="text" class="form-control" name="energy_end" placeholder="end" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 text-center form-inline">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                            <input type="text" class="form-control" name="mood_start" placeholder="start" />
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                            <input type="text" class="form-control" name="mood_end" placeholder="end" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Filters</h3>
+            </div>
+            <div class="panel-body">
+                {% include "rhyme/partials/song_filters.html" %}
+                {% include "rhyme/partials/item_page_filters.html" %}
+            </div>
+        </div>
+    
+        <input name="config" value="home" /><!-- TODO: make this a choice -->
+        <button type="submit" class="btn btn-primary col-sm-12">
+            Make Playlist
+        </button>
+    </form>
+{% endblock content %}

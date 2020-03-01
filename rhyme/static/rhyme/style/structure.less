@@ -46,6 +46,8 @@ body > .loading {
 }
 
 .post-nav {
+    margin: @spacingWide;
+
     #filter-container {
         margin-top: @spacingNormal;
         text-align: center;
@@ -62,10 +64,9 @@ body > .loading {
     .item-page {
         position: fixed;
         top: @navHeight + @filterContainerHeight;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: @spacingWide;
+        left: @spacingWide;
+        right: @spacingWide;
         overflow-y: auto;
-        margin: @spacingWide;
     }
 }
