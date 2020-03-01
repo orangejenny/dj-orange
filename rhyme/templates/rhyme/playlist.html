@@ -60,12 +60,14 @@
             </div>
             <div class="panel-body">
                 {% include "rhyme/partials/song_filters.html" %}
+                {% include "rhyme/partials/album_filters.html" %}
                 {% include "rhyme/partials/item_page_filters.html" %}
             </div>
         </div>
     
         <input name="config" value="home" /><!-- TODO: make this a choice -->
         <button type="submit" class="btn btn-primary col-sm-12">
+            <i class='fas fa-play'></i>
             Make Playlist
         </button>
     </form>
