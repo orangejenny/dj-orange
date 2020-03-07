@@ -98,7 +98,9 @@ function rhymeModel (options) {
                 } else {
                     self.items(self.items().concat(data.items));
                 }
-                self.allowScroll(true);
+                if (data.more) {
+                    self.allowScroll(true);
+                }
             },
         });
     };
