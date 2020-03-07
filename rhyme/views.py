@@ -47,6 +47,7 @@ def song_list(request):
         else:
             disc_names = [f"Disc {index + 1}" for index in range(max([disc for disc, ordinal, song in tracks]))]
         count = len(tracks)
+        more = False
     else:
         page = int(request.GET.get('page', 1))
         filters = request.GET.get('song_filters')
@@ -54,12 +55,14 @@ def song_list(request):
         songs = Song.list(filters, omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
+        more = paginator.num_pages > page
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
 
     context = {
         'count': count,
         'omni_filter': omni_filter,
+        'more': more,
         'items': [{
             'id': song.id,
             'name': song.name,
@@ -115,7 +118,6 @@ def album_list(request):
     song_filters = request.GET.get('song_filters')
     albums_per_page = 25
     album_queryset = Album.list(album_filters, song_filters, omni_filter)
-    # TODO: when albums are filtered and the user scrolls, the paginator keeps re-fetching page 1
     paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
     albums = []
     for album in paginator.get_page(page):
@@ -148,6 +150,7 @@ def album_list(request):
     context = {
         'count': album_queryset.count(),
         'omni_filter': omni_filter,
+        'more': paginator.num_pages > page,
         'items': albums,
     }
     return JsonResponse(context)
