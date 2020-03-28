@@ -20,9 +20,11 @@
     <div class="navbar-container">
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
-            <div class="controls">
-                {% include "rhyme/partials/export_action.html" %}
-            </div>
+            {% if has_export %}
+                <div class="controls">
+                    {% include "rhyme/partials/export_action.html" %}
+                </div>
+            {% endif %}
             <ul class="nav navbar-nav">
                 <li>
                     <a href='{% url "index" %}'>

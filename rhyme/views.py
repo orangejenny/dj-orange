@@ -30,6 +30,7 @@ def index(request):
     template = loader.get_template('rhyme/songs.html')
     context = {
         **_rhyme_context(),
+        "has_export": True,
     }
     return HttpResponse(template.render(context, request))
 
@@ -107,7 +108,11 @@ def song_update(request):
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
-    return HttpResponse(template.render(_rhyme_context(), request))
+    context = {
+        **_rhyme_context(),
+        "has_export": True,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @require_GET
