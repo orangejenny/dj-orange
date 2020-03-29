@@ -6,6 +6,7 @@
     {% include "rhyme/partials/song_filters.html" %}
     {% include "rhyme/partials/item_page_filters.html" %}
     {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
+    {% include "rhyme/partials/read_only_filters.html" %}
 
     <div class="item-page" data-url="{% url "album_list" %}">
         <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
