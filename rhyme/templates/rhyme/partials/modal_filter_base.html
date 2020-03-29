@@ -1,6 +1,8 @@
 <a class="btn btn-default" data-toggle="modal" data-target="#filter-modal-{{ name|slugify }}">
     <i class="fas fa-{{ icon|default:"plus" }}"></i>
-    {{ name }}
+    {% if not condensed %}
+        {{ name }}
+    {% endif %}
 </a>
 
 <div class="modal filter-modal" id="filter-modal-{{ name|slugify }}" tabindex="-1" role="dialog" aria-hidden="true" data-lhs="{{ lhs }}" data-bind="event: {'shown.bs.modal': focusFilter }">

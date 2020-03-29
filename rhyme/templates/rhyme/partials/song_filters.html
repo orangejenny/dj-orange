@@ -1,18 +1,18 @@
-{% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' icon='star-half-alt' lhs='starred' %}
+{% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' icon='star-half-alt' lhs='starred' condensed=condensed %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_select2' %}
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' icon='filter' lhs='genre' options=RHYME_GENRES %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_select2' condensed=condensed %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' icon='folder' lhs='genre' options=RHYME_GENRES condensed=condensed %}
 
-{% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Song Name' icon='music' lhs='name' %}
+{% include 'rhyme/partials/modal_filter_text.html' with model='song' name='Song Name' icon='music' lhs='name' condensed=condensed %}
 
-{% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' %}
-{% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='hourglass-half' lhs='time' %}
+{% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' condensed=condensed %}
+{% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='hourglass-half' lhs='time' condensed=condensed %}
 
-{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Rating' lhs='rating' icon='star' %}
-{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Energy' lhs='energy' icon='fire' %}
-{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Mood'  lhs='mood' icon='heart' %}
+{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Rating' lhs='rating' icon='star' condensed=condensed %}
+{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Energy' lhs='energy' icon='fire' condensed=condensed %}
+{% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Mood'  lhs='mood' icon='heart' condensed=condensed %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_select2' include_all=True %}
-{% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='tag' lhs='tag_year' %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_select2' include_all=True condensed=condensed %}
+{% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='tag' lhs='tag_year' condensed=condensed %}
 
 <input name="song_filters" type="hidden" data-bind="value: songFilters" />
