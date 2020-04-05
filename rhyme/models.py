@@ -15,7 +15,7 @@ class FilterMixin():
     text_fields = []
 
     @classmethod
-    def filter_queryset(cls, objects, filters, omni_filter=''):
+    def filter_queryset(cls, objects, filters='', omni_filter=''):
         if omni_filter and cls.omni_fields:
             for value in re.split(r'\s+', omni_filter):
                 fields = [cls.related_fields[f] if f in cls.related_fields else f for f in cls.omni_fields]
@@ -148,14 +148,27 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     @classmethod
     def list(cls, song_filters=None, album_filters=None, omni_filter=''):
-        filtered_songs = cls.filter_queryset(cls.objects.all(), song_filters, omni_filter)
+        songs = Song.objects.all()
 
-        if album_filters:   # when listing songs, only apply the omni filter to songs, not albums
-            album_queryset = Album.filter_queryset(Album.objects.all(), album_filters)
-            album_filtered_song_ids = Track.objects.filter(album__in=album_queryset).values_list('song_id', flat=True)
-            filtered_songs = filtered_songs.filter(id__in=album_filtered_song_ids)
+        if song_filters:
+            songs = Song.filter_queryset(songs, song_filters)
+        filtered_songs = songs
 
-        return filtered_songs
+        if album_filters:
+            filtered_albums = Album.filter_queryset(Album.objects.all(), album_filters)
+            album_ids = filtered_albums.values_list('id', flat=True)
+            songs = songs.filter(track__album__in=album_ids)
+        else:
+            filtered_albums = Album.objects.all()
+
+        if omni_filter:
+            omni_filtered_song_ids = Track.objects.filter(
+                models.Q(album__in=Album.filter_queryset(filtered_albums, omni_filter=omni_filter)) |
+                models.Q(song__in=Song.filter_queryset(filtered_songs, omni_filter=omni_filter))
+            ).values_list('song_id', flat=True)
+            songs = songs.filter(id__in=omni_filtered_song_ids)
+
+        return songs
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):
@@ -178,28 +191,27 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
     @classmethod
     def list(cls, album_filters=None, song_filters=None, omni_filter=''):
-        if album_filters or omni_filter:
-            album_queryset = cls.filter_queryset(cls.objects.all(), album_filters, omni_filter)
+        albums = Album.objects.all()
+
+        if album_filters:
+            albums = Album.filter_queryset(Album.objects.all(), album_filters)
+        filtered_albums = Album.objects.all()
+
+        if song_filters:
+            filtered_songs = Song.filter_queryset(songs, song_filters)
+            song_ids = filtered_songs.values_list('id', flat=True)
+            albums = albums.filter(track__song__in=song_ids)
         else:
-            album_queryset = None
+            filtered_songs = Song.objects.all()
 
-        if song_filters or omni_filter:
-            track_queryset = Track.objects.filter(song__in=Song.list(song_filters=song_filters, omni_filter=omni_filter))
-            album_ids_for_tracks = track_queryset.values_list('album_id', flat=True)
-        else:
-            album_ids_for_tracks = None
+        if omni_filter:
+            omni_filtered_album_ids = Track.objects.filter(
+                models.Q(album__in=Album.filter_queryset(filtered_albums, omni_filter=omni_filter)) |
+                models.Q(song__in=Song.filter_queryset(filtered_songs, omni_filter=omni_filter))
+            ).values_list('album_id', flat=True)
+            albums = albums.filter(id__in=omni_filtered_album_ids)
 
-        if album_queryset and album_ids_for_tracks:
-            album_ids = set(album_queryset.values_list('id', flat=True))
-            return cls.objects.filter(id__in=album_ids.union(album_ids_for_tracks))
-
-        if album_queryset:
-            return album_queryset
-
-        if album_ids_for_tracks:
-            return cls.objects.filter(id__in=album_ids_for_tracks)
-
-        return cls.objects.all()
+        return albums
 
     @property
     def acronym(self):
