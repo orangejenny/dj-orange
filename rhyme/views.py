@@ -30,6 +30,7 @@ def index(request):
     template = loader.get_template('rhyme/songs.html')
     context = {
         **_rhyme_context(),
+        "has_export": True,
     }
     return HttpResponse(template.render(context, request))
 
@@ -52,7 +53,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         filters = request.GET.get('song_filters')
         songs_per_page = 20
-        songs = Song.list(filters, omni_filter)
+        songs = Song.list(song_filters=filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
         more = paginator.num_pages > page
@@ -107,7 +108,11 @@ def song_update(request):
 @login_required
 def albums(request):
     template = loader.get_template('rhyme/albums.html')
-    return HttpResponse(template.render(_rhyme_context(), request))
+    context = {
+        **_rhyme_context(),
+        "has_export": True,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @require_GET
@@ -164,6 +169,16 @@ def _format_date(date):
 
 @require_GET
 @login_required
+def playlist(request):
+    template = loader.get_template('rhyme/playlist.html')
+    context = {
+        **_rhyme_context(),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
 def artist_select2(request):
     return _select2_list(request, Artist.objects)
 
@@ -210,23 +225,71 @@ def album_export(request):
 
 @require_GET
 @login_required
+def playlist_export(request):
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+    filtered_songs = Song.list(song_filters=song_filters, album_filters=album_filters)
+
+    # TODO: DRYer with command...or remove command
+    attrs = ["rating", "energy", "mood"]
+    start_values = {}
+    end_values = {}
+    ranges = {}
+    for attr in attrs:
+        start = request.GET.get(attr + "_start")
+        end = request.GET.get(attr + "_end")
+        if start and end:
+            start_values[attr] = int(start)
+            end_values[attr] = int(end)
+            ranges[attr] = end_values[attr] - start_values[attr]
+
+    # TODO: DRYer with command...or remove command
+    total_time = 60 * 60
+    accumulated_time = 0
+    songs = set()
+    stop = False
+    while not stop and accumulated_time < total_time:
+        kwargs = {}
+        for attr in attrs:
+            if attr not in ranges:
+                continue
+
+            ratio = accumulated_time / total_time
+            filter_value = round(start_values[attr] + ratio * ranges[attr])
+            kwargs[attr] = filter_value
+        candidates = filtered_songs.filter(time__isnull=False, **kwargs).order_by('?')
+        candidates = candidates.exclude(id__in=[song.id for song in songs])
+        song = candidates.first()
+        if song:
+            songs.add(song)
+            accumulated_time += song.time
+        else:
+            stop = True
+
+    return _m3u_response(request, songs)    # TODO: name playlist
+
+
+@require_GET
+@login_required
 def song_export(request):
     song_filters = request.GET.get('song_filters')
     omni_filter = request.GET.get('omni_filter')
-    return _m3u_response(request, Song.list(song_filters, omni_filter))
+    return _m3u_response(request, Song.list(song_filters=song_filters, omni_filter=omni_filter))
 
 
 def _m3u_response(request, songs):
-    config_name = request.GET.get("config", None)
-    try:
-        config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
-    except IndexError:
-        raise ExportConfigNotFound(f"Could not find {config_name}")
-
     for song in songs:
         song.audit_export()
 
-    filenames = [config["prefix"] + s.filename for s in songs]
-    response = HttpResponse("\n".join(filenames))
+    response = HttpResponse("\n".join(_filenames(request.GET.get("config"), songs)))
     response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
     return response
+
+
+def _filenames(config_name, songs):
+    try:
+        config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
+    except IndexError:
+        raise ExportConfigNotFoundException(f"Could not find {config_name}")
+
+    return [config["prefix"] + s.filename for s in songs]

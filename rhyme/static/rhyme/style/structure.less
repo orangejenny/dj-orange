@@ -46,26 +46,23 @@ body > .loading {
 }
 
 .post-nav {
-    #filter-container {
-        margin-top: @spacingNormal;
-        text-align: center;
+    margin: @spacingWide;
 
-        #read-only-filters {
-            margin-top: @spacingNormal;
-        }
+    #omni-filter {
+        display: inline-block;
 
-        .filter-modal {
-            text-align: left;
+        input {
+            display: inline-block;
+            width: 150px;
         }
     }
 
     .item-page {
         position: fixed;
         top: @navHeight + @filterContainerHeight;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: @spacingWide;
+        left: @spacingWide;
+        right: @spacingWide;
         overflow-y: auto;
-        margin: @spacingWide;
     }
 }

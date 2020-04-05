@@ -47,7 +47,7 @@ function SongModel(options) {
 }
 
 function rhymeModel (options) {
-    AssertArgs(options, ['model', 'url']);
+    AssertArgs(options, ['model'], ['url']);
 
     var self = {};
 
@@ -75,6 +75,10 @@ function rhymeModel (options) {
     };
 
     self.goToPage = function (page) {
+        if (!self.url) {
+            return;
+        }
+
         self.allowScroll(false);
         self.isLoading(true);
         $.ajax({
@@ -155,11 +159,19 @@ function rhymeModel (options) {
 
     self.serializeFilters = function () {
         return {
-            album_filters: _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&"),
-            song_filters: _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join("&&"),
+            album_filters: self.albumFilters(),
+            song_filters: self.songFilters(),
             omni_filter: self.omniFilter(),
         };
     };
+
+    self.albumFilters = ko.computed(function () {
+        return _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&");
+    });
+
+    self.songFilters = ko.computed(function () {
+        return _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join("&&");
+    });
 
     self.exportPlaylist = function (config) {
         ExportPlaylist(_.extend({
@@ -214,9 +226,6 @@ function rhymeModel (options) {
 $(function() {
     var $postNav = $(".post-nav"),
         $itemPage = $postNav.find(".item-page");
-    if (!$itemPage.length) {
-        return;
-    }
 
     var model = rhymeModel({
         model: document.location.href.indexOf("albums") == -1 ? 'song' : 'album',

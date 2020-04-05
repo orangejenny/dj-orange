@@ -1,14 +1,17 @@
 {% extends 'rhyme/base.html' %}
 
+{% block title %}{{ block.super }}: Albums{% endblock title %}
+
 {% block content %}
-    <div id="filter-container">
-        {% include "rhyme/partials/omni_filter.html" %}
-        {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' lhs='name' %}
-        {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' lhs='is_mix' %}
-        {% include "rhyme/partials/song_filters.html" %}
-        {% include "rhyme/partials/item_page_filters.html" %}
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            {% include "rhyme/partials/infinite_scroll_item_count.html" %}
+            {% include "rhyme/partials/omni_filter.html" %}
+            {% include "rhyme/partials/album_filters.html" with condensed=True %}
+            {% include "rhyme/partials/song_filters.html" with condensed=True %}
+        </div>
     </div>
-    {% include "rhyme/partials/infinite_scroll_item_count.html" with text="albums" %}
+    {% include "rhyme/partials/read_only_filters.html" %}
 
     <div class="item-page" data-url="{% url "album_list" %}">
         <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
