@@ -230,7 +230,7 @@ def playlist_export(request):
     song_filters = request.GET.get('song_filters')
     filtered_songs = Song.list(song_filters=song_filters, album_filters=album_filters)
 
-    # TODO: DRYer with command
+    # TODO: DRYer with command...or remove command
     attrs = ["rating", "energy", "mood"]
     start_values = {}
     end_values = {}
@@ -243,7 +243,7 @@ def playlist_export(request):
             end_values[attr] = int(end)
             ranges[attr] = end_values[attr] - start_values[attr]
 
-    # TODO: DRYer with command
+    # TODO: DRYer with command...or remove command
     total_time = 60 * 60
     accumulated_time = 0
     songs = set()
@@ -279,14 +279,14 @@ def song_export(request):
 
 def _m3u_response(request, songs):
     for song in songs:
-        song.audit_export()     # TODO: move to filenames
+        song.audit_export()
 
-    response = HttpResponse("\n".join(filenames(request.GET.get("config"), songs)))
+    response = HttpResponse("\n".join(_filenames(request.GET.get("config"), songs)))
     response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
     return response
 
 
-def filenames(config_name, songs):       # TODO: move to models
+def _filenames(config_name, songs):
     try:
         config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
     except IndexError:
