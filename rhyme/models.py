@@ -194,11 +194,11 @@ class Album(models.Model, FilterMixin, ExportableMixin):
         albums = Album.objects.all()
 
         if album_filters:
-            albums = Album.filter_queryset(Album.objects.all(), album_filters)
+            albums = Album.filter_queryset(albums, album_filters)
         filtered_albums = Album.objects.all()
 
         if song_filters:
-            filtered_songs = Song.filter_queryset(songs, song_filters)
+            filtered_songs = Song.filter_queryset(Song.objects.all(), song_filters)
             song_ids = filtered_songs.values_list('id', flat=True)
             albums = albums.filter(track__song__in=song_ids)
         else:

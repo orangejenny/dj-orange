@@ -1,5 +1,4 @@
-
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from rhyme.models import Song
 from rhyme.views import filenames
@@ -29,7 +28,7 @@ class Command(BaseCommand):
                     start_values[attr] = int(arg)
                     end_values[attr] = int(arg)
                 ranges[attr] = end_values[attr] - start_values[attr]
-                
+
         total_time = 60 * 60
         accumulated_time = 0
         songs = set()
@@ -45,7 +44,6 @@ class Command(BaseCommand):
                 kwargs[attr] = filter_value
             candidates = Song.objects.filter(time__isnull=False, **kwargs).order_by('?')
             candidates = candidates.exclude(id__in=[song.id for song in songs])
-            #print(f"{accumulated_time}, {kwargs}")
             song = candidates.first()
             if song:
                 songs.add(song)
