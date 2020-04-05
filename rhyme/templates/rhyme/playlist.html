@@ -70,7 +70,7 @@
                 <h3 class="panel-title">Export to</h3>
             </div>
             <div class="panel-body">
-                <select name="config">
+                <select name="config" class="form-control">
                   {% for config in RHYME_EXPORT_CONFIGS %}
                     <option>{{ config.name }}</option>
                   {% endfor %}
