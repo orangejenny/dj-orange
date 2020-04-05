@@ -1,3 +1,4 @@
+{# Song filters #}
 {% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' icon='star-half-alt' lhs='starred' condensed=condensed %}
 
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_select2' condensed=condensed %}
@@ -16,3 +17,10 @@
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='tag' lhs='tag_year' condensed=condensed %}
 
 <input name="song_filters" type="hidden" data-bind="value: songFilters" />
+
+
+{# Album filters #}
+
+{% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' %}
+{% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' %}
+<input name="album_filters" type="hidden" data-bind="value: albumFilters" />
