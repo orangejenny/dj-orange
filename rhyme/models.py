@@ -147,8 +147,15 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         return "{} ({})".format(self.name, self.artist.name)
 
     @classmethod
-    def list(cls, filters=None, omni_filter=''):
-        return cls.filter_queryset(cls.objects.all(), filters, omni_filter)
+    def list(cls, song_filters=None, album_filters=None, omni_filter=''):
+        filtered_songs = cls.filter_queryset(cls.objects.all(), song_filters, omni_filter)
+
+        if album_filters:   # when listing songs, only apply the omni filter to songs, not albums
+            album_queryset = Album.filter_queryset(Album.objects.all(), album_filters)
+            album_filtered_song_ids = Track.objects.filter(album__in=album_queryset).values_list('song_id', flat=True)
+            filtered_songs = filtered_songs.filter(id__in=album_filtered_song_ids)
+
+        return filtered_songs
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):
@@ -177,7 +184,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
             album_queryset = None
 
         if song_filters or omni_filter:
-            track_queryset = Track.objects.filter(song__in=Song.list(song_filters, omni_filter))
+            track_queryset = Track.objects.filter(song__in=Song.list(song_filters=song_filters, omni_filter=omni_filter))
             album_ids_for_tracks = track_queryset.values_list('album_id', flat=True)
         else:
             album_ids_for_tracks = None

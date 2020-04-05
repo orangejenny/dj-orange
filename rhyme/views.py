@@ -53,7 +53,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         filters = request.GET.get('song_filters')
         songs_per_page = 20
-        songs = Song.list(filters, omni_filter)
+        songs = Song.list(song_filters=filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
         more = paginator.num_pages > page
@@ -217,7 +217,6 @@ def album_export(request):
     song_filters = request.GET.get('song_filters')
     omni_filter = request.GET.get('omni_filter')
     songs = []
-    # TODO: use tracks to do this, either with an Album.list_songs method or by adding album_filters to Song.list
     for album in Album.list(album_filters, song_filters, omni_filter):
         songs += album.songs
         album.audit_export()
@@ -227,9 +226,9 @@ def album_export(request):
 @require_GET
 @login_required
 def playlist_export(request):
-    album_filters = request.GET.get('album_filters')    # TODO: use these
+    album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
-    filtered_songs = Song.list(song_filters)
+    filtered_songs = Song.list(song_filters=song_filters, album_filters=album_filters)
 
     # TODO: DRYer with command
     attrs = ["rating", "energy", "mood"]
@@ -275,7 +274,7 @@ def playlist_export(request):
 def song_export(request):
     song_filters = request.GET.get('song_filters')
     omni_filter = request.GET.get('omni_filter')
-    return _m3u_response(request, Song.list(song_filters, omni_filter))
+    return _m3u_response(request, Song.list(song_filters=song_filters, omni_filter=omni_filter))
 
 
 def _m3u_response(request, songs):
