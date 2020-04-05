@@ -1,5 +1,7 @@
 {% extends 'rhyme/base.html' %}
 
+{% block title %}{{ block.super }}: Transitional Playlist{% endblock title %}
+
 {% block content %}
     <form action="{% url "playlist_export" %}" method="GET">
         <div class="panel panel-default">
