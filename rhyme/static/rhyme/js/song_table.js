@@ -31,7 +31,7 @@ $(document).ready(function() {
             value = value.length;
             $editable.html(ratingHTML(iconClasses[field], value));
         }
-        if (oldValue != value) {
+        if (value && oldValue != value) {
             var id = $container.data("song-id");
 
             // Update server
