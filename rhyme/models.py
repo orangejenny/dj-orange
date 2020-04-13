@@ -168,7 +168,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
             ).values_list('song_id', flat=True)
             songs = songs.filter(id__in=omni_filtered_song_ids)
 
-        return songs
+        return songs.distinct()
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):
@@ -211,7 +211,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
             ).values_list('album_id', flat=True)
             albums = albums.filter(id__in=omni_filtered_album_ids)
 
-        return albums
+        return albums.distinct()
 
     @property
     def acronym(self):
