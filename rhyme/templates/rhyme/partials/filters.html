@@ -21,6 +21,12 @@
 
 {# Album filters #}
 
-{% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' %}
-{% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' %}
+{% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' disallow_null=True %}
+{% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' disallow_null=True %}
 <input name="album_filters" type="hidden" data-bind="value: albumFilters" />
+
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" data-bind="click: toggleConjunction, css: {active: useAnd}">AND</button>
+    <button type="button" class="btn btn-default" data-bind="click: toggleConjunction, css: {active: useOr}">OR</button>
+</div>
+<input name="conjunction" type="hidden" data-bind="value: conjunction" />
