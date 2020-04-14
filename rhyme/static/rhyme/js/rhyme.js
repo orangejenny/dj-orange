@@ -87,6 +87,7 @@ function rhymeModel (options) {
             data: _.extend({
                 page: page,
                 omni_filter: self.omniFilter(),
+                conjunction: self.conjunction(),
             }, self.serializeFilters()),
             success: function(data) {
                 if (data.omni_filter !== self.omniFilter()) {
@@ -165,12 +166,31 @@ function rhymeModel (options) {
         };
     };
 
+    self.conjunction = ko.observable("&&");
+
     self.albumFilters = ko.computed(function () {
-        return _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join("&&");
+        return _.map(_.where(self.filters(), {model: 'album'}), function(f) { return f.serialize() }).join(self.conjunction());
     });
 
     self.songFilters = ko.computed(function () {
-        return _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join("&&");
+        return _.map(_.where(self.filters(), {model: 'song'}), function(f) { return f.serialize() }).join(self.conjunction());
+    });
+
+    self.toggleConjunction = function () {
+        if (self.conjunction() === "&&") {
+            self.conjunction("||");
+        } else {
+            self.conjunction("&&");
+        }
+        self.goToPage(1);
+    };
+
+    self.useAnd = ko.computed(function () {
+        return self.conjunction() === "&&";
+    });
+
+    self.useOr = ko.computed(function () {
+        return self.conjunction() === "||";
     });
 
     self.exportPlaylist = function (config) {
