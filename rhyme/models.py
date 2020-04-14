@@ -28,8 +28,10 @@ class FilterMixin():
             return objects.distinct()
 
         for condition in filters.split("&&"):
-            (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*!]*)\s*(\S.*)', condition).groups()
-            if lhs in cls.bool_fields:
+            (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*!?]*)\s*(\S.*)', condition).groups()
+            if op == '=?':
+                objects = objects.filter(**{f"{lhs}__isnull": bool(rhs != "true")})
+            elif lhs in cls.bool_fields:
                 objects = objects.filter(**{lhs: rhs})
             elif lhs in cls.numeric_fields:
                 if op == '>=':
