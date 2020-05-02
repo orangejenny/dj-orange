@@ -34,7 +34,7 @@ function AlbumModel(options) {
         ExportPlaylist({
             config: config,
             album_id: self.id,
-            filename: self.name,
+            filename: self.artist + " - " + self.name,
             model: 'album',
         });
     };
