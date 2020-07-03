@@ -135,6 +135,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     name = models.CharField(max_length=127)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
+    plex_filename = models.CharField(max_length=255, null=True)
     rating = models.IntegerField(null=True)
     mood = models.IntegerField(null=True)
     energy = models.IntegerField(null=True)
