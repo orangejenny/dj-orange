@@ -293,4 +293,4 @@ def _filenames(config_name, songs):
     except IndexError:
         raise ExportConfigNotFoundException(f"Could not find {config_name}")
 
-    return [config["prefix"] + s.filename for s in songs]
+    return [config["prefix"] + (s.plex_filename or s.filename) for s in songs]
