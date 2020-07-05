@@ -1,5 +1,6 @@
 Django==2.0.12
 mysql-connector-python==8.0.15
+plexapi==4.0.0
 protobuf==3.6.1
 pytz==2018.4
 six==1.12.0
