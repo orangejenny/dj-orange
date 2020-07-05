@@ -1,6 +1,8 @@
 import random
 import re
 
+from plexapi.playlist import Playlist
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -11,6 +13,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Album, Artist, Color, Song, Tag, Track
+from rhyme.plex import plex_library, plex_server
 
 
 def _rhyme_context():
@@ -212,7 +215,7 @@ def album_export(request):
     if album_id:
         album = Album.objects.get(id=album_id)
         album.audit_export()
-        return _m3u_response(request, album.songs)
+        return _playlist_response(request, album.songs)
 
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
@@ -221,7 +224,7 @@ def album_export(request):
     for album in Album.list(album_filters, song_filters, omni_filter):
         songs += album.songs
         album.audit_export()
-    return _m3u_response(request, songs)
+    return _playlist_response(request, songs)
 
 
 @require_GET
@@ -267,7 +270,7 @@ def playlist_export(request):
         else:
             stop = True
 
-    return _m3u_response(request, songs)    # TODO: name playlist
+    return _playlist_response(request, songs)    # TODO: name playlist
 
 
 @require_GET
@@ -275,22 +278,28 @@ def playlist_export(request):
 def song_export(request):
     song_filters = request.GET.get('song_filters')
     omni_filter = request.GET.get('omni_filter')
-    return _m3u_response(request, Song.list(song_filters=song_filters, omni_filter=omni_filter))
+    return _playlist_response(request, Song.list(song_filters=song_filters, omni_filter=omni_filter))
 
 
-def _m3u_response(request, songs):
+def _playlist_response(request, songs):
     for song in songs:
         song.audit_export()
 
-    response = HttpResponse("\n".join(_filenames(request.GET.get("config"), songs)))
-    response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(request.GET.get("filename", "rhyme"))
+    playlist_name = request.GET.get("filename", "rhyme")
+    config_name = request.GET.get("config")
+    if config_name == "plex":
+        server = plex_server()
+        library = plex_library(server)
+        items = [library.fetchItem(song.plex_key) for song in songs if song.plex_key]
+        playlist = Playlist.create(server, playlist_name, items=items, section='Music')
+        return JsonResponse({"success": 1, "count": len(items)})
+    else:
+        try:
+            config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
+        except IndexError:
+            raise ExportConfigNotFoundException(f"Could not find {config_name}")
+        filenames = [config["prefix"] + (s.plex_filename or s.filename) for s in songs]
+        response = HttpResponse("\n".join(filenames))
+        response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
+
     return response
-
-
-def _filenames(config_name, songs):
-    try:
-        config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
-    except IndexError:
-        raise ExportConfigNotFoundException(f"Could not find {config_name}")
-
-    return [config["prefix"] + (s.plex_filename or s.filename) for s in songs]
