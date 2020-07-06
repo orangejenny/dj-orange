@@ -1,7 +1,7 @@
 import random
 import re
 
-from plexapi.playlist import Playlist
+from plexapi.playlist import Playlist as PlexPlaylist
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Artist, Color, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Playlist, Song, Tag, Track
 from rhyme.plex import plex_library, plex_server
 
 
@@ -217,22 +217,26 @@ def album_export(request):
         album.audit_export()
         return _playlist_response(request, album.songs)
 
-    album_filters = request.GET.get('album_filters')
-    song_filters = request.GET.get('song_filters')
-    omni_filter = request.GET.get('omni_filter')
+    filter_kwargs = {
+        'album_filters': request.GET.get('album_filters'),
+        'song_filters': request.GET.get('song_filters'),
+        'omni_filter': request.GET.get('omni_filter'),
+    }
     songs = []
-    for album in Album.list(album_filters, song_filters, omni_filter):
+    for album in Album.list(**filter_kwargs):
         songs += album.songs
         album.audit_export()
-    return _playlist_response(request, songs)
+    return _playlist_response(request, songs, **filter_kwargs)
 
 
 @require_GET
 @login_required
 def playlist_export(request):
-    album_filters = request.GET.get('album_filters')
-    song_filters = request.GET.get('song_filters')
-    filtered_songs = Song.list(song_filters=song_filters, album_filters=album_filters)
+    filter_kwargs = {
+        'album_filters': request.GET.get('album_filters'),
+        'song_filters': request.GET.get('song_filters'),
+    }
+    filtered_songs = Song.list(**filter_kwargs)
 
     # TODO: DRYer with command...or remove command
     attrs = ["rating", "energy", "mood"]
@@ -270,18 +274,20 @@ def playlist_export(request):
         else:
             stop = True
 
-    return _playlist_response(request, songs)    # TODO: name playlist
+    return _playlist_response(request, songs, **filter_kwargs)    # TODO: name playlist
 
 
 @require_GET
 @login_required
 def song_export(request):
-    song_filters = request.GET.get('song_filters')
-    omni_filter = request.GET.get('omni_filter')
-    return _playlist_response(request, Song.list(song_filters=song_filters, omni_filter=omni_filter))
+    filter_kwargs = {
+        'song_filters': request.GET.get('song_filters'),
+        'omni_filter': request.GET.get('omni_filter'),
+    }
+    return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
 
 
-def _playlist_response(request, songs):
+def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()
 
@@ -291,7 +297,17 @@ def _playlist_response(request, songs):
         server = plex_server()
         library = plex_library(server)
         items = [library.fetchItem(song.plex_key) for song in songs if song.plex_key]
-        playlist = Playlist.create(server, playlist_name, items=items, section='Music')
+        plex_playlist = PlexPlaylist.create(server, playlist_name, items=items, section='Music')
+        if song_filters or album_filters or omni_filter:
+            playlist = Playlist(
+                name=playlist_name,
+                plex_guid=plex_playlist.guid,
+                plex_key=plex_playlist.key,
+                song_filters=song_filters,
+                album_filters=album_filters,
+                omni_filter=omni_filter,
+            )
+            playlist.save()
         return JsonResponse({"success": 1, "count": len(items)})
     else:
         try:
