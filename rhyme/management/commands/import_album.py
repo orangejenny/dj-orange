@@ -52,12 +52,16 @@ class Command(BaseCommand):
                     artist.save()
                     new_artists.append(artist)
 
+                album_name = input("Album name? ") if is_mix else album.name
+                filename = f"{artist.name}/{album_name}{song_name}.mp3"
+
                 song = Song(
                     name=song_name,
                     artist=artist,
-                    filename=f"{artist.name}/{song_name}.mp3",
+                    filename=filename,
+                    plex_filename=filename,
                     time=int(minutes) * 60 + int(seconds),
-                    year=album_year if album_year else None,
+                    year=album_year if album_year else input("Year? "),
                 )
                 song.save()
                 songs.append(song)
