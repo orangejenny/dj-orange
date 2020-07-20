@@ -29,7 +29,7 @@ class Command(BaseCommand):
         discs = []
         songs = []
         tracks = []
-        new_artists = []
+        self.new_artists = []
         for disc_index in range(1, disc_count + 1):
             if has_disc_names:
                 discs.append(Disc(
@@ -41,29 +41,17 @@ class Command(BaseCommand):
             disc_suffix = f" on disc {disc_index}" if multidisc else ""
             track_count = int(input(f"Number of tracks{disc_suffix}? "))
             for track_index in range(1, track_count + 1):
-                song_name = input(f"Track {track_index} name? ")
-                song_artist = album_artist or input(f"Track {track_index} artist? ")
-                time = input(f"Track {track_index} length? ")
-                minutes, seconds = time.split(":")
+                song_id = input(f"Track {track_index} name or id? ")
+                try:
+                    song = Song.objects.get(id=int(song_id))
+                except ValueError:
+                    song = self._build_song(
+                        song_id,
+                        artist=album_artist,
+                        album_name=album.name if is_mix else None,
+                        album_year=album_year
+                    )
 
-                artist = Artist.objects.filter(name=song_artist).first()
-                if not artist:
-                    artist = Artist(name=song_artist)
-                    artist.save()
-                    new_artists.append(artist)
-
-                album_name = input("Album name? ") if is_mix else album.name
-                filename = f"{artist.name}/{album_name}{song_name}.mp3"
-
-                song = Song(
-                    name=song_name,
-                    artist=artist,
-                    filename=filename,
-                    plex_filename=filename,
-                    time=int(minutes) * 60 + int(seconds),
-                    year=album_year if album_year else input("Year? "),
-                )
-                song.save()
                 songs.append(song)
 
                 tracks.append(Track(
@@ -90,7 +78,32 @@ class Command(BaseCommand):
             print(f"Created {album.name} with {disc_count} disc(s), {len(tracks)} tracks.")
         else:
             album.delete()
-            for artist in new_artists:
+            for artist in self.new_artists:
                 artist.delete()
             for song in songs:
                 song.delete()
+
+    def _build_song(self, name):
+        song_artist = artist or input(f"Track {track_index} artist? ")
+        time = input(f"Track {track_index} length? ")
+        minutes, seconds = time.split(":")
+
+        artist = Artist.objects.filter(name=song_artist).first()
+        if not artist:
+            artist = Artist(name=song_artist)
+            artist.save()
+            self.new_artists.append(artist)
+
+        album_name = album_name or input("Album name? ")
+        filename = f"{artist.name}/{album_name}{song_name}.mp3"
+
+        song = Song(
+            name=song_name,
+            artist=artist,
+            filename=filename,
+            plex_filename=filename,
+            time=int(minutes) * 60 + int(seconds),
+            year=album_year or input("Year? "),
+        )
+        song.save()
+        return song
