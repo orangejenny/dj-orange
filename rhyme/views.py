@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
@@ -20,12 +20,16 @@ from rhyme.plex import plex_library, plex_server
 
 def _rhyme_context():
     from rhyme.urls import urlpatterns
+    js_urls = {}
+    for pattern in urlpatterns:
+        try:
+            js_urls[pattern.name] = reverse(pattern.name)
+        except NoReverseMatch:
+            pass
     return {
         "RHYME_EXPORT_CONFIGS": settings.RHYME_EXPORT_CONFIGS,
         "RHYME_GENRES": Artist.all_genres(),
-        "RHYME_URLS": {
-            p.name: reverse(p.name) for p in urlpatterns
-        },
+        "RHYME_URLS": js_urls,
     }
 
 
