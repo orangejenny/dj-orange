@@ -303,12 +303,17 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
                 name=playlist_name,
                 plex_guid=plex_playlist.guid,
                 plex_key=plex_playlist.key,
+                plex_count=len(items),
                 song_filters=song_filters,
                 album_filters=album_filters,
                 omni_filter=omni_filter,
             )
             playlist.save()
-        return JsonResponse({"success": 1, "count": len(items)})
+        return JsonResponse({
+            "success": 1,
+            "count": playlist.plex_count,
+            "name": playlist_name,
+        })
     else:
         try:
             config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]

@@ -195,6 +195,7 @@ class Playlist(models.Model):
     name = models.CharField(max_length=127, null=True)
     plex_guid = models.CharField(max_length=255, null=True)
     plex_key = models.CharField(max_length=255, null=True)
+    plex_count = models.IntegerField(default=0)
     song_filters = models.TextField(null=True)
     album_filters = models.TextField(null=True)
     omni_filter = models.TextField(null=True)
