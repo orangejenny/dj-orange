@@ -1,6 +1,8 @@
 import random
 import re
 
+from datetime import datetime
+
 from plexapi.playlist import Playlist as PlexPlaylist
 
 from django.conf import settings
@@ -324,3 +326,23 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
         response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
 
     return response
+
+
+@require_POST
+def plex_in(request, api_key):
+    if api_key != settings.PLEX_API_KEY:
+        return JsonResponse({"success": 0, "message": "Bad API key"})
+
+    event = request.POST.get("event")
+    if event != "media.scrobble":
+        return JsonResponse({"success": 1, "message": "Unsupported event"})
+
+    plex_key = request.POST.get("Metadata", {}).get("key", None)
+    if plex_key:
+        song = Song.objects.filter(plex_key=plex_key).first()
+        if song:
+            song.play_count = song.play_count + 1
+            song.last_play = datetime.now()
+            song.save()
+
+    return JsonResponse({"success": 1})
