@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
@@ -332,6 +333,7 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
     return response
 
 
+@csrf_exempt
 @require_POST
 def plex_in(request, api_key):
     if api_key != settings.PLEX_API_KEY:
@@ -339,7 +341,7 @@ def plex_in(request, api_key):
 
     event = request.POST.get("event")
     if event != "media.scrobble":
-        return JsonResponse({"success": 1, "message": "Unsupported event"})
+        return JsonResponse({"success": 0, "message": "Unsupported event"})
 
     plex_key = request.POST.get("Metadata", {}).get("key", None)
     if plex_key:
@@ -348,5 +350,6 @@ def plex_in(request, api_key):
             song.play_count = song.play_count + 1
             song.last_play = datetime.now()
             song.save()
+            return JsonResponse({"success": 1, "message": "Updated {}".format(song)})
 
-    return JsonResponse({"success": 1})
+    return JsonResponse({"success": 0, "message": "Could not find song"})
