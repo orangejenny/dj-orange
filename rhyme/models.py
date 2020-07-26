@@ -202,6 +202,13 @@ class Playlist(models.Model):
     album_filters = models.TextField(null=True)
     omni_filter = models.TextField(null=True)
 
+    def songs(self):
+        return Song.list(
+            song_filters=self.song_filters,
+            album_filters=self.album_filters,
+            omni_filter=self.omni_filter,
+        )
+
 
 class Album(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']

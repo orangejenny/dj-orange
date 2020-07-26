@@ -1,0 +1,39 @@
+{% extends 'rhyme/base.html' %}
+
+{% block title %}{{ block.super }}: Playlists{% endblock title %}
+
+{% block content %}
+    <div class="item-page" data-url="{% url "playlist_list" %}">
+        <table class="table table-striped table-condensed table-hover">
+            <thead>
+                <th>Name</th>
+                <th>Omni Filter</th>
+                <th>Song Filters</th>
+                <th>Album Filters</th>
+                <th>Rhyme Count</th>
+                <th>Plex Count</th>
+                <th></th>
+            </thead>
+            <tbody data-bin="foreach: items">
+                <tr>
+                    <th data-bind="text: name"></th>
+                    <th data-bind="text: omni_filter"></th>
+                    <th data-bind="text: song_filters"></th>
+                    <th data-bind="text: album_filters"></th>
+                    <th data-bind="text: rhyme_count"></th>
+                    <th data-bind="text: plex_count"></th>
+                    <th>
+                        <button class="btn btn-default" data-bind="click: refresh, disable: isRefreshing">
+                            <i class="fas fa-recycle"></i>
+                            Refresh
+                        </button>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+        <p class='loading text-center' data-bind='visible: isLoading'>
+            <i class='fas fa-spinner fa-spin'></i>
+            Loading...
+        </p>
+    </div>
+{% endblock content %}

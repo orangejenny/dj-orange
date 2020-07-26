@@ -46,6 +46,31 @@ function SongModel(options) {
     return _.extend({}, options);
 }
 
+function PlaylistModel(options) {
+    self = _.extend({}, options);
+    self.isRefreshing = ko.observable(false);
+
+    self.refresh = function () {
+        self.isRefreshing(true);
+        $.ajax({
+            method: 'GET',
+            url: reverse('playlist_refresh'),
+            data: {
+                id: self.id,
+            },
+            success: function (data) {
+                self.isRefreshing(false);
+                self.plex_count(data.count);
+            },
+            error: {
+                // TODO: error handling
+            },
+        });
+    };
+
+    return self;
+}
+
 function rhymeModel (options) {
     AssertArgs(options, ['model'], ['url']);
 
@@ -97,8 +122,14 @@ function rhymeModel (options) {
                 self.isLoading(false);
                 self.count(data.count);
 
+                debugger;
                 if (page === 1) {
-                    self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
+                    var models = {
+                        'album': AlbumModel,
+                        'playlist': PlaylistModel,
+                        'song': SongModel,
+                    };
+                    self.items(_.map(data.items, models[self.model]));
                     //$postNav.scrollTop(0);    // TODO
                 } else {
                     self.items(self.items().concat(data.items));
@@ -226,7 +257,7 @@ function rhymeModel (options) {
                     $image.css("background-image", "url('" + album.cover_art_filename + "')")
                 }
                 $backdrop.before($image);
-    
+
                 $modal.one("hide.bs.modal", function() {
                     $image.remove();
                 });
@@ -247,8 +278,11 @@ $(function() {
     var $postNav = $(".post-nav"),
         $itemPage = $postNav.find(".item-page");
 
+    var modelName = _.find(['album', 'playlist', 'song'], function (name) {
+        return document.location.href.indexOf(name) !== -1;
+    });
     var model = rhymeModel({
-        model: document.location.href.indexOf("albums") == -1 ? 'song' : 'album',
+        model: modelName,
         url: $itemPage.data("url"),
     });
     ko.applyBindings(model);

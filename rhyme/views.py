@@ -190,6 +190,64 @@ def playlist(request):
 
 @require_GET
 @login_required
+def playlists(request):
+    template = loader.get_template('rhyme/playlists.html')
+    context = {
+        **_rhyme_context(),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_GET
+def playlist_list(request):
+    playlists = []
+    for playlist in Playlist.objects.all().order_by('name'):
+        playlists.append({
+            "id": playlist.id,
+            "name": playlist.name,
+            "omni_filter": playlist.omni_filter,
+            "song_filters": playlist.song_filters,
+            "album_filters": playlist.album_filters,
+            "rhyme_count": len(playlist.songs()),
+            "plex_count": playlist.plex_count,
+        })
+    context = {
+        'count': len(playlists),
+        'more': False,
+        'items': playlists,
+    }
+    return JsonResponse(context)
+
+
+@require_POST
+@login_required
+def playlist_refresh(request):
+    playlist = Playlist.objects.get(id=request.POST.get("id"))
+    server = plex_server()
+    library = plex_library(server)
+
+    rhyme_keys = {song.plex_key for song in playlist.songs if song.plex_key}
+    plex_playlist = server.playlist(playlist.namelibrary.fetchItem(playlist.plex_key))
+    plex_key = {item.key for item in plex_playlist.items()}
+
+    keys_to_remove = plex_keys - rhyme_keys
+    for key in keys_to_remove:
+        item = library.fetchItem(key)
+        plex_playlist.removeItem(key)
+
+    keys_to_add = rhyme_keys - plex_keys
+    items_to_add = [library.fetchItem(key) for key in keys_to_add]
+    plex_playlist.addItems(items_to_add)
+
+    if playlist.plex_count != len(rhyme_keys):
+        playlist.plex_count = len(rhyme_keys)
+        playlist.save()
+
+    return JsonResponse({"success": 1, "count": playlist.plex_count})
+
+
+@require_GET
+@login_required
 def artist_select2(request):
     return _select2_list(request, Artist.objects)
 
