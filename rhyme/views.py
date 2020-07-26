@@ -339,11 +339,12 @@ def plex_in(request, api_key):
     if api_key != settings.PLEX_API_KEY:
         return JsonResponse({"success": 0, "message": "Bad API key"})
 
-    event = request.POST.get("event")
+    payload = json.loads(request.POST.get("payload"))
+    event = payload.get("event")
     if event != "media.scrobble":
         return JsonResponse({"success": 0, "message": "Unsupported event"})
 
-    plex_key = request.POST.get("Metadata", {}).get("key", None)
+    plex_key = payload.get("Metadata", {}).get("key", None)
     if plex_key:
         song = Song.objects.filter(plex_key=plex_key).first()
         if song:
