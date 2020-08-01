@@ -16,7 +16,7 @@ class Command(BaseCommand):
         album_artist = input("Artist (blank for multiple)? ")
         disc_count = int(input("Number of discs? "))
         multidisc = disc_count > 1
-        has_disc_names = multidisc and input("Are discs named? ").lower() == "y"
+        has_disc_names = multidisc and input("Are discs named (y/n)? ").lower() == "y"
         is_mix = input("Is this a mix (y/n)? ").lower() == "y"
 
         album = Album(
@@ -47,8 +47,9 @@ class Command(BaseCommand):
                 except ValueError:
                     song = self._build_song(
                         song_id,
+                        track_index,
                         artist=album_artist,
-                        album_name=album.name if is_mix else None,
+                        album_name=album.name if not is_mix else None,
                         album_year=album_year
                     )
 
@@ -65,13 +66,10 @@ class Command(BaseCommand):
         for track in tracks:
             print(f"Disc {track.disc}, Track {track.ordinal}: {track.song.name} by {track.song.artist.name}, {track.song.time}")
 
-        if input("Save (y/n)? ").lower() == "y":
+        if input("Save tracks (y/n)? ").lower() == "y":
             with transaction.atomic():
-                album.save()
                 for disc in discs:
                     disc.save()
-                for song in songs:
-                    song.save()
                 for track in tracks:
                     track.save()
 
@@ -83,10 +81,17 @@ class Command(BaseCommand):
             for song in songs:
                 song.delete()
 
-    def _build_song(self, name):
+    def _build_song(self, name, track_index, artist=None, album_name=None, album_year=None):
         song_artist = artist or input(f"Track {track_index} artist? ")
-        time = input(f"Track {track_index} length? ")
-        minutes, seconds = time.split(":")
+        time = None
+        while not time:
+            try:
+                time = input(f"Track {track_index} length? ")
+                minutes, seconds = time.split(":")
+                minutes = int(minutes)
+                seconds = int(seconds)
+            except ValueError:
+                time = None
 
         artist = Artist.objects.filter(name=song_artist).first()
         if not artist:
@@ -95,14 +100,14 @@ class Command(BaseCommand):
             self.new_artists.append(artist)
 
         album_name = album_name or input("Album name? ")
-        filename = f"{artist.name}/{album_name}/{song_name}.mp3"
+        filename = f"{artist.name}/{album_name}/{name}.mp3"
 
         song = Song(
-            name=song_name,
+            name=name,
             artist=artist,
             filename=filename,
             plex_filename=filename,
-            time=int(minutes) * 60 + int(seconds),
+            time=minutes * 60 + seconds,
             year=album_year or input("Year? "),
         )
         song.save()
