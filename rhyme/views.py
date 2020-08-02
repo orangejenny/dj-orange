@@ -319,7 +319,7 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             playlist.save()
         return JsonResponse({
             "success": 1,
-            "count": playlist.plex_count,
+            "count": len(items),
             "name": playlist_name,
         })
     else:
