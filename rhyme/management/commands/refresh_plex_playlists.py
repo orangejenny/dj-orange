@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from plexapi.exceptions import NotFound
 
 from rhyme.models import Playlist
+from rhyme.views import create_plex_playlist    # TODO: move to helpers/utils
 from rhyme.plex import plex_server, plex_library
 
 
@@ -39,7 +40,12 @@ class Command(BaseCommand):
         try:
             plex_playlist = self.server.playlist(playlist.name)
         except NotFound:
-            print(f"Could not find {playlist.name}")
+            if input(f"Could not find {playlist.name}. Delete (y/n)? ") == "y":
+                playlist.delete()
+            elif input(f"Recreate on plex (y/n) ?") == "y":
+                create_plex_playlist(playlist.name, Song.list(song_filters=playlist.song_filters,
+                                                              album_filters=playlist.album_filters,
+                                                              omni_filer=playlist.omni_filer))
             return
 
         plex_items = {item.key: item for item in plex_playlist.items()}

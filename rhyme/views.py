@@ -302,24 +302,10 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
     if config_name == "plex":
-        server = plex_server()
-        library = plex_library(server)
-        items = [library.fetchItem(song.plex_key) for song in songs if song.plex_key]
-        plex_playlist = PlexPlaylist.create(server, playlist_name, items=items, section='Music')
-        if song_filters or album_filters or omni_filter:
-            playlist = Playlist(
-                name=playlist_name,
-                plex_guid=plex_playlist.guid,
-                plex_key=plex_playlist.key,
-                plex_count=len(items),
-                song_filters=song_filters,
-                album_filters=album_filters,
-                omni_filter=omni_filter,
-            )
-            playlist.save()
+        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filer)
         return JsonResponse({
             "success": 1,
-            "count": len(items),
+            "count": count,
             "name": playlist_name,
         })
     else:
@@ -332,6 +318,26 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
         response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
 
     return response
+
+
+def create_plex_playlist(name, songs, song_filters=None, album_filters=None, omni_filter=None):
+    server = plex_server()
+    library = plex_library(server)
+    items = [library.fetchItem(song.plex_key) for song in songs if song.plex_key]
+    plex_playlist = PlexPlaylist.create(server, name, items=items, section='Music')
+    if song_filters or album_filters or omni_filter:
+        playlist = Playlist(
+            name=name,
+            plex_guid=plex_playlist.guid,
+            plex_key=plex_playlist.key,
+            plex_count=len(items),
+            song_filters=song_filters,
+            album_filters=album_filters,
+            omni_filter=omni_filter,
+        )
+        playlist.save()
+
+    return len(items)
 
 
 @csrf_exempt
