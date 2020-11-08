@@ -2,7 +2,7 @@ import json
 import random
 import re
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from plexapi.playlist import Playlist as PlexPlaylist
 
@@ -302,7 +302,7 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
     if config_name == "plex":
-        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filer)
+        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
         return JsonResponse({
             "success": 1,
             "count": count,
@@ -356,7 +356,7 @@ def plex_in(request, api_key):
         song = Song.objects.filter(plex_key=plex_key).first()
         if song:
             song.play_count = song.play_count + 1
-            song.last_play = datetime.now()
+            song.last_play = datetime.now(timezone.utc)
             song.save()
             return JsonResponse({"success": 1, "message": "Updated {}".format(song)})
 
