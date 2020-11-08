@@ -1,7 +1,7 @@
 import os
 import re
 
-from datetime import datetime
+from datetime import datetime, timezone
 from random import shuffle
 
 from django.conf import settings
@@ -101,7 +101,7 @@ class FilterMixin():
 
 class ExportableMixin(object):
     def audit_export(self):
-        self.last_export = datetime.now()
+        self.last_export = datetime.now(timezone.utc)
         self.export_count = self.export_count + 1
         self.save()
 

@@ -2,7 +2,7 @@ import json
 import random
 import re
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from plexapi.playlist import Playlist as PlexPlaylist
 
@@ -356,7 +356,7 @@ def plex_in(request, api_key):
         song = Song.objects.filter(plex_key=plex_key).first()
         if song:
             song.play_count = song.play_count + 1
-            song.last_play = datetime.now()
+            song.last_play = datetime.now(timezone.utc)
             song.save()
             return JsonResponse({"success": 1, "message": "Updated {}".format(song)})
 
