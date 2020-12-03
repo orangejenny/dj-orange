@@ -8,3 +8,4 @@ localsettings.py
 __pycache__/
 
 rhyme/static/rhyme/img/collections/*
+rhyme/fixtures/*
