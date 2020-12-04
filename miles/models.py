@@ -100,12 +100,12 @@ class Workout(models.Model):
         if seconds is None:
             return None
 
-        remaining = float(seconds) if int(seconds) != float(seconds) else int(seconds)
+        remaining = float(seconds)
         hours = math.floor(remaining / 3600)
         remaining -= hours * 3600
         minutes = math.floor(remaining / 60)
         remaining -= minutes * 60
-        seconds = remaining
+        seconds = round(remaining, 1) if int(seconds) != float(seconds) else int(remaining)
 
         hours = f"{hours}:" if hours else ""
         minutes = f"{self._pad(minutes) if hours else minutes}:"
