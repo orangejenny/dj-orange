@@ -44,6 +44,33 @@ class Workout(models.Model):
         super().__init__(*args, **kwargs)
 
     @property
+    def summary(self):
+        text = ""
+
+        if self.sets:
+            text += f"{self.sets} x "
+
+        if self.reps:
+            text += f"{self.reps} "
+            if self.distance or self.seconds:
+                text += f"x "
+
+        if self.distance:
+            text += f"{self.distance} {self.distance_unit} "
+            if self.seconds:
+                text += f"in "
+
+        if self.seconds:
+            text += f"{self.time} "
+            if self.pace:
+                text += f"({self.pace}) "
+
+        if self.weight:
+            text += f"@ {self.weight}lb";
+
+        return text.strip()
+
+    @property
     def m(self):
         if self.distance is None:
             return None

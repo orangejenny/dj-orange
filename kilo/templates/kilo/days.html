@@ -57,15 +57,21 @@
         </div>
       </div>
     </div>
-    <table class="recent-days">
+    <table class="table table-hover">
       <tbody data-bind="foreach: recent_days">
         <tr>
           <td data-bind="text: day"></td>
           <td>
-            <ul data-bind="foreach: workouts">
+            <ul class="list-unstyled" data-bind="foreach: workouts">
               <li data-bind="text: activity"></li>
             </ul>
           </td>
+          <td>
+            <ul class="list-unstyled" data-bind="foreach: workouts">
+              <li data-bind="text: summary"></li>
+            </ul>
+          </td>
+          <td data-bind="text: notes"></td>
         </tr>
       </tbody>
     </table>

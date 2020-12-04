@@ -5,6 +5,32 @@ from django.test import SimpleTestCase, TestCase
 from kilo.models import Day, Workout
 
 class SimpleWorkoutTest(SimpleTestCase):
+    def test_summary(self):
+        self.assertEqual(Workout(
+            activity="erging",
+            km=6,
+            seconds=24 * 60 + 47.9,
+        ).summary, "6 km in 24:47.9 (2:04.0)")
+        self.assertEqual(Workout(
+            activity="running",
+            mi=4,
+            seconds=35 * 60 + 31,
+        ).summary, "4 mi in 35:31 (8:53)")
+        self.assertEqual(Workout(
+            activity="stairs",
+        ).summary, "")
+        self.assertEqual(Workout(
+            activity="erging",
+            m=500,
+            sets=4,
+        ).summary, "4 x 500 m")
+        self.assertEqual(Workout(
+            activity="deadlifts",
+            sets=5,
+            reps=1,
+            weight=185,
+        ).summary, "5 x 1 @ 185lb")
+
     def test_time(self):
         self.assertIsNone(Workout().time)
         self.assertEqual(Workout(seconds=2).time, "0:02")
