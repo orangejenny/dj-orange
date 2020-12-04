@@ -58,7 +58,7 @@ class Command(BaseCommand):
             activity='erging',
             distance_unit=Workout.KILOMETERS,
             distance=distance,
-            time=time,
+            seconds=time,
         )
 
     def _generate_run(self, day):
@@ -69,7 +69,7 @@ class Command(BaseCommand):
             activity='running',
             distance_unit=Workout.MILES,
             distance=distance,
-            time=distance * pace,
+            seconds=distance * pace,
         )
 
     def _generate_other(self, day):

@@ -22,7 +22,7 @@ class Workout(models.Model):
         ordering = ["ordering"]
 
     activity = models.CharField(max_length=32)
-    time = models.SmallIntegerField(null=True)
+    seconds = models.SmallIntegerField(null=True)
     distance = models.FloatField(null=True)
     distance_unit = models.CharField(null=True, max_length=3, choices=DISTANCE_UNITS, default=MILES)
     sets = models.SmallIntegerField(null=True)

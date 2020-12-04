@@ -43,7 +43,7 @@ class Command(BaseCommand):
                     pass
                 workout = Workout(
                     activity=item['activity'],
-                    time=item['time'],
+                    seconds=item['time'],
                     distance=item['distance'],
                     distance_unit=item['unit'],
                     sets=item['sets'],
