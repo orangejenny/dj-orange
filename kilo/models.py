@@ -130,3 +130,21 @@ class Workout(models.Model):
             return self._time(self.seconds / self.distance * 500)
 
         return None
+
+    def faster_than(self, other):
+        if self.pace is None or other.pace is None:
+            return None
+
+        return self.seconds / self.m > other.seconds > other.m
+
+    def primary_stat(self):
+        if self.activity == "erging":
+            return self.pace
+
+        if self.activity == "running":
+            return f"{self.mi} mi at {self.pace}"
+
+        return None
+
+    def secondary_stat(self):
+        return self.day.day
