@@ -4,7 +4,7 @@ import random
 
 from django.core.management.base import BaseCommand, CommandError
 
-from miles.models import Day, Workout
+from kilo.models import Day, Workout
 
 
 class Command(BaseCommand):

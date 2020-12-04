@@ -1,6 +1,6 @@
 from django.urls import path
 
-from miles.views import days, panel
+from kilo.views import days, panel
 
 urlpatterns = [
     path('', days, name='days'),

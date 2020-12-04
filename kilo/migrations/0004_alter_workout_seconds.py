@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('miles', '0003_rename_workout_time'),
+        ('kilo', '0003_rename_workout_time'),
     ]
 
     operations = [

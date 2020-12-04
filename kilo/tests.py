@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from miles.models import Workout
+from kilo.models import Workout
 
 class WorkoutTest(SimpleTestCase):
     def test_time(self):

@@ -5,13 +5,13 @@ from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
 
-from miles.models import Day, Workout
+from kilo.models import Day, Workout
 
 
 @require_GET
 @login_required
 def days(request):
-    template = loader.get_template('miles/days.html')
+    template = loader.get_template('kilo/days.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
@@ -64,13 +64,17 @@ def _get_stats(days, activity=None):
             {"name": "Past Month", "primary": _sum_meters(last_month_days), "secondary": "km erged"},
         ]
         workout = _best_erg(last_month_days, km=2)
-        stats.append({"name": "Past Month's Best 2k", "primary": workout.pace, "secondary": workout.day.day})
+        if workout:
+            stats.append({"name": "Past Month's Best 2k", "primary": workout.pace, "secondary": workout.day.day})
         workout = _best_erg(last_year_days, km=2)
-        stats.append({"name": "Past Year's Best 2k", "primary": workout.pace, "secondary": workout.day.day})
+        if workout:
+            stats.append({"name": "Past Year's Best 2k", "primary": workout.pace, "secondary": workout.day.day})
         workout = _best_erg(last_month_days, km=6)
-        stats.append({"name": "Past Month's Best 6k", "primary": workout.pace, "secondary": workout.day.day})
+        if workout:
+            stats.append({"name": "Past Month's Best 6k", "primary": workout.pace, "secondary": workout.day.day})
         workout = _best_erg(last_year_days, km=6)
-        stats.append({"name": "Past Year's Best 6k", "primary": workout.pace, "secondary": workout.day.day})
+        if workout:
+            stats.append({"name": "Past Year's Best 6k", "primary": workout.pace, "secondary": workout.day.day})
         return stats
 
     if activity == "running":

@@ -5,7 +5,7 @@ import re
 
 from django.core.management.base import BaseCommand, CommandError
 
-from miles.models import Day
+from kilo.models import Day
 
 
 class Command(BaseCommand):

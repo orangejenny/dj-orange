@@ -14,7 +14,7 @@ var KiloModel = function () {
 
     self.getPanel = function (activity) {
         $.ajax({
-            url: '/miles/panel',
+            url: '/kilo/panel',
             method: 'GET',
             data: {
                 activity: activity,
