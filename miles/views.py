@@ -19,7 +19,11 @@ def days(request):
 @require_GET
 @login_required
 def panel(request):
+    activity = request.GET.get('activity')
     days = Day.objects.all()
+    if activity:
+        days = days.filter(workout__activity=activity).distinct()
+
     return JsonResponse({
         "recent_days": [_format_day(d) for d in days[:10]],
         "stats": [
