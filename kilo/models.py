@@ -135,7 +135,7 @@ class Workout(models.Model):
         if self.pace is None or other.pace is None:
             return None
 
-        return self.seconds / self.m > other.seconds > other.m
+        return self.seconds / self.m < other.seconds / other.m
 
     def primary_stat(self):
         if self.activity == "erging":
