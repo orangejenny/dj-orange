@@ -1,3 +1,5 @@
+import math
+
 from django.db import models
 
 class Day(models.Model):
@@ -22,7 +24,7 @@ class Workout(models.Model):
         ordering = ["ordering"]
 
     activity = models.CharField(max_length=32)
-    seconds = models.SmallIntegerField(null=True)
+    seconds = models.FloatField(null=True)
     distance = models.FloatField(null=True)
     distance_unit = models.CharField(null=True, max_length=3, choices=DISTANCE_UNITS, default=MILES)
     sets = models.SmallIntegerField(null=True)
@@ -30,3 +32,101 @@ class Workout(models.Model):
     weight = models.SmallIntegerField(null=True)
     ordering = models.SmallIntegerField(default=1)
     day = models.ForeignKey(Day, on_delete=models.CASCADE)
+
+    def __init__(self, *args, **kwargs):
+        units = set(kwargs.keys()) & {u[0] for u in self.DISTANCE_UNITS}
+        if len(units) > 1:
+            raise ValueError("May only provide one distance, provided: " + ", ".join(units))
+        if len(units) == 1:
+            unit = list(units)[0]
+            kwargs['distance'] = kwargs.pop(unit)
+            kwargs['distance_unit'] = unit
+        super().__init__(*args, **kwargs)
+
+    @property
+    def m(self):
+        if self.distance is None:
+            return None
+
+        if self.distance_unit == self.METERS:
+            return self.distance
+
+        if self.distance_unit == self.KILOMETERS:
+            return self.distance * 1000
+
+        if self.distance_unit == self.MILES:
+            return self.distance * 1609
+
+        return None
+
+    @property
+    def km(self):
+        if self.distance is None:
+            return None
+
+        if self.distance_unit == self.KILOMETERS:
+            return self.distance
+
+        if self.distance_unit == self.METERS:
+            return round(self.distance / 1000, 1)
+
+        if self.distance_unit == self.MILES:
+            return round(self.distance * 1.6, 1)
+
+        return None
+
+    @property
+    def mi(self):
+        if self.distance is None:
+            return None
+
+        if self.distance_unit == self.MILES:
+            return self.distance
+
+        if self.distance_unit == self.KILOMETERS:
+            return round(self.distance / 1.6, 2)
+
+        if self.distance_unit == self.METERS:
+            return round(self.distance / 1609, 2)
+
+        return None
+
+
+    @property
+    def time(self):
+        return self._time(self.seconds)
+
+    def _time(self, seconds):
+        if seconds is None:
+            return None
+
+        remaining = float(seconds) if int(seconds) != float(seconds) else int(seconds)
+        hours = math.floor(remaining / 3600)
+        remaining -= hours * 3600
+        minutes = math.floor(remaining / 60)
+        remaining -= minutes * 60
+        seconds = remaining
+
+        hours = f"{hours}:" if hours else ""
+        minutes = f"{self._pad(minutes) if hours else minutes}:"
+        return f"{hours}{minutes}{self._pad(seconds)}"
+
+    def _pad(self, num):
+        return f"0{num}" if num < 10 else str(num)
+
+    @property
+    def pace(self):
+        if not self.distance or not self.seconds:
+            return None
+
+        if self.distance_unit == Workout.MILES:
+            # Minutes per mile, to the second
+            return self._time(round(self.seconds / self.distance))
+        elif self.distance_unit == Workout.KILOMETERS:
+            # Minutes per 500m, to the tenth of a second
+            return self._time(self.seconds / self.distance / 2)
+        elif self.distance_unit == Workout.METERS:
+            # Minutes per 500m, to the tenth of a second
+            return self._time(self.seconds / self.distance * 500)
+
+        return None
