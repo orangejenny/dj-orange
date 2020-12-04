@@ -26,11 +26,10 @@
 
 {% block body %}
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Kilo</a>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link" href="#" data-bind="click: updateActivity">
-          Frequency / All / Words
+          Kilo
         </a>
       </li>
       <li class="nav-item">
@@ -49,8 +48,14 @@
     <div class="graph">
       area graph
     </div>
-    <ul class="stats" data-bind="foreach: stats">
-      <li>this is a stat</li>
+    <div class="card-deck text-center" data-bind="foreach: stats">
+      <div class="card">
+        <div class="card-header" data-bind="text: name"></div>
+        <div class="card-body">
+            <h1 data-bind="text: primary"></h1>
+            <span data-bind="text: secondary"></span>
+        </div>
+      </div>
     </div>
     <table class="recent-days">
       <tbody data-bind="foreach: recent_days">
