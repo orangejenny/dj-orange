@@ -72,19 +72,19 @@
       <div class="col-8">
         <table class="table table-hover">
           <tbody data-bind="foreach: recent_days">
-            <tr>
-              <td data-bind="text: day"></td>
-              <td>
+            <tr class="row">
+              <td class="col-2" data-bind="text: day"></td>
+              <td class="col-2">
                 <ul class="list-unstyled" data-bind="foreach: workouts">
                   <li data-bind="text: activity"></li>
                 </ul>
               </td>
-              <td>
+              <td class="col-2">
                 <ul class="list-unstyled" data-bind="foreach: workouts">
                   <li data-bind="text: summary"></li>
                 </ul>
               </td>
-              <td data-bind="text: notes"></td>
+              <td class="col-6" data-bind="text: notes"></td>
             </tr>
           </tbody>
         </table>
