@@ -9,6 +9,9 @@ class Day(models.Model):
     class Meta:
         ordering = ["-day"]
 
+    def primary_activity(self):
+        return self.workout_set.last().activity
+
 
 class Workout(models.Model):
     MILES = 'mi'

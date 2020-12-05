@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
@@ -104,19 +105,26 @@ def _get_graph_data(days, activity=None):
     data = {}
 
     if activity is None:
-        data["xs"] = {"count": "day"}
+        data["x"] = "day"
+        all_activities = {w.activity for d in days for w in d.workout_set.all()}
         day_series = []
-        count_series = []
+        series = defaultdict(list)
         index = days.last().day
         while index <= datetime.now().date():
             day_series.append(index.strftime("%Y-%m-%d"))
             next_index = index + timedelta(days=7)
-            count_series.append(days.filter(day__gte=index, day__lt=next_index).count())
+            activity_counts = defaultdict(lambda: 0)
+            for day in days.filter(day__gte=index, day__lt=next_index):
+                activity_counts[day.primary_activity()] += 1
+            for activity in all_activities:
+                series[activity].append(activity_counts[activity] or 0)
             index = next_index
-        data["columns"] = [
-            ["day"] + day_series,
-            ["count"] + count_series,
+        data["columns"] = [["day"] + day_series] + [
+            [activity] + counts
+            for activity, counts in series.items()
         ]
+        data["types"] = {activity: "area-spline" for activity in all_activities}
+        data["groups"] = [list(all_activities)]
     else:
         data["xs"] = {"y_short": "x_short", "y_long": "x_long"}
         columns = {"x_short": [], "y_short": [], "x_long": [], "y_long": []}
@@ -134,9 +142,10 @@ def _get_graph_data(days, activity=None):
                     if x and y:
                         columns[x].append(day.day.strftime("%Y-%m-%d"))
                         columns[y].append(workout.seconds)
+        data["types"] = {key: "spline" for key in columns.keys()}
         data["columns"] = [
-            [label] + data
-            for label, data in columns.items()
+            [label] + values
+            for label, values in columns.items()
         ]
 
     return data
