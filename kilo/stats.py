@@ -33,7 +33,7 @@ def best_run(days, lower_mi=None, upper_mi=None):
     best = None
     for day in days:
         for workout in day.workout_set.all():
-            if workout.activity == "running":
+            if workout.activity == "running" and workout.mi and workout.seconds:
                 if lower_mi is None or workout.mi >= lower_mi:
                     if upper_mi is None or workout.mi <= upper_mi:
                         if best is None or workout.faster_than(best):
