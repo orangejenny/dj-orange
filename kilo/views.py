@@ -21,16 +21,12 @@ def days(request):
 @login_required
 def panel(request):
     activity = request.GET.get('activity')
-
     days = Day.objects.all()
-    if activity:
-        days = days.filter(workout__activity=activity).distinct()
-
-    stats = _get_stats(days, activity)
 
     return JsonResponse({
         "recent_days": [_format_day(d) for d in days[:10]],
-        "stats": stats,
+        "stats": _get_stats(days, activity),
+        "graph_data": _get_graph_data(days, activity),
     })
 
 
@@ -100,3 +96,47 @@ def _get_stats(days, activity=None):
         return stats
 
     return []
+
+
+def _get_graph_data(days, activity=None):
+    today = datetime.now().date()
+    days = days.filter(day__gte=today - timedelta(days=30 if activity else 90))
+    data = {}
+
+    if activity is None:
+        data["xs"] = {"count": "day"}
+        day_series = []
+        count_series = []
+        index = days.last().day
+        while index <= datetime.now().date():
+            day_series.append(index.strftime("%Y-%m-%d"))
+            next_index = index + timedelta(days=7)
+            count_series.append(days.filter(day__gte=index, day__lt=next_index).count())
+            index = next_index
+        data["columns"] = [
+            ["day"] + day_series,
+            ["count"] + count_series,
+        ]
+    else:
+        data["xs"] = {"y_short": "x_short", "y_long": "x_long"}
+        columns = {"x_short": [], "y_short": [], "x_long": [], "y_long": []}
+        boundary = 4 if activity == "erging" else 10
+        for day in days:
+            for workout in day.workout_set.all():
+                if workout.activity == activity:
+                    (x, y) = (None, None)
+                    if workout.km <= boundary:
+                        x = "x_short"
+                        y = "y_short"
+                    elif workout.km > boundary:
+                        x = "x_long"
+                        y = "y_long"
+                    if x and y:
+                        columns[x].append(day.day.strftime("%Y-%m-%d"))
+                        columns[y].append(workout.seconds)
+        data["columns"] = [
+            [label] + data
+            for label, data in columns.items()
+        ]
+
+    return data

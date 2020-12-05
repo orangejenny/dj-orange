@@ -22,6 +22,19 @@ var KiloModel = function () {
             success: function (data) {
                 self.recent_days(data.recent_days);
                 self.stats(data.stats);
+
+                c3.generate({
+                    bindto: '#graph',
+                    data: data.graph_data,
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                format: '%Y-%m-%d'
+                            }
+                        }
+                    },
+                });
             },
         });
     };
