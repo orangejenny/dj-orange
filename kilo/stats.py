@@ -1,6 +1,3 @@
-from kilo.models import Workout
-
-
 def sum_erging(days):
     total = 0
     for day in days:

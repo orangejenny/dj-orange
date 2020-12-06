@@ -3,7 +3,7 @@ from datetime import date
 import json
 import re
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from kilo.models import Day, Workout
 
@@ -30,7 +30,8 @@ class Command(BaseCommand):
             data = json.load(f)
             for day_json in data:
                 day_parts = [int(part) for part in re.split(r'\D+', day_json['DAY'])]
-                day = Day(day=date(year=day_parts[0], month=day_parts[1], day=day_parts[2]), notes=day_json['NOTES'])
+                day = Day(day=date(year=day_parts[0], month=day_parts[1], day=day_parts[2]),
+                          notes=day_json['NOTES'])
                 if save:
                     day.save()
                 for workout_json in day_json['WORKOUTS']:

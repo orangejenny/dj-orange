@@ -4,6 +4,7 @@ from django.test import SimpleTestCase, TestCase
 
 from kilo.models import Day, Workout
 
+
 class SimpleWorkoutTest(SimpleTestCase):
     def test_summary(self):
         self.assertEqual(Workout(

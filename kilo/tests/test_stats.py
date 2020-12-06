@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.test import SimpleTestCase, TestCase
+from django.test import TestCase
 
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running

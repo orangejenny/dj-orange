@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import lorem
 import random
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from kilo.models import Day, Workout
 
@@ -47,8 +47,8 @@ class Command(BaseCommand):
         try:
             return datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
-           print(f"Bad date {date_str}")
-           exit(1)
+            print(f"Bad date {date_str}")
+            exit(1)
 
     def _generate_erg(self, day):
         distance = random.choice([2, 6])

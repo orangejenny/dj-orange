@@ -2,6 +2,7 @@ import math
 
 from django.db import models
 
+
 class Day(models.Model):
     day = models.DateField(unique_for_date=True)
     notes = models.CharField(max_length=1024, null=True)
@@ -56,7 +57,7 @@ class Workout(models.Model):
         if self.reps:
             text += f"{self.reps} "
             if self.distance or self.seconds:
-                text += f"x "
+                text += "x "
 
         if self.distance:
             text += f"{self.distance} {self.distance_unit} "
@@ -69,7 +70,7 @@ class Workout(models.Model):
                 text += f"({self.pace}) "
 
         if self.weight:
-            text += f"@ {self.weight}lb";
+            text += f"@ {self.weight}lb"
 
         return text.strip()
 

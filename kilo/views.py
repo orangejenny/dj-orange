@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
-from django.template import loader
 from django.views.decorators.http import require_GET
 
 from kilo.models import Day, Workout
@@ -30,12 +29,12 @@ def days(request):
             )
         except ValueError as e:
             messages.error(request, f"Received invalid date {date_string}: " + str(e))
-            return HttpResponse(render(request, "kilo/days.html", context))
+            return HttpResponse(render(request, "kilo/days.html"))
         day = Day.objects.filter(day=date).first()
         if day:
             if day.id != day_id:
                 messages.error(request, f"Attempting to duplicate {date_string}")
-                return HttpResponse(render(request, "kilo/days.html", context))
+                return HttpResponse(render(request, "kilo/days.html"))
         else:
             day = Day()
         day.day = date
@@ -55,7 +54,7 @@ def days(request):
                 workout.save()
             index += 1
 
-        messages.success(request, f"Saved!")
+        messages.success(request, "Saved!")
 
     context = {
         "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
@@ -112,35 +111,69 @@ def _get_stats(days, activity=None):
         ]
         workout = best_erg(last_month_days, km=2)
         if workout:
-            stats.append({"name": "Past Month's Best 2k", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Month's Best 2k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_erg(last_year_days, km=2)
         if workout:
-            stats.append({"name": "Past Year's Best 2k", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Year's Best 2k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_erg(last_month_days, km=6)
         if workout:
-            stats.append({"name": "Past Month's Best 6k", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Month's Best 6k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_erg(last_year_days, km=6)
         if workout:
-            stats.append({"name": "Past Year's Best 6k", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Year's Best 6k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         return stats
 
     if activity == "running":
-        stats = [
-            {"name": "Past Month", "primary": sum_running(last_month_days), "secondary": "miles run"},
-        ]
+        stats = [{
+            "name": "Past Month",
+            "primary": sum_running(last_month_days),
+            "secondary": "miles run",
+        }]
         boundary = 7
         workout = best_run(last_month_days, upper_mi=boundary)
         if workout:
-            stats.append({"name": "Past Month's Best Short Run", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Month's Best Short Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_run(last_year_days, upper_mi=boundary)
         if workout:
-            stats.append({"name": "Past Year's Best Short Run", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Year's Best Short Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_run(last_month_days, lower_mi=boundary)
         if workout:
-            stats.append({"name": "Past Month's Best Long Run", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Month's Best Long Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         workout = best_run(last_year_days, lower_mi=boundary)
         if workout:
-            stats.append({"name": "Past Year's Best Long Run", "primary": workout.primary_stat(), "secondary": workout.secondary_stat()})
+            stats.append({
+                "name": "Past Year's Best Long Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
         return stats
 
     return []
