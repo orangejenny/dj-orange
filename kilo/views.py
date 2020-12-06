@@ -8,13 +8,12 @@ from django.shortcuts import render
 from django.template import loader
 from django.views.decorators.http import require_GET
 
-from kilo.models import Day
+from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
 @login_required
 def days(request):
-    context = {}
     if request.method == "POST":
         # Saving a day
         day_id = int(request.POST.get('day_id'))
@@ -43,7 +42,24 @@ def days(request):
         day.notes = request.POST.get('notes')
         day.save()
 
+        for workout in day.workout_set.all():
+            if workout.id not in [int(i) for i in request.POST.getlist("workout_id") if i]:
+                workout.delete()
+
+        index = 0
+        for workout_id in request.POST.getlist("workout_id"):
+            workout = Workout.objects.get(id=int(workout_id)) if workout_id else Workout(day=day)
+            for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
+                setattr(workout, attr, request.POST.getlist(attr)[index] or None)
+            if workout.activity:
+                workout.save()
+            index += 1
+
         messages.success(request, f"Saved!")
+
+    context = {
+        "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
+    }
     return HttpResponse(render(request, "kilo/days.html", context))
 
 
