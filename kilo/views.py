@@ -1,8 +1,10 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
 from django.template import loader
 from django.views.decorators.http import require_GET
 
@@ -10,12 +12,39 @@ from kilo.models import Day
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
-@require_GET
 @login_required
 def days(request):
-    template = loader.get_template('kilo/days.html')
     context = {}
-    return HttpResponse(template.render(context, request))
+    if request.method == "POST":
+        # Saving a day
+        day_id = int(request.POST.get('day_id'))
+        try:
+            date_string = "-".join([
+                request.POST.get('year'),
+                request.POST.get('month'),
+                request.POST.get('day_of_month')
+            ])
+            date = datetime(
+                int(request.POST.get('year')),
+                int(request.POST.get('month')),
+                int(request.POST.get('day_of_month'))
+            )
+        except ValueError as e:
+            messages.error(request, f"Received invalid date {date_string}: " + str(e))
+            return HttpResponse(render(request, "kilo/days.html", context))
+        day = Day.objects.filter(day=date).first()
+        if day:
+            if day.id != day_id:
+                messages.error(request, f"Attempting to duplicate {date_string}")
+                return HttpResponse(render(request, "kilo/days.html", context))
+        else:
+            day = Day()
+        day.day = date
+        day.notes = request.POST.get('notes')
+        day.save()
+
+        messages.success(request, f"Saved!")
+    return HttpResponse(render(request, "kilo/days.html", context))
 
 
 @require_GET
