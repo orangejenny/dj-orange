@@ -5,6 +5,7 @@ from django.test import TestCase
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
+
 class StatsTest(TestCase):
     date_format = "%Y-%m-%d"
 

@@ -62,7 +62,7 @@ class Workout(models.Model):
         if self.distance:
             text += f"{self.distance} {self.distance_unit} "
             if self.seconds:
-                text += f"in "
+                text += "in "
 
         if self.seconds:
             text += f"{self.time} "

@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     day.save()
                 for workout_json in day_json['WORKOUTS']:
                     if not workout_json['ACTIVITY']:
-                       continue
+                        continue
                     workout = Workout(
                         activity=workout_json['ACTIVITY'],
                         seconds=workout_json['TIME'],
@@ -50,4 +50,3 @@ class Command(BaseCommand):
                     if save:
                         workout.save()
             self.stdout.write("{}Imported {} days".format("" if save else "[DRY RUN] ", len(data)))
-
