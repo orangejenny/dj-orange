@@ -56,9 +56,20 @@
         </a>
       </li>
     </ul>
-    <button type="button" class="pull-right btn btn-primary" data-bind="click: openModal">
-      Add
-    </button>
+    <div class="pull-right">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Add</button>
+      <div class="dropdown-menu">
+        <!-- ko foreach: workoutTemplates -->
+          <a class="dropdown-item" data-bind="click: $root.openModal, attr: {'data-template': JSON.stringify($data)}">
+            <span data-bind="text: activity"></span>
+            <span data-bind="text: distance"></span>
+            <span data-bind="visible: distance, text: distance_unit"></span>
+          </a>
+        <!-- /ko -->
+        <div role="separator" class="dropdown-divider"></div>
+        <a class="dropdown-item" data-bind="click: $root.openModal">Blank Day</a>
+      </div>
+    </div>
   </nav>
   <div class="container-fluid">
     <div class="card-deck text-center" data-bind="foreach: stats">

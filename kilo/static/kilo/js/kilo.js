@@ -1,8 +1,11 @@
 var DayModel = function (options) {
-    if (!options.day) {
-        throw new Error("DayModel must be given a day");
-    }
-    var self = ko.mapping.fromJS(options);
+    var today = new Date();
+    var self = ko.mapping.fromJS($.extend({
+        id: undefined,
+        day: today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + (today.getDate()),
+        notes: undefined,
+        workouts: [],
+    }, options));
 
     var parts = self.day().split("-");
     self.year = ko.observable(parts[0]);
@@ -18,18 +21,24 @@ var DayModel = function (options) {
     });
 
     self.addWorkout = function () {
-        self.workouts.push({
-            id: undefined,
-            activity: undefined,
-            distance: undefined,
-            distance_unit: undefined,
-            seconds: undefined,
-            sets: undefined,
-            reps: undefined,
-            weight: undefined,
-        });
+        self.workouts.push(WorkoutModel());
     };
 
+    return self;
+};
+
+// Only used to set defaults. DayModel's workouts property is plain objects, not WorkoutModels
+var WorkoutModel = function (options) {
+    var self = ko.mapping.fromJS($.extend({
+        id: undefined,
+        activity: undefined,
+        distance: undefined,
+        distance_unit: undefined,
+        seconds: undefined,
+        sets: undefined,
+        reps: undefined,
+        weight: undefined,
+    }, options));
     return self;
 };
 
@@ -37,6 +46,7 @@ var KiloModel = function () {
     var self = {};
 
     self.recentDays = ko.observableArray();
+    self.workoutTemplates = ko.observableArray();
     self.stats = ko.observableArray();
     self.currentDay = ko.observable();
 
@@ -46,6 +56,26 @@ var KiloModel = function () {
     };
     self.activity.subscribe(function (newValue) {
         self.getPanel(newValue);
+    });
+
+    // Populate templates for new day
+    self.recentDays.subscribe(function (newValue) {
+        var templates = [];
+        var index = 0;
+        while (index < newValue.length && templates.length < 3) {
+            var workout = newValue[index].workouts()[0];
+            if (!workout) {
+                continue;
+            }
+            workout = ko.mapping.toJS(workout);
+            var template = $.extend({}, workout);
+            delete template.seconds;
+            if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
+                templates.push(template);
+            }
+            index++;
+        }
+        self.workoutTemplates(templates);
     });
 
     self.getPanel = function (activity) {
@@ -76,16 +106,16 @@ var KiloModel = function () {
     };
 
     self.openModal = function (model, e) {
-        var id = $(e.currentTarget).data("id");
-        if (id) {
-            self.currentDay(self.recentDays().find(d => d.id() === id));
+        var data = $(e.currentTarget).data();
+        if (data.id) {
+            self.currentDay(self.recentDays().find(d => d.id() === data.id));
         } else {
-            var today = new Date();
+            var workouts = [];
+            if (data.template) {
+                workouts = [WorkoutModel(data.template)];
+            }
             self.currentDay(DayModel({
-                id: undefined,
-                day: today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + (today.getDate()),
-                notes: "",
-                workouts: [],
+                workouts: workouts,
             }));
         }
         $("#edit-day").modal();
