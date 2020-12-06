@@ -19,7 +19,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('accounts/login/', views.LoginView.as_view(), name='login'),
-    path('miles/', include('miles.urls')),
+    path('kilo/', include('kilo.urls')),
     path('rhyme/', include('rhyme.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+from django.contrib.messages import constants as messages
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 from orange.localsettings import *
@@ -34,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'miles',
+    'kilo',
     'orange',
     'registration',
     'rhyme',
@@ -71,6 +73,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'orange.wsgi.application'
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
 
 
 # Password validation

@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('sets', models.SmallIntegerField(null=True)),
                 ('reps', models.SmallIntegerField(null=True)),
                 ('weight', models.SmallIntegerField(null=True)),
-                ('day', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='miles.Day')),
+                ('day', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kilo.Day')),
             ],
         ),
     ]
