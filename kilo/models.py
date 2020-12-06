@@ -121,7 +121,6 @@ class Workout(models.Model):
 
         return None
 
-
     @property
     def time(self):
         return self._time(self.seconds)
@@ -160,6 +159,18 @@ class Workout(models.Model):
             return self._time(self.seconds / self.distance * 500)
 
         return None
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "activity": self.activity,
+            "seconds": self.seconds,
+            "distance": self.distance,
+            "distance_unit": self.distance_unit,
+            "sets": self.sets,
+            "reps": self.reps,
+            "weight": self.weight,
+        }
 
     def faster_than(self, other):
         if self.pace is None or other.pace is None:

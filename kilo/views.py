@@ -33,12 +33,14 @@ def panel(request):
 
 def _format_day(day):
     return {
-        "day": day.day.strftime("%a, %b %d, %Y"),
+        "id": day.id,
+        "day": day.day,
+        "pretty_day": day.day.strftime("%a, %b %d, %Y"),
         "notes": day.notes,
         "workouts": [
             {
-                "activity": w.activity,
                 "summary": w.summary,
+                **w.to_json(),
             }
             for w in day.workout_set.all()
         ],

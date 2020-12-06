@@ -1,8 +1,44 @@
+var DayModel = function (options) {
+    if (!options.day) {
+        throw new Error("DayModel must be given a day");
+    }
+    var self = ko.mapping.fromJS(options);
+
+    var parts = self.day().split("-");
+    self.year = ko.observable(parts[0]);
+    self.month = ko.observable(parts[1]);
+    self.day_of_month = ko.observable(parts[2]);
+
+    self.date = ko.computed(function () {
+        return new Date(self.year(), self.month() - 1, self.day_of_month());
+    });
+
+    self.dayOfWeek = ko.computed(function () {
+        return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][self.date().getDay()];
+    });
+
+    self.addWorkout = function () {
+        self.workouts.push({
+            id: undefined,
+            activity: undefined,
+            distance: undefined,
+            distance_unit: undefined,
+            seconds: undefined,
+            sets: undefined,
+            reps: undefined,
+            weight: undefined,
+        });
+    };
+
+    return self;
+};
+
 var KiloModel = function () {
     var self = {};
 
-    self.recent_days = ko.observableArray();
+    self.recentDays = ko.observableArray();
     self.stats = ko.observableArray();
+    self.currentDay = ko.observable();
 
     self.activity = ko.observable();
     self.updateActivity = function (model, e) {
@@ -20,7 +56,7 @@ var KiloModel = function () {
                 activity: activity,
             },
             success: function (data) {
-                self.recent_days(data.recent_days);
+                self.recentDays(data.recent_days.map(d => DayModel(d)));
                 self.stats(data.stats);
 
                 c3.generate({
@@ -37,6 +73,22 @@ var KiloModel = function () {
                 });
             },
         });
+    };
+
+    self.openModal = function (model, e) {
+        var id = $(e.currentTarget).data("id");
+        if (id) {
+            self.currentDay(self.recentDays().find(d => d.id() === id));
+        } else {
+            var today = new Date();
+            self.currentDay(DayModel({
+                id: undefined,
+                day: today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + (today.getDate()),
+                notes: "",
+                workouts: [],
+            }));
+        }
+        $("#edit-day").modal();
     };
 
     self.getPanel();
