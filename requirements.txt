@@ -1,4 +1,4 @@
-Django==2.0.12
+django>=2.2.13
 mysql-connector-python==8.0.15
 plexapi==4.0.0
 protobuf==3.6.1
