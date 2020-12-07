@@ -40,18 +40,18 @@
 {% block body %}
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#" data-bind="click: updateActivity">
+      <li class="nav-item{% if not activity %} active{% endif %}">
+        <a class="nav-link" href="{% url "days" %}">
           Kilo
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" data-activity="running" data-bind="click: updateActivity">
+      <li class="nav-item{% if activity == "running" %} active{% endif %}" data-activity="running">
+        <a class="nav-link" href="{% url "days_running" %}">
           Running
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" data-activity="erging" data-bind="click: updateActivity">
+      <li class="nav-item{% if activity == "erging" %} active{% endif %}" data-activity="erging">
+        <a class="nav-link" href="{% url "days_erging" %}">
           Erging
         </a>
       </li>
@@ -146,7 +146,13 @@
             <div data-bind="foreach: workouts">
               <input type="hidden" name="workout_id" data-bind="value: id" />
               <div class="row">
-                <div class="col"><input type="text" class="form-control form-control-sm" name="activity" placeholder="activity" data-bind="value: activity" /></div>
+                <div class="col">
+                  <select class="form-control form-control-sm" name="activity" data-bind="value: activity">
+                    {% for activity in activities %}
+                      <option>{{ activity }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
                 <div class="col"><input type="text" class="form-control form-control-sm" name="distance" placeholder="distance" data-bind="value: distance" /></div>
                 <div class="col">
                   <select class="form-control form-control-sm" name="distance_unit" data-bind="value: distance_unit">
@@ -155,7 +161,10 @@
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col"><input type="text" class="form-control form-control-sm" name="seconds" placeholder="time" data-bind="value: seconds" /></div>
+                <div class="col">
+                  <input type="text" class="form-control form-control-sm" placeholder="time" data-bind="value: time" />
+                  <input type="hidden" name="seconds" data-bind="value: seconds" />
+                </div>
               </div>
               <div class="row">
                 <div class="col"></div>
