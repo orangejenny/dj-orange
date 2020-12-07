@@ -27,7 +27,6 @@ def days_running(request):
 def _days(request, activity=None):
     if request.method == "POST":
         # Saving a day
-        day_id = int(request.POST.get('day_id'))
         try:
             date_string = "-".join([
                 request.POST.get('year'),
@@ -44,7 +43,7 @@ def _days(request, activity=None):
             return HttpResponse(render(request, "kilo/days.html"))
         day = Day.objects.filter(day=date).first()
         if day:
-            if day.id != day_id:
+            if day.id != int(request.POST.get('day_id') or 0):
                 messages.error(request, f"Attempting to duplicate {date_string}")
                 return HttpResponse(render(request, "kilo/days.html"))
         else:
