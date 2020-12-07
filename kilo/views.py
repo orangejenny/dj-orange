@@ -222,7 +222,7 @@ def _get_graph_data(days, activity=None):
         data["types"] = {activity: "area-spline" for activity in all_activities}
         data["groups"] = [list(all_activities)]
     else:
-        (short_label, long_label) = ("2k", "6k") if activity =="erging" else ("short", "long")
+        (short_label, long_label) = ("2k", "6k") if activity == "erging" else ("short", "long")
         data["xs"] = {short_label: "x_short", long_label: "x_long"}
         columns = {"x_short": [], short_label: [], "x_long": [], long_label: []}
         boundary = 4 if activity == "erging" else 10
