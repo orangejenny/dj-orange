@@ -222,8 +222,9 @@ def _get_graph_data(days, activity=None):
         data["types"] = {activity: "area-spline" for activity in all_activities}
         data["groups"] = [list(all_activities)]
     else:
-        data["xs"] = {"y_short": "x_short", "y_long": "x_long"}
-        columns = {"x_short": [], "y_short": [], "x_long": [], "y_long": []}
+        (short_label, long_label) = ("2k", "6k") if activity =="erging" else ("short", "long")
+        data["xs"] = {short_label: "x_short", long_label: "x_long"}
+        columns = {"x_short": [], short_label: [], "x_long": [], long_label: []}
         boundary = 4 if activity == "erging" else 10
         for day in days:
             for workout in day.workout_set.all():
@@ -231,10 +232,10 @@ def _get_graph_data(days, activity=None):
                     (x, y) = (None, None)
                     if workout.km <= boundary:
                         x = "x_short"
-                        y = "y_short"
+                        y = short_label
                     elif workout.km > boundary:
                         x = "x_long"
-                        y = "y_long"
+                        y = long_label
                     if x and y:
                         columns[x].append(day.day.strftime("%Y-%m-%d"))
                         columns[y].append(workout.seconds)
