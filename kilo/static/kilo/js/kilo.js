@@ -7,6 +7,9 @@ var DayModel = function (options) {
         workouts: [],
     }, options));
 
+    // Manually map workouts to WorkoutModel
+    self.workouts(self.workouts().map(w => WorkoutModel(w)));
+
     var parts = self.day().split("-");
     self.year = ko.observable(parts[0]);
     self.month = ko.observable(parts[1]);
@@ -27,7 +30,6 @@ var DayModel = function (options) {
     return self;
 };
 
-// Only used to set defaults. DayModel's workouts property is plain objects, not WorkoutModels
 var WorkoutModel = function (options) {
     var self = ko.mapping.fromJS($.extend({
         id: undefined,
@@ -39,6 +41,46 @@ var WorkoutModel = function (options) {
         reps: undefined,
         weight: undefined,
     }, options));
+
+    self.getTime = function (seconds) {
+        if (!seconds) {
+            return undefined;
+        }
+
+        var remaining = seconds,
+            hours = Math.floor(remaining / 3600);
+        remaining -= hours * 3600;
+        var minutes = Math.floor(remaining / 60);
+        remaining -= minutes * 60;
+        seconds = Math.floor(seconds) === seconds ? Math.floor(remaining) : Math.floor(remaining * 10) / 10;
+
+        hours = hours ? hours + ":" : "";
+        minutes = (hours && minutes < 10 ? "0" + minutes : minutes) + ":";
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        return hours + minutes + seconds;
+    };
+
+    self.getSeconds = function (time) {
+        if (!time) {
+            return undefined;
+        }
+
+        var parts = time.split(":"),
+            seconds = 0,
+            index = 0;
+        while (index < parts.length) {
+            seconds += parts[index] * Math.pow(60, parts.length - index - 1);
+            index++;
+        }
+
+        return seconds;
+    };
+
+    self.time = ko.observable(self.getTime(self.seconds()));
+    self.time.subscribe(function (newValue) {
+        self.seconds(self.getSeconds(newValue));
+    });
+
     return self;
 };
 

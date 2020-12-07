@@ -161,7 +161,10 @@
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col"><input type="text" class="form-control form-control-sm" name="seconds" placeholder="time" data-bind="value: seconds" /></div>
+                <div class="col">
+                  <input type="text" class="form-control form-control-sm" placeholder="time" data-bind="value: time" />
+                  <input type="hidden" name="seconds" data-bind="value: seconds" />
+                </div>
               </div>
               <div class="row">
                 <div class="col"></div>
