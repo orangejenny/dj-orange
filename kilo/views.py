@@ -71,6 +71,7 @@ def _days(request, activity=None):
     context = {
         "activity": activity,
         "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
+        "activities": sorted(list({w.activity for d in Day.objects.all() for w in d.workout_set.all()})),
     }
     return HttpResponse(render(request, "kilo/days.html", context))
 

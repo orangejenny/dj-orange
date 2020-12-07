@@ -146,7 +146,13 @@
             <div data-bind="foreach: workouts">
               <input type="hidden" name="workout_id" data-bind="value: id" />
               <div class="row">
-                <div class="col"><input type="text" class="form-control form-control-sm" name="activity" placeholder="activity" data-bind="value: activity" /></div>
+                <div class="col">
+                  <select class="form-control form-control-sm" name="activity" data-bind="value: activity">
+                    {% for activity in activities %}
+                      <option>{{ activity }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
                 <div class="col"><input type="text" class="form-control form-control-sm" name="distance" placeholder="distance" data-bind="value: distance" /></div>
                 <div class="col">
                   <select class="form-control form-control-sm" name="distance_unit" data-bind="value: distance_unit">

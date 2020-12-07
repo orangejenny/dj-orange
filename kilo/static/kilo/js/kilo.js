@@ -49,6 +49,7 @@ var KiloModel = function () {
     self.workoutTemplates = ko.observableArray();
     self.stats = ko.observableArray();
     self.currentDay = ko.observable();
+    self.activity = ko.observable();
 
     // Populate templates for new day
     self.recentDays.subscribe(function (newValue) {
@@ -75,7 +76,7 @@ var KiloModel = function () {
             url: '/kilo/panel',
             method: 'GET',
             data: {
-                activity: $(".navbar .navbar-nav .nav-item.active").data("activity"),
+                activity: self.activity(),
             },
             success: function (data) {
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
@@ -102,18 +103,23 @@ var KiloModel = function () {
         if (data.id) {
             self.currentDay(self.recentDays().find(d => d.id() === data.id));
         } else {
-            var workouts = [];
+            var workout = WorkoutModel({
+                activity: self.activity(),
+            });
             if (data.template) {
-                workouts = [WorkoutModel(data.template)];
+                workout = data.template;
             }
             self.currentDay(DayModel({
-                workouts: workouts,
+                workouts: [workout],
             }));
         }
         $("#edit-day").modal();
     };
 
-    self.getPanel();
+    $(function () {
+        self.activity($(".navbar .navbar-nav .nav-item.active").data("activity"));
+        self.getPanel(self.activity());
+    });
 
     return self;
 };
