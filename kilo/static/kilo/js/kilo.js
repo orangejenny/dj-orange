@@ -50,14 +50,6 @@ var KiloModel = function () {
     self.stats = ko.observableArray();
     self.currentDay = ko.observable();
 
-    self.activity = ko.observable();
-    self.updateActivity = function (model, e) {
-        self.activity($(e.currentTarget).data("activity"));
-    };
-    self.activity.subscribe(function (newValue) {
-        self.getPanel(newValue);
-    });
-
     // Populate templates for new day
     self.recentDays.subscribe(function (newValue) {
         var templates = [];
@@ -83,7 +75,7 @@ var KiloModel = function () {
             url: '/kilo/panel',
             method: 'GET',
             data: {
-                activity: activity,
+                activity: $(".navbar .navbar-nav .nav-item.active").data("activity"),
             },
             success: function (data) {
                 self.recentDays(data.recent_days.map(d => DayModel(d)));

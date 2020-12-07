@@ -11,8 +11,20 @@ from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
-@login_required
 def days(request):
+    return _days(request)
+
+
+def days_erging(request):
+    return _days(request, "erging")
+
+
+def days_running(request):
+    return _days(request, "running")
+
+
+@login_required
+def _days(request, activity=None):
     if request.method == "POST":
         # Saving a day
         day_id = int(request.POST.get('day_id'))
@@ -57,6 +69,7 @@ def days(request):
         messages.success(request, "Saved!")
 
     context = {
+        "activity": activity,
         "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
     }
     return HttpResponse(render(request, "kilo/days.html", context))

@@ -40,18 +40,18 @@
 {% block body %}
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#" data-bind="click: updateActivity">
+      <li class="nav-item{% if not activity %} active{% endif %}">
+        <a class="nav-link" href="{% url "days" %}">
           Kilo
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" data-activity="running" data-bind="click: updateActivity">
+      <li class="nav-item{% if activity == "running" %} active{% endif %}" data-activity="running">
+        <a class="nav-link" href="{% url "days_running" %}">
           Running
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" data-activity="erging" data-bind="click: updateActivity">
+      <li class="nav-item{% if activity == "erging" %} active{% endif %}" data-activity="erging">
+        <a class="nav-link" href="{% url "days_erging" %}">
           Erging
         </a>
       </li>
