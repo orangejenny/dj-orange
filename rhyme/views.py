@@ -4,6 +4,7 @@ import re
 
 from datetime import datetime, timezone
 
+from plexapi.exceptions import NotFound
 from plexapi.playlist import Playlist as PlexPlaylist
 
 from django.conf import settings
@@ -323,7 +324,13 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
 def create_plex_playlist(name, songs, song_filters=None, album_filters=None, omni_filter=None):
     server = plex_server()
     library = plex_library(server)
-    items = [library.fetchItem(song.plex_key) for song in songs if song.plex_key]
+    items = []
+    for song in songs:
+        if song.plex_key:
+            try:
+                items.append(library.fetchItem(song.plex_key))
+            except NotFound:
+                pass
     plex_playlist = PlexPlaylist.create(server, name, items=items, section='Music')
     if song_filters or album_filters or omni_filter:
         playlist = Playlist(
