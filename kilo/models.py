@@ -11,7 +11,7 @@ class Day(models.Model):
         ordering = ["-day"]
 
     def primary_activity(self):
-        return self.workout_set.last().activity
+        return self.workout_set.last().activity if self.workout_set.count() else None
 
 
 class Workout(models.Model):
