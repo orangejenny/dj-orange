@@ -86,6 +86,9 @@ class SongFilterTest(FilterTest):
         songs = Song.list(song_filters="artist=Artist4")
         self.assertEqual(len(songs), 0)
 
+        songs = Song.list(song_filters="artist*=Artist1&&artist*=Artist2")
+        self.assertEqual(len(songs), 0)
+
     def test_genre(self):
         genres = [s.artist.genre for s in Song.list(song_filters="genre=Industrial")]
         self.assertEqual(len(genres), 60)
