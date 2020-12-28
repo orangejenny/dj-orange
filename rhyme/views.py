@@ -198,6 +198,12 @@ def artist_select2(request):
 
 @require_GET
 @login_required
+def playlist_select2(request):
+    return _select2_list(request, Playlist.objects)
+
+
+@require_GET
+@login_required
 def tag_select2(request):
     return _select2_list(request, Tag.objects)
 
