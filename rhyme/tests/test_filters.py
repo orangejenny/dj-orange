@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from rhyme.models import Album, Artist, Song, Track
+from rhyme.models import Album, Artist, Playlist, Song, Track
 
 
 class FilterTest(TestCase):
@@ -139,6 +139,15 @@ class SongFilterTest(FilterTest):
         self.assertEqual(len(songs), 25)
         album_song_ids = {t.song.id for t in Album.objects.get(name__contains="Mix").tracks}
         self.assertEqual(album_song_ids, {s.id for s in songs})
+
+    def test_playlist(self):
+        playlist = Playlist(name='123', song_filters="energy=5")
+        playlist.save()
+        self.assertEqual(
+            {s.id for s in Song.list(song_filters="playlist*=123")},
+            {s.id for s in Song.list(song_filters="energy=5")}
+        )
+        playlist.delete()
 
     def test_omni_filter(self):
         names = [s.name for s in Song.list(omni_filter="Song **** !!!!! ###")]
