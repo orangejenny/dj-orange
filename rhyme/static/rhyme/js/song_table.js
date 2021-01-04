@@ -12,8 +12,11 @@ $(document).ready(function() {
     // TODO: move to knockout
     $body.on("focus", selector, function() {
         var $editable = $(this);
+        if ($editable.find(".rating").length) {
+            $editable = $editable.find(".rating");
+        }
         if ($editable.hasClass("rating")) {
-            oldValue = $editable.children(".fas:not(.blank)").length;
+            oldValue = $editable.find(".fas:not(.blank)").length;
             $editable.html(StringMultiply("*", oldValue));
         }
         else {
@@ -29,7 +32,7 @@ $(document).ready(function() {
             value = $editable.text().trim();
         if ($editable.hasClass("rating")) {
             value = value.length;
-            $editable.html(ratingHTML(iconClasses[field], value));
+            $editable.html(ratingHTML(iconClasses[field], value || oldValue));
         }
         if (value && oldValue != value) {
             var id = $container.data("song-id");
