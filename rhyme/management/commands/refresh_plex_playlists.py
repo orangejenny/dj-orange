@@ -15,6 +15,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--playlist-id', help="Update only this playlist")
         parser.add_argument('--force', action='store_true')
+        parser.add_argument('--quiet', action='store_true')
 
     def handle(self, *args, **options):
         self.server = plex_server()
@@ -25,10 +26,11 @@ class Command(BaseCommand):
         else:
             playlists = Playlist.objects.all()
 
+        print(f"Found {playlists.count()} playlists")
         for playlist in playlists:
-            self.refresh_playlist(playlist, force=options.get('force', False))
+            self.refresh_playlist(playlist, force=options.get('force', False), quiet=options.get('quiet', False))
 
-    def refresh_playlist(self, playlist, force=False):
+    def refresh_playlist(self, playlist, force=False, quiet=False):
         print(f"Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
 
         rhyme_keys = {song.plex_key for song in playlist.songs if song.plex_key}
@@ -41,7 +43,7 @@ class Command(BaseCommand):
             plex_playlist = self.server.playlist(playlist.name)
         except NotFound:
             print(f"Could not find \"{playlist.name}\" on plex.")
-            command = None
+            command = "i" if quiet else None
             while command not in ['d', 'c', 'r', 'i']:
                 command = input(f"Ignore (i), create on plex (c), delete from rhyme (d), or rename in rhyme (r)? ")
             if command == "d":
