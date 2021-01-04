@@ -157,6 +157,15 @@ var KiloModel = function () {
                     point: {
                         show: !!activity,
                     },
+                    tooltip: {
+                        show: !!activity,
+                        grouped: false,
+                        contents: activity ? function (points) {
+                            var point = points[0],
+                                date = new Date(point.x).toLocaleDateString();
+                            return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + getTime(point.value) + "</div>";
+                        } : undefined,
+                    },
                 });
             },
         });
