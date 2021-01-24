@@ -55,13 +55,12 @@ class FilterMixin():
                 action = (lhs, rhs)
             elif lhs in cls.related_fields:
                 field = cls.related_fields[lhs]
-                value = rhs.split(",")
                 if op == '=':       # all
                     for value in rhs.split(","):
                         action = (f"{field}__iexact", value)
                 elif op == '!=':    # none
                     for value in rhs.split(","):
-                        action = (f"{field}__iexact", value)
+                        action = (f"{field}__iexact", value)    # TODO: exclude
                 elif op == '*=':    # any
                     values = rhs.split(",")
                     qcondition = models.Q(**{f"{field}__iexact": values[0]})
@@ -81,6 +80,23 @@ class FilterMixin():
                 qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
                 for value in year_tags[1:]:
                     qcondition = qcondition | models.Q(**{"tag__name__exact": value})
+            elif lhs == "playlist":
+                song_ids = set()
+                for value in rhs.split(","):
+                    playlist = Playlist.objects.filter(name=rhs).first()
+                    if playlist is None:
+                        raise Exception("Could not find playlist: {}".format(rhs))
+                    if op == '=':   # all
+                        song_ids = song_ids & {s.id for s in playlist.songs}
+                    else:           # any, none
+                        song_ids = song_ids | {s.id for s in playlist.songs}
+
+                if op == '!=':    # none
+                    action = ("id__in", song_ids)   # TODO: exclude
+                elif op == '=' or op == '*=':             # any, all (will have different values for song_ids)
+                    action = ("id__in", song_ids)
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
