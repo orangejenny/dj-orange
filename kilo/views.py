@@ -199,6 +199,9 @@ def _get_graph_data(days, activity=None):
     days = days.filter(day__gte=today - timedelta(days=30 if activity else 90))
     data = {}
 
+    if not days.count():
+        return data
+
     if activity is None:
         data["x"] = "day"
         all_activities = {w.activity for d in days for w in d.workout_set.all()}
