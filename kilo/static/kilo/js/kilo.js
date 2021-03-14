@@ -99,6 +99,7 @@ var KiloModel = function () {
         var index = 0;
         while (index < newValue.length && templates.length < 3) {
             var workout = newValue[index].workouts()[0];
+            index++;
             if (!workout) {
                 continue;
             }
@@ -108,7 +109,6 @@ var KiloModel = function () {
             if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
                 templates.push(template);
             }
-            index++;
         }
         self.workoutTemplates(templates);
     });
