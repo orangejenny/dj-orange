@@ -124,6 +124,10 @@ var KiloModel = function () {
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
                 self.stats(data.stats);
 
+                if (!data.graph_data) {
+                    return;
+                }
+
                 c3.generate({
                     bindto: '#graph',
                     data: data.graph_data,
