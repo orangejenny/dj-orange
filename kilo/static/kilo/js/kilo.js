@@ -87,6 +87,7 @@ var WorkoutModel = function (options) {
 var KiloModel = function () {
     var self = {};
 
+    self.loading = ko.observable(true);
     self.recentDays = ko.observableArray();
     self.workoutTemplates = ko.observableArray();
     self.stats = ko.observableArray();
@@ -121,6 +122,7 @@ var KiloModel = function () {
                 activity: self.activity(),
             },
             success: function (data) {
+                self.loading(false);
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
                 self.stats(data.stats);
 
