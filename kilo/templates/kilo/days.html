@@ -57,7 +57,7 @@
         <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
           <!-- ko foreach: workoutTemplates -->
           <li>
-            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#edit-day" data-bind="click: $root.populateCurrentDay, attr: {'data-template': JSON.stringify($data)}">
+            <a class="dropdown-item" data-bind="click: $root.showCurrentDay, attr: {'data-template': JSON.stringify($data)}">
               <span data-bind="text: activity"></span>
               <span data-bind="text: distance"></span>
               <span data-bind="visible: distance, text: distance_unit"></span>
@@ -66,7 +66,7 @@
           <!-- /ko -->
           <div role="separator" class="dropdown-divider"></div>
           <li>
-            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#edit-day" data-bind="click: $root.populateCurrentDay">Blank Day</a>
+            <a class="dropdown-item" data-bs-toggle="modal" data-bind="click: $root.showCurrentDay">Blank Day</a>
           </li>
         </ul>
       </div>
@@ -76,9 +76,7 @@
   <div class="container-fluid">
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         {{ message }}
       </div>
     {% endfor %}
@@ -106,9 +104,6 @@
     </div>
     <br><br>
     <div class="row">
-      <div class="col-4">
-        <div id="graph"></div>
-      </div>
       <div class="col-8">
         <table class="table table-hover">
           <tbody data-bind="foreach: recentDays">
@@ -128,7 +123,7 @@
               </td>
               <td class="col-5" data-bind="text: notes"></td>
               <td class="col-1">
-                <button type="button" class="pull-right btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-day" data-bind="click: $root.populateCurrentDay, attr: {'data-id': id}">
+                <button type="button" class="pull-right btn btn-primary" data-bind="click: $root.showCurrentDay, attr: {'data-id': id}">
                   Edit
                 </button>
               </td>
@@ -136,67 +131,83 @@
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
-
-  <div class="modal fade in" id="edit-day" tabindex="-1" role="dialog" aria-labelledby="edit-day-title" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content" data-bind="with: currentDay">
-        <form method="post">
-          <input type="hidden" name="day_id" data-bind="value: id" />
-          {% csrf_token %}
-          <div class="modal-header">
-            <div class="form-inline" id="edit-day-title">
-              <span data-bind="text: dayOfWeek"></span>,
-              <input type="text" class="form-control form-control-sm" name="month" data-bind="value: month" />
-              <input type="text" class="form-control form-control-sm" name="day_of_month" data-bind="value: day_of_month" />
-              ,
-              <input type="text" class="form-control form-control-sm" name="year" data-bind="value: year" />
+      <div class="col-4">
+        <form method="post" data-bind="with: currentDay">
+          <div class="card">
+            <div class="card-header">
+            <input type="hidden" name="day_id" data-bind="value: id" />
+            {% csrf_token %}
+            <div class="row g-1 align-items-center">
+              <div class="col-3">
+                <span data-bind="text: dayOfWeek"></span>,
+              </div>
+              <div class="col-2">
+                <label class="visually-hidden" for="currentDayMonth">Month</label>
+                <input type="text" class="form-control" id="currentDayMonth" name="month" data-bind="value: month">
+              </div>
+              <div class="col-2">
+                <label class="visually-hidden" for="currentDayDay">Day</label>
+                <input type="text" class="form-control" id="currentDayDay" name="day_of_month" data-bind="value: day_of_month">
+              </div>
+              <div class="col-3">
+                <label class="visually-hidden" for="currentDayYear">Year</label>
+                <input type="text" class="form-control" id="currentDayYear" name="year" data-bind="value: year">
+              </div>
+              <div class="col-1">
+              </div>
+              <div class="col-1">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: addWorkout">+</button>
+              </div>
             </div>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
-          <div class="modal-body">
+          <div class="card-body">
             <div data-bind="foreach: workouts">
               <input type="hidden" name="workout_id" data-bind="value: id" />
-              <div class="row">
-                <div class="col">
+              <div class="row g-1 mb-1 align-items-center">
+                <div class="col-3">
                   <select class="form-control form-control-sm" name="activity" data-bind="value: activity">
                     {% for activity in activities %}
                       <option>{{ activity }}</option>
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col"><input type="text" class="form-control form-control-sm" name="distance" placeholder="distance" data-bind="value: distance" /></div>
-                <div class="col">
+                <div class="col-2">
+                  <input type="text" class="form-control form-control-sm" name="distance" placeholder="distance" data-bind="value: distance" />
+                </div>
+                <div class="col-2">
                   <select class="form-control form-control-sm" name="distance_unit" data-bind="value: distance_unit">
                     {% for unit in distance_units %}
                       <option>{{ unit }}</option>
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col">
+                <div class="col-2">
                   <input type="text" class="form-control form-control-sm" placeholder="time" data-bind="value: time" />
                   <input type="hidden" name="seconds" data-bind="value: seconds" />
                 </div>
+                <div class="col-3">
+                  <!-- 2:04.0 -->
+                </div>
               </div>
-              <div class="row">
+              <div class="row" data-bind="visible: isLifting">
                 <div class="col"></div>
                 <div class="col"><input type="text" class="form-control form-control-sm" name="sets" placeholder="sets" data-bind="value: sets" /></div>
                 <div class="col"><input type="text" class="form-control form-control-sm" name="reps" placeholder="reps" data-bind="value: reps" /></div>
                 <div class="col"><input type="text" class="form-control form-control-sm" name="weight" placeholder="weight" data-bind="value: weight" /></div>
               </div>
-            </div>
-            <button type="button" class="btn btn-secondary" data-bind="click: addWorkout">Add Workout</button>
-            <textarea class="form-control" name="notes" placeholder="How was today?" data-bind="value: notes" rows="5"></textarea>
+            </div><!-- close workouts -->
+            <textarea class="form-control" name="notes" placeholder="How was today?" data-bind="value: notes" rows="3"></textarea>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <div class="card-footer">
             <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" data-bind="click: $root.clearCurrentDay">Cancel</button>
           </div>
+        </div>
+        <br />
         </form>
+        <div id="graph"></div>
       </div>
     </div>
   </div>
+
 {% endblock body %}

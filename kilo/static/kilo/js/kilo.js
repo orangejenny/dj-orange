@@ -81,6 +81,10 @@ var WorkoutModel = function (options) {
         self.seconds(getSeconds(newValue));
     });
 
+    self.isLifting = ko.computed(function () {
+        return self.activity() === "lifting";
+    });
+
     return self;
 };
 
@@ -177,7 +181,7 @@ var KiloModel = function () {
         });
     };
 
-    self.populateCurrentDay = function (model, e) {
+    self.showCurrentDay = function (model, e) {
         var data = $(e.currentTarget).data();
         if (data.id) {
             self.currentDay(self.recentDays().find(d => d.id() === data.id));
@@ -192,6 +196,10 @@ var KiloModel = function () {
                 workouts: [workout],
             }));
         }
+    };
+
+    self.clearCurrentDay = function () {
+        self.currentDay(undefined);
     };
 
     $(function () {
