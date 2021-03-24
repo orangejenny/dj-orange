@@ -177,7 +177,7 @@ var KiloModel = function () {
         });
     };
 
-    self.openModal = function (model, e) {
+    self.populateCurrentDay = function (model, e) {
         var data = $(e.currentTarget).data();
         if (data.id) {
             self.currentDay(self.recentDays().find(d => d.id() === data.id));
@@ -192,7 +192,6 @@ var KiloModel = function () {
                 workouts: [workout],
             }));
         }
-        $("#edit-day").modal();
     };
 
     $(function () {
