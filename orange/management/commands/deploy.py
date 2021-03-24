@@ -63,7 +63,7 @@ class Command(BaseCommand):
     def handle_remote(self):
         subprocess.run(["pip", "install", "-r", "requirements.txt"])
         call_command("migrate")
-        call_command("collectstatic", no_input=True)
+        call_command("collectstatic", "--noinput")
         subprocess.run(["touch", "tmp/restart.txt"])
 
     def handle(self, *args, **options):
