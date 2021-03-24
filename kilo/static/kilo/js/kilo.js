@@ -73,6 +73,24 @@ var getSeconds = function (time) {
     return seconds;
 };
 
+var getPace = function(workout) {
+    if (workout.seconds() && workout.distance()) {
+        var pace = workout.seconds() / workout.distance();
+        if (workout.activity() === "erging") {
+            // Paces for m workouts are given in km
+            if (workout.distance_unit() === "m") {
+                pace = pace * 1000;
+            }
+            // Paces for ergs are per 500m, not 1k
+            if (workout.distance_unit() === "km" || workout.distance_unit() === "m") {
+                pace = pace / 2;
+            }
+        }
+        return getTime(pace);
+    }
+    return "";
+};
+
 var WorkoutModel = function (options) {
     var self = ko.mapping.fromJS($.extend({
         id: undefined,
@@ -92,6 +110,10 @@ var WorkoutModel = function (options) {
 
     self.isLifting = ko.computed(function () {
         return self.activity() === "lifting";
+    });
+
+    self.pace = ko.computed(function () {
+        return getPace(self);
     });
 
     return self;
