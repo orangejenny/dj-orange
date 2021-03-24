@@ -32,6 +32,10 @@ var DayModel = function (options) {
         self.workouts.push(WorkoutModel(options));
     };
 
+    self.removeWorkout = function (model) {
+        self.workouts.remove(model);
+    }
+
     return self;
 };
 

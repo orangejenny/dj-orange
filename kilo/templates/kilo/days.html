@@ -156,7 +156,9 @@
               <div class="col-1">
               </div>
               <div class="col-1">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: addWorkout">+</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: addWorkout">
+                  <i class="fa fa-plus"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -185,8 +187,13 @@
                   <input type="text" class="form-control form-control-sm" placeholder="time" data-bind="value: time" />
                   <input type="hidden" name="seconds" data-bind="value: seconds" />
                 </div>
-                <div class="col-3">
-                  <!-- 2:04.0 -->
+                <!--div class="col-2">
+                  2:04.0
+                </div-->
+                <div class="col-1">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: $parent.removeWorkout">
+                    <i class="fa fa-times"></i>
+                  </button>
                 </div>
               </div>
               <div class="row" data-bind="visible: isLifting">
