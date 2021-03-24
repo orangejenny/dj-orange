@@ -61,6 +61,8 @@ class Command(BaseCommand):
         return repo
 
     def handle_remote(self):
+        subprocess.run(["pip", "install", "-r", "requirements.txt"])
+        call_command("migrate")
         call_command("collectstatic", noinput=True)
         subprocess.run(["touch", "tmp/restart.txt"])
 
