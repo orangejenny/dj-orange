@@ -24,7 +24,12 @@ var DayModel = function (options) {
     });
 
     self.addWorkout = function () {
-        self.workouts.push(WorkoutModel());
+        var options = {};
+        if (self.workouts().length) {
+            var template = self.workouts()[self.workouts().length - 1];
+            options = _.omit(ko.toJS(template), ['id', 'seconds']);
+        }
+        self.workouts.push(WorkoutModel(options));
     };
 
     return self;
