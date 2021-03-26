@@ -122,7 +122,6 @@ var WorkoutModel = function (options) {
 var KiloModel = function () {
     var self = {};
 
-    self.loading = ko.observable(true);
     self.recentDays = ko.observableArray();
     self.workoutTemplates = ko.observableArray();
     self.stats = ko.observableArray();
@@ -177,7 +176,6 @@ var KiloModel = function () {
                 activity: self.activity(),
             },
             success: function (data) {
-                self.loading(false);
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
                 self.stats(data.stats);
 
@@ -263,5 +261,7 @@ var KiloModel = function () {
 
 $(function () {
     ko.applyBindings(KiloModel());
-    ReactDOM.render(React.createElement(Loading), document.getElementById("loading"));
+
+    var activity = $(".navbar .navbar-nav .nav-item.active").data("activity");
+    ReactDOM.render(React.createElement(App, {activity: activity}), document.getElementById("app"));
 });

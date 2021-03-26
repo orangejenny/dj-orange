@@ -1,5 +1,6 @@
 class Loading extends React.Component {
     render() {
+      if (this.props.show) {
         return (
           <div>
             <div className="spinner-grow text-secondary m-3" role="status"></div>
@@ -8,6 +9,9 @@ class Loading extends React.Component {
             <span className="visually-hidden">Loading...</span>
           </div>
         );
+      } else {
+        return null;
+      }
     }
 }
 
@@ -60,6 +64,40 @@ class Row extends React.Component {
           </button>
         </td>
       </tr>
+    );
+  }
+}
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activity: props.activity,
+      loading: true,
+    };
+  }
+
+  componentDidMount() {
+    var self = this;
+      $.ajax({
+          url: '/kilo/panel',
+          method: 'GET',
+          data: {
+              activity: this.state.activity,
+          },
+          success: function (data) {
+              // TODO
+              /*self.recentDays(data.recent_days.map(d => DayModel(d)));
+              self.stats(data.stats);*/
+              self.setState({loading: false});
+          },
+      });
+  }
+
+  render() {
+    return (
+      <Loading show={this.state.loading} />
+      <br /><br />
     );
   }
 }
