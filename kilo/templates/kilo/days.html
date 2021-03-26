@@ -89,33 +89,7 @@
     <div id="stats"></div>
     <br><br>
     <div class="row">
-      <div class="col-8">
-        <table class="table table-hover">
-          <tbody data-bind="foreach: recentDays">
-            <tr class="row" data-bind="if: id">
-              <td class="col-2" data-bind="text: pretty_day"></td>
-              <td class="col-2">
-                <ul class="list-unstyled" data-bind="foreach: workouts">
-                  <li data-bind="text: activity"></li>
-                </ul>
-              </td>
-              <td class="col-2">
-                <ul class="list-unstyled" data-bind="foreach: workouts">
-                  <!-- ko if: id -->
-                    <li data-bind="text: summary"></li>
-                  <!-- /ko -->
-                </ul>
-              </td>
-              <td class="col-5" data-bind="text: notes"></td>
-              <td class="col-1">
-                <button type="button" class="pull-right btn btn-primary" data-bind="click: $root.showCurrentDay, attr: {'data-id': id}">
-                  Edit
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="days" class="col-8"></div>
       <div class="col-4">
         <form method="post" data-bind="with: currentDay">
           <div class="card">

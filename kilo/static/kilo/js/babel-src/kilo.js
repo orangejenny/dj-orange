@@ -136,9 +136,7 @@ var KiloModel = function () {
             </div>
         );
         ReactDOM.render((
-          <div className="row">
-            {stats}
-          </div>
+          <div className="row">{stats}</div>
         ), document.getElementById("stats"));
     });
 
@@ -160,6 +158,15 @@ var KiloModel = function () {
             }
         }
         self.workoutTemplates(templates);
+
+        const rows = newValue.map((day) => 
+          <Row key={day.id()} {...ko.toJS(day)} />
+        );
+        ReactDOM.render((
+          <table className="table table-hover">
+            <tbody>{rows}</tbody>
+          </table>
+        ), document.getElementById("days"));
     });
 
     self.getPanel = function (activity) {
