@@ -129,6 +129,19 @@ var KiloModel = function () {
     self.currentDay = ko.observable();
     self.activity = ko.observable();
 
+    self.stats.subscribe(function (newValue) {
+        const stats = newValue.map((stat) => 
+            <div className="col" key={stat.name}>
+              <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
+            </div>
+        );
+        ReactDOM.render((
+          <div className="row">
+            {stats}
+          </div>
+        ), document.getElementById("stats"));
+    });
+
     // Populate templates for new day
     self.recentDays.subscribe(function (newValue) {
         var templates = [];
@@ -243,6 +256,5 @@ var KiloModel = function () {
 
 $(function () {
     ko.applyBindings(KiloModel());
-    const domContainer = document.querySelector('#loading');
-    ReactDOM.render(React.createElement(Loading), domContainer);
+    ReactDOM.render(React.createElement(Loading), document.getElementById("loading"));
 });

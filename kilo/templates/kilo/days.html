@@ -32,7 +32,7 @@
   <script src="{% static "react/umd/react.production.min.js" %}" crossorigin></script>
   <script src="{% static "react-dom/umd/react-dom.production.min.js" %}" crossorigin></script>
   <script src="{% static "kilo/js/babel-prod/components.js" %}"></script>
-  <script src="{% static "kilo/js/kilo.js" %}"></script>
+  <script src="{% static "kilo/js/babel-prod/kilo.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
@@ -86,17 +86,7 @@
       </div>
     {% endfor %}
     <div id="loading" data-bind="visible: loading"></div>
-    <div class="row" data-bind="foreach: stats">
-      <div class="col">
-        <div class="card text-center">
-          <div class="card-header" data-bind="text: name"></div>
-          <div class="card-body">
-              <h1 data-bind="text: primary"></h1>
-              <span data-bind="text: secondary"></span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="stats"></div>
     <br><br>
     <div class="row">
       <div class="col-8">
