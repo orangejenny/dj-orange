@@ -140,7 +140,7 @@ var KiloModel = function () {
                 continue;
             }
             workout = ko.mapping.toJS(workout);
-            var template = $.extend({}, workout);
+            var template = $.extend({}, _.omit(workout, 'id'));
             delete template.seconds;
             if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
                 templates.push(template);
