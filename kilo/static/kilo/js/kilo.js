@@ -243,4 +243,6 @@ var KiloModel = function () {
 
 $(function () {
     ko.applyBindings(KiloModel());
+    const domContainer = document.querySelector('#loading');
+    ReactDOM.render(React.createElement(Loading), domContainer);
 });
