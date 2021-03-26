@@ -118,6 +118,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    'node_modules',
+]
 
 RHYME_EXPORT_CONFIGS = [
     {

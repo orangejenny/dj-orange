@@ -1,5 +1,7 @@
 {% extends 'orange/base.html' %}
 
+{% load static %}
+
 {% block title %}Kilo{% endblock title %}
 
 {% block style %}{{ block.super }}
@@ -27,10 +29,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js"
           integrity="sha512-+IpCthlNahOuERYUSnKFjzjdKXIbJ/7Dd6xvUp+7bEw0Jp2dg6tluyxLs+zq9BMzZgrLv8886T4cBSqnKiVgUw=="
           crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="/static/kilo/js/babel-prod/components.js"></script>
-  <script src="/static/kilo/js/kilo.js"></script>
+  <script src="{% static "react/umd/react.production.min.js" %}" crossorigin></script>
+  <script src="{% static "react-dom/umd/react-dom.production.min.js" %}" crossorigin></script>
+  <script src="{% static "kilo/js/babel-prod/components.js" %}"></script>
+  <script src="{% static "kilo/js/kilo.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
