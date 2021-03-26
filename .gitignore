@@ -9,3 +9,4 @@ __pycache__/
 
 rhyme/static/rhyme/img/collections/*
 rhyme/fixtures/*
+node_modules
