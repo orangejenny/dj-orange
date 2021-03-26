@@ -63,6 +63,7 @@ class Command(BaseCommand):
     def handle_remote(self):
         subprocess.run(["pip", "install", "-r", "requirements.txt"])
         call_command("migrate")
+        subprocess.run(["npm install"])
         call_command("collectstatic", "--noinput")
         subprocess.run(["touch", "tmp/restart.txt"])
 
