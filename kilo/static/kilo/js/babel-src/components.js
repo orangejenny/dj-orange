@@ -68,12 +68,187 @@ class Row extends React.Component {
   }
 }
 
+class WorkoutEntry extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = props;
+    this.pace = this.pace.bind(this);
+    this.time = this.time.bind(this);
+    this.handleActivityChange = this.handleActivityChange.bind(this);
+    this.handleDistanceChange = this.handleDistanceChange.bind(this);
+    this.handleDistanceUnitChange = this.handleDistanceUnitChange.bind(this);
+    this.handleSetsChange = this.handleSetsChange.bind(this);
+    this.handleRepsChange = this.handleRepsChange.bind(this);
+    this.handleWeightChange = this.handleWeightChange.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
+    this.remove = this.remove.bind(this);
+  }
+
+  handleActivityChange(e) { this.setState({activity: e.target.value}) }
+  handleDistanceChange(e) { this.setState({distance: e.target.value}) }
+  handleDistanceUnitChange(e) { this.setState({distance_unit: e.target.value}) }
+  handleSetsChange(e) { this.setState({sets: e.target.value}) }
+  handleRepsChange(e) { this.setState({reps: e.target.value}) }
+  handleWeightChange(e) { this.setState({weight: e.target.value}) }
+  handleTimeChange(e) { this.setState({seconds: e.target.value}) }  // TODO: convert to time
+
+  pace() { return "PACE"; }   // TODO
+  time() { return this.state.seconds; }   // TODO: display human-friendly-time
+
+  remove() {
+    console.log("TODO: remove workout");
+  }
+
+  render() {
+    return (
+      <div>
+        <div className="row g-1 mb-1 align-items-center">
+          <div className="col-3">
+            <select className="form-control form-control-sm" name="activity" value={this.state.activity} onChange={this.handleActivityChange}>
+              <option>running</option>/* TODO: pull from server */
+              <option>erging</option>
+            </select>
+          </div>
+          <div className="col-2">
+            <input type="text" className="form-control form-control-sm" name="distance" placeholder="distance" value={this.state.distance} onChange={this.handleDistanceChange} />
+          </div>
+          <div className="col-2">
+            <select className="form-control form-control-sm" name="distance_unit" value={this.state.distance_unit} onChange={this.handleDistanceUnitChange}>
+              <option>mi</option>/* TODO: pull from server */
+              <option>km</option>
+              <option>m</option>
+            </select>
+          </div>
+          <div className="col-2">
+            <input type="text" className="form-control form-control-sm" placeholder="time" value={this.time()} onChange={this.handleTimeChange} />
+          </div>
+          <div className="col-2">{this.pace()}</div>
+          <div className="col-1">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.remove}>
+              <i className="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {this.state.activity === "lifting" && <div className="row g-1 mb-1" data-bind="visible: isLifting">
+          <div className="col-3"></div>
+          <div className="col-2">
+            <input type="text" className="form-control form-control-sm" name="sets" placeholder="sets" value={this.state.sets} onChange={this.handleSetsChange} />
+          </div>
+          <div className="col-2">
+            <input type="text" className="form-control form-control-sm" name="reps" placeholder="reps" value={this.state.reps} onChange={this.handleRepsChange} />
+          </div>
+          <div className="col-2">
+            <input type="text" className="form-control form-control-sm" name="weight" placeholder="weight"  value={this.state.weight} onChange={this.handleWeightChange} />
+          </div>
+        </div>}
+      </div>
+    );
+  }
+}
+
+class CurrentDay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      id: props.id,
+      year: props.day.split("-")[0],
+      month: props.day.split("-")[1],
+      dayOfMonth: props.day.split("-")[2],
+      workouts: props.workouts,
+    };
+    this.day = this.day.bind(this);
+    this.dayOfWeek = this.dayOfWeek.bind(this);
+    this.handleMonthChange = this.handleMonthChange.bind(this);
+    this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
+    this.handleYearChange = this.handleYearChange.bind(this);
+    this.handleNotesChange = this.handleNotesChange.bind(this);
+    this.addWorkout = this.addWorkout.bind(this);
+    this.clearCurrentDay = this.clearCurrentDay.bind(this);
+    this.saveCurrentDay = this.saveCurrentDay.bind(this);
+  }
+
+  addWorkout() {
+    console.log("TODO addWorkout");
+  }
+
+  clearCurrentDay() {
+    console.log("TODO clearCurrentDay");
+  }
+
+  saveCurrentDay(e) {
+    console.log("TODO saveCurrentDay");
+    e.preventDefault();
+  }
+
+  handleYearChange(e) { this.setState({year: e.target.value}) }
+  handleMonthChange(e) { this.setState({month: e.target.value}) }
+  handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
+  handleNotesChange(e) { this.setState({notes: e.target.value}) }
+
+  dayOfWeek() {
+    return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][(new Date(this.day())).getDay()];
+  }
+
+  day() {
+    return this.state.year + "-" + this.state.month + "-" + this.state.dayOfMonth;
+  }
+
+  render() {
+    const workouts = this.state.workouts.map((w) => <WorkoutEntry {...w} />)
+    return (
+        <form onSubmit={this.saveCurrentDay}>
+          <div className="card">
+            <div className="card-header">
+              <input type="hidden" name="day_id" value={this.state.id} />
+              <div className="row g-1 align-items-center">
+                <div className="col-3">{this.dayOfWeek()}</div>
+                <div className="col-2">
+                  <label className="visually-hidden" for="currentDayMonth">Month</label>
+                  <input type="text" className="form-control" id="currentDayMonth" name="month" value={this.state.month} onChange={this.handleMonthChange} />
+                </div>
+                <div className="col-2">
+                  <label className="visually-hidden" for="currentDayDay">Day</label>
+                  <input type="text" className="form-control" id="currentDayDay" name="day_of_month" value={this.state.dayOfMonth} onChange={this.handleDayOfMonthChange} />
+                </div>
+                <div className="col-3">
+                  <label className="visually-hidden" for="currentDayYear">Year</label>
+                  <input type="text" className="form-control" id="currentDayYear" name="year" value={this.state.year} onChange={this.handleYearChange} />
+                </div>
+                <div className="col-1"></div>
+                <div className="col-1">
+                  <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
+                    <i className="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="card-body">
+              {workouts}
+              <textarea className="form-control" name="notes" placeholder="How was today?" value={this.state.notes} onChange={this.handleNotesChange} rows="3" />
+            </div>
+            <div className="card-footer">
+              <button type="submit" className="btn btn-primary">Save</button>
+              &nbsp;
+              <button type="button" className="btn btn-secondary" onClick={this.clearCurrentDay}>Cancel</button>
+            </div>
+          </div>
+        </form>
+    );
+  }
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activity: props.activity,
       loading: true,
+      current_day: {
+        day: "2021-03-25",
+        workouts: [
+          {activity: "erging", distance: 6, distance_unit: "km", seconds: 24 * 60 + 53},
+        ],
+      },
     };
   }
 
@@ -163,6 +338,7 @@ class App extends React.Component {
             </table>
           </div>
           <div className="col-4">
+            <CurrentDay {...this.state.current_day} />
             <div id="graph"></div>
           </div>
         </div>

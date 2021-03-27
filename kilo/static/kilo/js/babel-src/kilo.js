@@ -19,10 +19,6 @@ var DayModel = function (options) {
         return new Date(self.year(), self.month() - 1, self.day_of_month());
     });
 
-    self.dayOfWeek = ko.computed(function () {
-        return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][self.date().getDay()];
-    });
-
     self.addWorkout = function () {
         var options = {};
         if (self.workouts().length) {
