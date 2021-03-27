@@ -97,8 +97,57 @@ class App extends React.Component {
                   </div>
                 ),
               });
+              if (data.graph_data) {
+                self.loadGraph(data.graph_data);
+              }
           },
       });
+  }
+
+  loadGraph(data) {
+    c3.generate({
+        bindto: '#graph',
+        data: data,
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    count: data.columns[0].length,
+                    format: '%b %d',
+                    rotate: 90,
+                },
+            },
+            y: {
+                min: 0,
+                max: this.state.activity ? undefined : 7,
+                tick: {
+                    count: this.state.activity ? undefined : 8,
+                    format: this.state.activity ? function (seconds) {
+                        return getTime(seconds);
+                    } : undefined,
+                },
+                padding: {
+                    top: 0,
+                    bottom: 0,
+                },
+            },
+        },
+        legend: {
+            show: !this.state.activity,
+        },
+        point: {
+            show: !!this.state.activity,
+        },
+        tooltip: {
+            show: !!this.state.activity,
+            grouped: false,
+            contents: this.state.activity ? function (points) {
+                var point = points[0],
+                    date = new Date(point.x).toLocaleDateString();
+                return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + getTime(point.value) + "</div>";
+            } : undefined,
+        },
+    });
   }
 
   render() {
@@ -113,7 +162,9 @@ class App extends React.Component {
               <tbody>{this.state.rows}</tbody>
             </table>
           </div>
-          <div className="col-4"></div>
+          <div className="col-4">
+            <div id="graph"></div>
+          </div>
         </div>
       </div>
     );

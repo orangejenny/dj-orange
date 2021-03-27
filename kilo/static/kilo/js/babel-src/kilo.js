@@ -157,54 +157,6 @@ var KiloModel = function () {
             },
             success: function (data) {
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
-
-                if (!data.graph_data) {
-                    return;
-                }
-
-                c3.generate({
-                    bindto: '#graph',
-                    data: data.graph_data,
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                            tick: {
-                                count: data.graph_data.columns[0].length,
-                                format: '%b %d',
-                                rotate: 90,
-                            },
-                        },
-                        y: {
-                            min: 0,
-                            max: activity ? undefined : 7,
-                            tick: {
-                                count: activity ? undefined : 8,
-                                format: activity ? function (seconds) {
-                                    return getTime(seconds);
-                                } : undefined,
-                            },
-                            padding: {
-                                top: 0,
-                                bottom: 0,
-                            },
-                        },
-                    },
-                    legend: {
-                        show: !activity,
-                    },
-                    point: {
-                        show: !!activity,
-                    },
-                    tooltip: {
-                        show: !!activity,
-                        grouped: false,
-                        contents: activity ? function (points) {
-                            var point = points[0],
-                                date = new Date(point.x).toLocaleDateString();
-                            return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + getTime(point.value) + "</div>";
-                        } : undefined,
-                    },
-                });
             },
         });
     };
