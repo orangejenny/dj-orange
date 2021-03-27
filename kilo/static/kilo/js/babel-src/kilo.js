@@ -146,14 +146,6 @@ var KiloModel = function () {
         }
         self.workoutTemplates(templates);
 
-        const rows = newValue.map((day) => 
-          <Row key={day.id()} {...ko.toJS(day)} />
-        );
-        ReactDOM.render((
-          <table className="table table-hover">
-            <tbody>{rows}</tbody>
-          </table>
-        ), document.getElementById("days"));
     });
 
     self.getPanel = function (activity) {

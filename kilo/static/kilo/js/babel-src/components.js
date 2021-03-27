@@ -86,10 +86,11 @@ class App extends React.Component {
               activity: this.state.activity,
           },
           success: function (data) {
-              // TODO
-              /*self.recentDays(data.recent_days.map(d => DayModel(d)));*/
               self.setState({
                 loading: false,
+                rows: data.recent_days.map((day) =>
+                  <Row key={day.id} {...day} />
+                ),
                 stats: data.stats.map((stat) => 
                   <div className="col" key={stat.name}>
                     <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
@@ -106,6 +107,14 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <div className="row">{this.state.stats}</div>
         <br /><br />
+        <div className="row">
+          <div className="col-8">
+            <table className="table table-hover">
+              <tbody>{this.state.rows}</tbody>
+            </table>
+          </div>
+          <div className="col-4"></div>
+        </div>
       </div>
     );
   }
