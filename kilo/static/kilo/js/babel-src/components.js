@@ -87,17 +87,26 @@ class App extends React.Component {
           },
           success: function (data) {
               // TODO
-              /*self.recentDays(data.recent_days.map(d => DayModel(d)));
-              self.stats(data.stats);*/
-              self.setState({loading: false});
+              /*self.recentDays(data.recent_days.map(d => DayModel(d)));*/
+              self.setState({
+                loading: false,
+                stats: data.stats.map((stat) => 
+                  <div className="col" key={stat.name}>
+                    <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
+                  </div>
+                ),
+              });
           },
       });
   }
 
   render() {
     return (
-      <Loading show={this.state.loading} />
-      <br /><br />
+      <div>
+        <Loading show={this.state.loading} />
+        <div className="row">{this.state.stats}</div>
+        <br /><br />
+      </div>
     );
   }
 }

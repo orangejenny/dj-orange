@@ -124,20 +124,8 @@ var KiloModel = function () {
 
     self.recentDays = ko.observableArray();
     self.workoutTemplates = ko.observableArray();
-    self.stats = ko.observableArray();
     self.currentDay = ko.observable();
     self.activity = ko.observable();
-
-    self.stats.subscribe(function (newValue) {
-        const stats = newValue.map((stat) => 
-            <div className="col" key={stat.name}>
-              <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
-            </div>
-        );
-        ReactDOM.render((
-          <div className="row">{stats}</div>
-        ), document.getElementById("stats"));
-    });
 
     // Populate templates for new day
     self.recentDays.subscribe(function (newValue) {
@@ -177,7 +165,6 @@ var KiloModel = function () {
             },
             success: function (data) {
                 self.recentDays(data.recent_days.map(d => DayModel(d)));
-                self.stats(data.stats);
 
                 if (!data.graph_data) {
                     return;
