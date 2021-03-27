@@ -1,3 +1,5 @@
+import { App } from "./components.js"
+
 var DayModel = function (options) {
     var today = new Date();
     var self = ko.mapping.fromJS($.extend({

@@ -31,8 +31,7 @@
           crossorigin="anonymous"></script>
   <script src="{% static "react/umd/react.production.min.js" %}" crossorigin></script>
   <script src="{% static "react-dom/umd/react-dom.production.min.js" %}" crossorigin></script>
-  <script src="{% static "kilo/js/babel-prod/components.js" %}"></script>
-  <script src="{% static "kilo/js/babel-prod/kilo.js" %}"></script>
+  <script type="module" src="{% static "kilo/js/babel-prod/kilo.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
