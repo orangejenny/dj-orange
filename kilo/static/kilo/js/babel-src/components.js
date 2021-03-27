@@ -40,10 +40,10 @@ class Row extends React.Component {
       summaries: props.workouts.map((workout) => <li key={workout.id}>{workout.summary}</li>),
     };
 
-    this.showCurrentDay = this.showCurrentDay.bind(this);
+    this.showDayEntry = this.showDayEntry.bind(this);
   }
 
-  showCurrentDay () {
+  showDayEntry () {
     console.log("show day " + this.state.id);
   }
 
@@ -59,7 +59,7 @@ class Row extends React.Component {
         </td>
         <td className="col-5">{this.state.notes}</td>
         <td className="col-1">
-          <button type="button" className="pull-right btn btn-primary" id={this.state.id} onClick={this.showCurrentDay}>
+          <button type="button" className="pull-right btn btn-primary" id={this.state.id} onClick={this.showDayEntry}>
             Edit
           </button>
         </td>
@@ -146,7 +146,7 @@ class WorkoutEntry extends React.Component {
   }
 }
 
-class CurrentDay extends React.Component {
+class DayEntry extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -163,20 +163,20 @@ class CurrentDay extends React.Component {
     this.handleYearChange = this.handleYearChange.bind(this);
     this.handleNotesChange = this.handleNotesChange.bind(this);
     this.addWorkout = this.addWorkout.bind(this);
-    this.clearCurrentDay = this.clearCurrentDay.bind(this);
-    this.saveCurrentDay = this.saveCurrentDay.bind(this);
+    this.clearDayEntry = this.clearDayEntry.bind(this);
+    this.saveDayEntry = this.saveDayEntry.bind(this);
   }
 
   addWorkout() {
     console.log("TODO addWorkout");
   }
 
-  clearCurrentDay() {
-    console.log("TODO clearCurrentDay");
+  clearDayEntry() {
+    console.log("TODO clearDayEntry");
   }
 
-  saveCurrentDay(e) {
-    console.log("TODO saveCurrentDay");
+  saveDayEntry(e) {
+    console.log("TODO saveDayEntry");
     e.preventDefault();
   }
 
@@ -196,7 +196,7 @@ class CurrentDay extends React.Component {
   render() {
     const workouts = this.state.workouts.map((w) => <WorkoutEntry {...w} />)
     return (
-        <form onSubmit={this.saveCurrentDay}>
+        <form onSubmit={this.saveDayEntry}>
           <div className="card">
             <div className="card-header">
               <input type="hidden" name="day_id" value={this.state.id} />
@@ -229,7 +229,7 @@ class CurrentDay extends React.Component {
             <div className="card-footer">
               <button type="submit" className="btn btn-primary">Save</button>
               &nbsp;
-              <button type="button" className="btn btn-secondary" onClick={this.clearCurrentDay}>Cancel</button>
+              <button type="button" className="btn btn-secondary" onClick={this.clearDayEntry}>Cancel</button>
             </div>
           </div>
         </form>
@@ -338,7 +338,7 @@ class App extends React.Component {
             </table>
           </div>
           <div className="col-4">
-            <CurrentDay {...this.state.current_day} />
+            <DayEntry {...this.state.current_day} />
             <div id="graph"></div>
           </div>
         </div>
