@@ -55,10 +55,6 @@
 
     {% block modals %}{% endblock %}
 
-    <div id="csrf-token">
-        {% csrf_token %}
-    </div>
-
     <div id="rhyme-urls" class="hidex">
         {% for name, url in RHYME_URLS.items %}
             <span data-name="{{ name }}" data-url="{{ url }}"></span>

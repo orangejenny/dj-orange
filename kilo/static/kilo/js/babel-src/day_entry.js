@@ -15,7 +15,6 @@ export class DayEntry extends React.Component {
     this.handleMonthChange = this.handleMonthChange.bind(this);
     this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
     this.handleYearChange = this.handleYearChange.bind(this);
-    this.handleNotesChange = this.handleNotesChange.bind(this);
     this.addWorkout = this.addWorkout.bind(this);
     this.clearDayEntry = this.clearDayEntry.bind(this);
     this.saveDayEntry = this.saveDayEntry.bind(this);
@@ -37,7 +36,6 @@ export class DayEntry extends React.Component {
   handleYearChange(e) { this.setState({year: e.target.value}) }
   handleMonthChange(e) { this.setState({month: e.target.value}) }
   handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
-  handleNotesChange(e) { this.setState({notes: e.target.value}) }
 
   dayOfWeek() {
     return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][(new Date(this.day())).getDay()];
@@ -78,7 +76,6 @@ export class DayEntry extends React.Component {
             </div>
             <div className="card-body">
               {workouts}
-              <textarea className="form-control" name="notes" placeholder="How was today?" value={this.state.notes} onChange={this.handleNotesChange} rows="3" />
             </div>
             <div className="card-footer">
               <button type="submit" className="btn btn-primary">Save</button>

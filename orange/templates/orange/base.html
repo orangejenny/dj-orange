@@ -20,5 +20,8 @@
     <body>
         {% block body %}
         {% endblock body %}
+        <div id="csrf-token">
+            {% csrf_token %}
+        </div>
     </body>
 </html>

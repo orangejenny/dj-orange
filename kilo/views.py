@@ -1,3 +1,5 @@
+import json
+
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -26,45 +28,33 @@ def days_running(request):
 @login_required
 def _days(request, activity=None):
     if request.method == "POST":
-        # Saving a day
-        try:
-            date_string = "-".join([
-                request.POST.get('year'),
-                request.POST.get('month'),
-                request.POST.get('day_of_month')
-            ])
-            date = datetime(
-                int(request.POST.get('year')),
-                int(request.POST.get('month')),
-                int(request.POST.get('day_of_month'))
-            )
-        except ValueError as e:
-            messages.error(request, f"Received invalid date {date_string}: " + str(e))
-            return HttpResponse(render(request, "kilo/days.html"))
+        post_data = json.loads(request.POST.get('day'))
+
+        date = post_data.get('day')
         day = Day.objects.filter(day=date).first()
         if day:
-            if day.id != int(request.POST.get('day_id') or 0):
-                messages.error(request, f"Attempting to duplicate {date_string}")
+            # TODO: make ajax-friendly, restore date validity checking
+            if day.id != int(post_data.get('id') or 0):
+                messages.error(request, f"Attempting to duplicate {day.day}")
                 return HttpResponse(render(request, "kilo/days.html"))
         else:
             day = Day()
         day.day = date
-        day.notes = request.POST.get('notes')
+        day.notes = post_data.get('notes')
         day.save()
 
         for workout in day.workout_set.all():
-            if workout.id not in [int(i) for i in request.POST.getlist("workout_id") if i]:
+            if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
                 workout.delete()
 
-        index = 0
-        for workout_id in request.POST.getlist("workout_id"):
-            workout = Workout.objects.get(id=int(workout_id)) if workout_id else Workout(day=day)
+        for workout in post_data.get("workouts", []):
+            workout = Workout.objects.get(id=int(workout.get('id'))) if workout.get('id)') else Workout(day=day)
             for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
-                setattr(workout, attr, request.POST.getlist(attr)[index] or None)
+                setattr(workout, attr, workout.get(attr))
             if workout.activity:
                 workout.save()
-            index += 1
 
+        # TODO: make ajax-friendly
         messages.success(request, "Saved!")
 
     context = {
