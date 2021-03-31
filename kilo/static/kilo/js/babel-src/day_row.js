@@ -18,8 +18,6 @@ export class DayRow extends React.Component {
     this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
     this.handleYearChange = this.handleYearChange.bind(this);
 
-    this.workoutPace = this.workoutPace.bind(this);
-    this.workoutTime = this.workoutTime.bind(this);
     this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
     this.handleActivityChange = this.handleActivityChange.bind(this);
     this.handleDistanceChange = this.handleDistanceChange.bind(this);
@@ -84,6 +82,41 @@ export class DayRow extends React.Component {
 
   workoutPace(workout) { return "PACE"; }   // TODO
   workoutTime(workout) { return workout.seconds; }   // TODO: display human-friendly-time
+  workoutSummary(workout) {
+    var text = "";
+
+    if (workout.sets) {
+      text += workout.sets + " x ";
+    }
+
+    if (workout.reps) {
+      text += workout.reps + " ";
+      if (workout.distance || workout.seconds) {
+        text += "x ";
+      }
+    }
+
+    if (workout.distance) {
+      text += workout.distance + " " + workout.distance_unit + " ";
+      if (workout.seconds) {
+        text += "in ";
+      }
+    }
+
+    if (workout.seconds) {
+      text += this.workoutTime(workout);
+      var pace = this.workoutPace(workout);
+      if (pace) {
+        text += " (" + pace + ") ";
+      }
+    }
+
+    if (workout.weight) {
+      text += "@ " + workout.weight + "lb";
+    }
+
+    return text.trim();
+  }
 
   addWorkout() {
     console.log("TODO: add workout");
@@ -154,7 +187,7 @@ export class DayRow extends React.Component {
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
-                 {workout.activity} TODO: {workout.summary}
+                 {workout.activity} {this.workoutSummary(workout)}
                </span>}
                {this.state.editing && <div>
                  <div className="row g-1 mb-1 align-items-center">

@@ -85,13 +85,7 @@ def _format_day(day):
         "id": day.id,
         "day": day.day,
         "notes": day.notes,
-        "workouts": [
-            {
-                "summary": w.summary,
-                **w.to_json(),
-            }
-            for w in day.workout_set.all()
-        ],
+        "workouts": [w.to_json() for w in day.workout_set.all()],
     }
 
 
