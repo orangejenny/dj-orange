@@ -25,6 +25,9 @@ export class DayRow extends React.Component {
     this.handleDistanceChange = this.handleDistanceChange.bind(this);
     this.handleDistanceUnitChange = this.handleDistanceUnitChange.bind(this);
     this.handleTimeChange = this.handleTimeChange.bind(this);
+    this.handleSetsChange = this.handleSetsChange.bind(this);
+    this.handleRepsChange = this.handleRepsChange.bind(this);
+    this.handleWeightChange = this.handleWeightChange.bind(this);
     this.addWorkout = this.addWorkout.bind(this);
     this.removeWorkout = this.removeWorkout.bind(this);
 
@@ -84,6 +87,9 @@ export class DayRow extends React.Component {
     var value = this.getSeconds(e.target.value);
     this.handleWorkoutChange("seconds", this.getWorkoutId(e.target), value);
   }
+  handleSetsChange(e) { this.handleWorkoutChange("sets", this.getWorkoutId(e.target), e.target.value); }
+  handleRepsChange(e) { this.handleWorkoutChange("reps", this.getWorkoutId(e.target), e.target.value); }
+  handleWeightChange(e) { this.handleWorkoutChange("weight", this.getWorkoutId(e.target), e.target.value); }
 
   dayOfWeek() {
     return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day())).getDay()];
@@ -169,39 +175,52 @@ export class DayRow extends React.Component {
                {!this.state.editing && <span>
                  {workout.activity} {workout.summary()}
                </span>}
-               {this.state.editing && <div>
-                 <div className="row g-1 mb-1 align-items-center">
-                   <div className="col-3">
-                     <select className="form-control" name="activity" value={workout.activity} onChange={this.handleActivityChange}>
-                       <option>running</option>/* TODO: pull from server */
-                       <option>erging</option>
-                       <option>lifting</option>
-                     </select>
-                   </div>
-                   <div className="col-2">
-                     <input type="text" className="form-control" name="distance" placeholder="distance" value={workout.distance} onChange={this.handleDistanceChange} />
-                   </div>
-                   <div className="col-2">
-                     <select className="form-control" name="distance_unit" value={workout.distance_unit} onChange={this.handleDistanceUnitChange}>
-                       <option>mi</option>/* TODO: pull from server */
-                       <option>km</option>
-                       <option>m</option>
-                     </select>
-                   </div>
-                   <div className="col-2">
-                     <input type="text" className="form-control" placeholder="time" value={workout.time()} onChange={this.handleTimeChange} />
-                   </div>
-                   <div className="col-2">{workout.pace()}</div>
-                   <div className="col-1">
-                     <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.removeWorkout}>
-                       <i className="fa fa-times"></i>
-                     </button>
-                   </div>
+               {this.state.editing && <div className="row g-1 mb-1 align-items-center">
+                 <div className="col-3">
+                   <select className="form-control" name="activity" value={workout.activity} onChange={this.handleActivityChange}>
+                     <option>running</option>/* TODO: pull from server */
+                     <option>erging</option>
+                     <option>lifting</option>
+                   </select>
                  </div>
-                 <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
-                   <i className="fa fa-plus"></i> Add Workout
-                 </button>
+                 <div className="col-2">
+                   <input type="text" className="form-control" name="distance" placeholder="distance" value={workout.distance} onChange={this.handleDistanceChange} />
+                 </div>
+                 <div className="col-2">
+                   <select className="form-control" name="distance_unit" value={workout.distance_unit} onChange={this.handleDistanceUnitChange}>
+                     <option>mi</option>/* TODO: pull from server */
+                     <option>km</option>
+                     <option>m</option>
+                   </select>
+                 </div>
+                 <div className="col-2">
+                   <input type="text" className="form-control" placeholder="time" value={workout.time()} onChange={this.handleTimeChange} />
+                 </div>
+                 <div className="col-2">{workout.pace()}</div>
+                 <div className="col-1">
+                   <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.removeWorkout}>
+                     <i className="fa fa-times"></i>
+                   </button>
+                 </div>
                </div>}
+              {this.state.editing && workout.activity === "lifting" && <div className="row g-1 mb-1">
+                  <div className="col-3"></div>
+                  <div className="col-2">
+                    <input type="text" className="form-control" name="sets" placeholder="sets"
+                           value={workout.sets} onChange={this.handleSetsChange} />
+                  </div>
+                  <div className="col-2">
+                    <input type="text" className="form-control" name="reps" placeholder="reps"
+                           value={workout.reps} onChange={this.handleRepsChange} />
+                  </div>
+                  <div className="col-2">
+                    <input type="text" className="form-control" name="weight" placeholder="weight"
+                           value={workout.weight} onChange={this.handleWeightChange} />
+                  </div>
+               </div>}
+               {this.state.editing && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
+                 <i className="fa fa-plus"></i> Add Workout
+               </button>}
              </li>)}
           </ul>
         </td>
