@@ -95,19 +95,21 @@ export class App extends React.Component {
     return (
       <div>
         <Loading show={this.state.loading} />
-        <div className="row">{this.state.stats}</div>
-        <br /><br />
+        <DayEntry {...this.state.current_day} />
         <div className="row">
-          <div className="col-8">
-            <table className="table table-hover">
-              <tbody>{this.state.rows}</tbody>
-            </table>
-          </div>
-          <div className="col-4">
-            <DayEntry {...this.state.current_day} />
+          <div class="col-5">
             <div id="graph"></div>
           </div>
+          <div class="col-7">
+            <div className="row">
+              {this.state.stats}
+            </div>
+          </div>
         </div>
+        <br /><br />
+        <table className="table table-hover">
+          <tbody>{this.state.rows}</tbody>
+        </table>
       </div>
     );
   }
