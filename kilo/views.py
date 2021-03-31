@@ -84,7 +84,6 @@ def _format_day(day):
     return {
         "id": day.id,
         "day": day.day,
-        "pretty_day": day.day.strftime("%a, %b %d, %Y"),
         "notes": day.notes,
         "workouts": [
             {

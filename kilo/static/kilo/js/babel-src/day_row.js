@@ -7,7 +7,6 @@ export class DayRow extends React.Component {
       month: props.day.split("-")[1],
       dayOfMonth: props.day.split("-")[2],
       notes: props.notes,
-      pretty_day: props.pretty_day,   // TODO: handle on js side so it updates when day is edited
       activities: props.workouts.map((workout) => <li key={workout.id}>{workout.activity}</li>),
       summaries: props.workouts.map((workout) => <li key={workout.id}>{workout.summary}</li>),
       editing: false,
@@ -15,6 +14,7 @@ export class DayRow extends React.Component {
 
     this.day = this.day.bind(this);
     this.dayOfWeek = this.dayOfWeek.bind(this);
+    this.monthText = this.monthText.bind(this);
     this.handleMonthChange = this.handleMonthChange.bind(this);
     this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
     this.handleYearChange = this.handleYearChange.bind(this);
@@ -33,6 +33,11 @@ export class DayRow extends React.Component {
 
   dayOfWeek() {
     return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day())).getDay()];
+  }
+
+  monthText() {
+    return ["Jan", "Feb", "March", "April", "May", "June",
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"][(new Date(this.day())).getMonth()];
   }
 
   day() {
@@ -92,7 +97,9 @@ export class DayRow extends React.Component {
                     value={this.state.year} onChange={this.handleYearChange} />
           </div>
           </div>}
-          {!this.state.editing && this.state.pretty_day}
+          {!this.state.editing && <span>
+            {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
+          </span>}
         </td>
         <td className="col-2">
           <ul className="list-unstyled">{this.state.activities}</ul>
