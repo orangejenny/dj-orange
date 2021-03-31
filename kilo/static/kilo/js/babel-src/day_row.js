@@ -7,9 +7,8 @@ export class DayRow extends React.Component {
       month: props.day.split("-")[1],
       dayOfMonth: props.day.split("-")[2],
       notes: props.notes,
-      activities: props.workouts.map((workout) => <li key={workout.id}>{workout.activity}</li>),
-      summaries: props.workouts.map((workout) => <li key={workout.id}>{workout.summary}</li>),
       editing: false,
+      workouts: props.workouts,
     };
 
     this.day = this.day.bind(this);
@@ -18,6 +17,16 @@ export class DayRow extends React.Component {
     this.handleMonthChange = this.handleMonthChange.bind(this);
     this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
     this.handleYearChange = this.handleYearChange.bind(this);
+
+    this.workoutPace = this.workoutPace.bind(this);
+    this.workoutTime = this.workoutTime.bind(this);
+    this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
+    this.handleActivityChange = this.handleActivityChange.bind(this);
+    this.handleDistanceChange = this.handleDistanceChange.bind(this);
+    this.handleDistanceUnitChange = this.handleDistanceUnitChange.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
+    this.addWorkout = this.addWorkout.bind(this);
+    this.removeWorkout = this.removeWorkout.bind(this);
 
     this.saveDayEntry = this.saveDayEntry.bind(this);
     this.showDayEntry = this.showDayEntry.bind(this);
@@ -31,6 +40,35 @@ export class DayRow extends React.Component {
   handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
   handleNotesChange(e) { this.setState({notes: e.target.value}) }
 
+  getClosest(dataName, el) {
+    var value = el.dataset[dataName];
+    while (!value && el.parentElement) {
+      el = el.parentElement;
+      value = el.dataset[dataName];
+    }
+    return value;
+  }
+
+  handleWorkoutChange(attr, e) {
+    var self = this;
+    this.setState(function (state, props) {
+      var value = e.target.value,
+          key = parseInt(self.getClosest("id", e.target));
+      return {
+        workouts: state.workouts.map(function (w) {
+          if (w.id === key) {
+            w[attr] = value;
+          }
+          return w;
+        }),
+      }
+    });
+  }
+  handleActivityChange(e) { this.handleWorkoutChange("activity", e); }
+  handleDistanceChange(e) { this.handleWorkoutChange("distance", e); }
+  handleDistanceUnitChange(e) { this.handleWorkoutChange("distance_unit", e); }
+  handleTimeChange(e) { this.handleWorkoutChange("seconds", e); }
+
   dayOfWeek() {
     return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day())).getDay()];
   }
@@ -42,6 +80,17 @@ export class DayRow extends React.Component {
 
   day() {
     return this.state.year + "-" + this.state.month + "-" + this.state.dayOfMonth;
+  }
+
+  workoutPace(workout) { return "PACE"; }   // TODO
+  workoutTime(workout) { return workout.seconds; }   // TODO: display human-friendly-time
+
+  addWorkout() {
+    console.log("TODO: add workout");
+  }
+
+  removeWorkout() {
+    console.log("TODO: remove workout");
   }
 
   saveDayEntry () {
@@ -101,11 +150,47 @@ export class DayRow extends React.Component {
             {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
           </span>}
         </td>
-        <td className="col-2">
-          <ul className="list-unstyled">{this.state.activities}</ul>
-        </td>
-        <td className="col-2">
-          <ul className="list-unstyled">{this.state.summaries}</ul>
+        <td className="col-4">
+          <ul className="list-unstyled">
+            {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
+               {!this.state.editing && <span>
+                 {workout.activity} TODO: {workout.summary}
+               </span>}
+               {this.state.editing && <div>
+                 <div className="row g-1 mb-1 align-items-center">
+                   <div className="col-3">
+                     <select className="form-control" name="activity" value={workout.activity} onChange={this.handleActivityChange}>
+                       <option>running</option>/* TODO: pull from server */
+                       <option>erging</option>
+                       <option>lifting</option>
+                     </select>
+                   </div>
+                   <div className="col-2">
+                     <input type="text" className="form-control" name="distance" placeholder="distance" value={workout.distance} onChange={this.handleDistanceChange} />
+                   </div>
+                   <div className="col-2">
+                     <select className="form-control" name="distance_unit" value={workout.distance_unit} onChange={this.handleDistanceUnitChange}>
+                       <option>mi</option>/* TODO: pull from server */
+                       <option>km</option>
+                       <option>m</option>
+                     </select>
+                   </div>
+                   <div className="col-2">
+                     <input type="text" className="form-control" placeholder="time" value={this.workoutTime(workout)} onChange={this.handleTimeChange} />
+                   </div>
+                   <div className="col-2">{this.workoutPace(workout)}</div>
+                   <div className="col-1">
+                     <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.removeWorkout}>
+                       <i className="fa fa-times"></i>
+                     </button>
+                   </div>
+                 </div>
+                 <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
+                   <i className="fa fa-plus"></i> Add Workout
+                 </button>
+               </div>}
+             </li>)}
+          </ul>
         </td>
         <td className="col-4">
           {this.state.editing &&

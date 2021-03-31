@@ -1,4 +1,3 @@
-import { DayEntry } from "./day_entry.js";
 import { DayRow } from "./day_row.js";
 import { Loading } from "./loading.js";
 import { Stat } from "./stat.js";
@@ -9,12 +8,6 @@ export class App extends React.Component {
     this.state = {
       activity: props.activity,
       loading: true,
-      current_day: {
-        day: "2021-03-25",
-        workouts: [
-          {activity: "erging", distance: 6, distance_unit: "km", seconds: 24 * 60 + 53},
-        ],
-      },
     };
   }
 
@@ -95,7 +88,6 @@ export class App extends React.Component {
     return (
       <div>
         <Loading show={this.state.loading} />
-        <DayEntry {...this.state.current_day} />
         <div className="row">
           <div class="col-5">
             <div id="graph"></div>
