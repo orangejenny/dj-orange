@@ -30,7 +30,7 @@ def _days(request, activity=None):
     if request.method == "POST":
         post_data = json.loads(request.POST.get('day'))
 
-        date = post_data.get('day')
+        date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
         day = Day.objects.filter(day=date).first()
         if day:
             # TODO: make ajax-friendly, restore date validity checking
