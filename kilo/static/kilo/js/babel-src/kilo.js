@@ -1,4 +1,4 @@
-import { App } from "./components.js"
+import { App } from "./app.js"
 
 var DayModel = function (options) {
     var today = new Date();
