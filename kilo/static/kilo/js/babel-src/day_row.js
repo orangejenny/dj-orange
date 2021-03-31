@@ -108,8 +108,13 @@ export class DayRow extends React.Component {
     console.log("TODO: add workout");
   }
 
-  removeWorkout() {
-    console.log("TODO: remove workout");
+  removeWorkout(e) {
+    var id = this.getWorkoutId(e.target);
+    this.setState(function (state, props) {
+      return {
+        workouts: state.workouts.filter((w) => (w.id !== id)),
+      }
+    });
   }
 
   saveDayEntry () {
@@ -218,10 +223,10 @@ export class DayRow extends React.Component {
                            value={workout.weight} onChange={this.handleWeightChange} />
                   </div>
                </div>}
-               {this.state.editing && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
-                 <i className="fa fa-plus"></i> Add Workout
-               </button>}
              </li>)}
+             {this.state.editing && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={this.addWorkout}>
+               <i className="fa fa-plus"></i> Add Workout
+             </button>}
           </ul>
         </td>
         <td className="col-4">
