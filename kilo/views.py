@@ -47,10 +47,10 @@ def _days(request, activity=None):
             if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
                 workout.delete()
 
-        for workout in post_data.get("workouts", []):
-            workout = Workout.objects.get(id=int(workout.get('id'))) if workout.get('id)') else Workout(day=day)
+        for workout_data in post_data.get("workouts", []):
+            workout = Workout.objects.get(id=int(workout_data.get('id'))) if workout_data.get('id') else Workout(day=day)
             for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
-                setattr(workout, attr, workout.get(attr))
+                setattr(workout, attr, workout_data.get(attr))
             if workout.activity:
                 workout.save()
 
