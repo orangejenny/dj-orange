@@ -38,54 +38,14 @@ var DayModel = function (options) {
 };
 
 var getTime = function (seconds) {
-    if (!seconds) {
-        return undefined;
-    }
-
-    var remaining = seconds,
-        hours = Math.floor(remaining / 3600);
-    remaining -= hours * 3600;
-    var minutes = Math.floor(remaining / 60);
-    remaining -= minutes * 60;
-    seconds = Math.floor(seconds) === seconds ? Math.floor(remaining) : Math.floor(remaining * 10) / 10;
-
-    hours = hours ? hours + ":" : "";
-    minutes = (hours && minutes < 10 ? "0" + minutes : minutes) + ":";
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    return hours + minutes + seconds;
-};
-
-var getSeconds = function (time) {
-    if (!time) {
-        return undefined;
-    }
-
-    var parts = time.split(":"),
-        seconds = 0,
-        index = 0;
-    while (index < parts.length) {
-        seconds += parts[index] * Math.pow(60, parts.length - index - 1);
-        index++;
-    }
-
     return seconds;
 };
 
+var getSeconds = function (time) {
+    return 0;
+};
+
 var getPace = function(workout) {
-    if (workout.seconds() && workout.distance()) {
-        var pace = workout.seconds() / workout.distance();
-        if (workout.activity() === "erging") {
-            // Paces for m workouts are given in km
-            if (workout.distance_unit() === "m") {
-                pace = pace * 1000;
-            }
-            // Paces for ergs are per 500m, not 1k
-            if (workout.distance_unit() === "km" || workout.distance_unit() === "m") {
-                pace = pace / 2;
-            }
-        }
-        return getTime(pace);
-    }
     return "";
 };
 

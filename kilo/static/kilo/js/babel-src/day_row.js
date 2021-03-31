@@ -1,3 +1,5 @@
+import { Workout } from "../workout.js";
+
 export class DayRow extends React.Component {
   constructor(props) {
     super(props);
@@ -8,7 +10,7 @@ export class DayRow extends React.Component {
       dayOfMonth: props.day.split("-")[2],
       notes: props.notes,
       editing: false,
-      workouts: props.workouts,
+      workouts: props.workouts.map((w) => Workout(w)),
     };
 
     this.day = this.day.bind(this);
@@ -38,23 +40,36 @@ export class DayRow extends React.Component {
   handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
   handleNotesChange(e) { this.setState({notes: e.target.value}) }
 
-  getClosest(dataName, el) {
-    var value = el.dataset[dataName];
-    while (!value && el.parentElement) {
-      el = el.parentElement;
-      value = el.dataset[dataName];
+  getSeconds(time) {
+    if (!time) {
+        return undefined;
     }
-    return value;
+
+    var parts = time.split(":"),
+        seconds = 0,
+        index = 0;
+    while (index < parts.length) {
+        seconds += parts[index] * Math.pow(60, parts.length - index - 1);
+        index++;
+    }
+
+    return seconds;
   }
 
-  handleWorkoutChange(attr, e) {
-    var self = this;
+  getWorkoutId(el) {
+    var value = el.dataset.id;
+    while (!value && el.parentElement) {
+      el = el.parentElement;
+      value = el.dataset.id;
+    }
+    return value ? parseInt(value) : value;
+  }
+
+  handleWorkoutChange(attr, id, value) {
     this.setState(function (state, props) {
-      var value = e.target.value,
-          key = parseInt(self.getClosest("id", e.target));
       return {
         workouts: state.workouts.map(function (w) {
-          if (w.id === key) {
+          if (w.id === id) {
             w[attr] = value;
           }
           return w;
@@ -62,10 +77,13 @@ export class DayRow extends React.Component {
       }
     });
   }
-  handleActivityChange(e) { this.handleWorkoutChange("activity", e); }
-  handleDistanceChange(e) { this.handleWorkoutChange("distance", e); }
-  handleDistanceUnitChange(e) { this.handleWorkoutChange("distance_unit", e); }
-  handleTimeChange(e) { this.handleWorkoutChange("seconds", e); }
+  handleActivityChange(e) { this.handleWorkoutChange("activity", this.getWorkoutId(e.target), e.target.value); }
+  handleDistanceChange(e) { this.handleWorkoutChange("distance", this.getWorkoutId(e.target), e.target.value); }
+  handleDistanceUnitChange(e) { this.handleWorkoutChange("distance_unit", this.getWorkoutId(e.target), e.target.value); }
+  handleTimeChange(e) {
+    var value = this.getSeconds(e.target.value);
+    this.handleWorkoutChange("seconds", this.getWorkoutId(e.target), value);
+  }
 
   dayOfWeek() {
     return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day())).getDay()];
@@ -78,44 +96,6 @@ export class DayRow extends React.Component {
 
   day() {
     return this.state.year + "-" + this.state.month + "-" + this.state.dayOfMonth;
-  }
-
-  workoutPace(workout) { return "PACE"; }   // TODO
-  workoutTime(workout) { return workout.seconds; }   // TODO: display human-friendly-time
-  workoutSummary(workout) {
-    var text = "";
-
-    if (workout.sets) {
-      text += workout.sets + " x ";
-    }
-
-    if (workout.reps) {
-      text += workout.reps + " ";
-      if (workout.distance || workout.seconds) {
-        text += "x ";
-      }
-    }
-
-    if (workout.distance) {
-      text += workout.distance + " " + workout.distance_unit + " ";
-      if (workout.seconds) {
-        text += "in ";
-      }
-    }
-
-    if (workout.seconds) {
-      text += this.workoutTime(workout);
-      var pace = this.workoutPace(workout);
-      if (pace) {
-        text += " (" + pace + ") ";
-      }
-    }
-
-    if (workout.weight) {
-      text += "@ " + workout.weight + "lb";
-    }
-
-    return text.trim();
   }
 
   addWorkout() {
@@ -187,7 +167,7 @@ export class DayRow extends React.Component {
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
-                 {workout.activity} {this.workoutSummary(workout)}
+                 {workout.activity} {workout.summary()}
                </span>}
                {this.state.editing && <div>
                  <div className="row g-1 mb-1 align-items-center">
@@ -209,9 +189,9 @@ export class DayRow extends React.Component {
                      </select>
                    </div>
                    <div className="col-2">
-                     <input type="text" className="form-control" placeholder="time" value={this.workoutTime(workout)} onChange={this.handleTimeChange} />
+                     <input type="text" className="form-control" placeholder="time" value={workout.time()} onChange={this.handleTimeChange} />
                    </div>
-                   <div className="col-2">{this.workoutPace(workout)}</div>
+                   <div className="col-2">{workout.pace()}</div>
                    <div className="col-1">
                      <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.removeWorkout}>
                        <i className="fa fa-times"></i>
