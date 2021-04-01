@@ -142,9 +142,15 @@ export class DayRow extends React.Component {
           day: JSON.stringify(this.state),
         },
         success: function (data) {
-          // TODO: update ids in UI for the sake of repeated edits
           if  (data.success) {
-            self.setState({editing: false});
+            self.setState(function (state, props) {
+              var newState = {
+                ...data.day,
+                editing: false,
+              };
+              newState.workouts = newState.workouts.map((w) => Workout(w));
+              return newState;
+            });
           } else if (data.error) {
             alert("Error: " + data.error);
           } else {

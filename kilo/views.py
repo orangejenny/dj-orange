@@ -68,6 +68,7 @@ def _days(request, activity=None):
 
         return JsonResponse({
             "success": 1,
+            "day": day.to_json(),
         })
 
     return HttpResponse(render(request, "kilo/days.html"))

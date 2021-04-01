@@ -13,6 +13,14 @@ class Day(models.Model):
     def primary_activity(self):
         return self.workout_set.last().activity if self.workout_set.count() else None
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "day": self.day,
+            "notes": self.notes,
+            "workouts": [w.to_json() for w in self.workout_set.all()],
+        }
+
 
 class Workout(models.Model):
     MILES = 'mi'
