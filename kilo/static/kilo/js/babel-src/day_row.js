@@ -168,15 +168,39 @@ export class DayRow extends React.Component {
   }
 
   showDayEntry () {
-    this.setState({editing: true});
+    this.setState(function (state, props) {
+      return {
+        originalDay: {
+          day: [state.year, state.month, state.dayOfMonth].join("-"),
+          notes: state.notes,
+          workouts: state.workouts.map((w) => ( { ...w } )),
+        },
+        editing: true,
+      };
+    });
   }
 
   clearDayEntry () {
-    this.setState({editing: false});
-    console.log("TODO: clear attributes, and remove entire day if it's new");
+    this.setState(function (state, props) {
+      if (state.id < 0) {
+        return {
+          invisible: true,
+        }
+      }
+      return {
+        day: state.originalDay.day,
+        notes: state.originalDay.notes,
+        workouts: state.originalDay.workouts.map((w) => ( Workout(w) )),
+        editing: false,
+      };
+    });
   }
 
   render () {
+    if (this.state.invisible) {
+      return null;
+    }
+
     return (
       <tr className="row">
         <td className="col-3">
