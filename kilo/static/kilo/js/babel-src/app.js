@@ -96,7 +96,7 @@ class App extends React.Component {
         if (!indexDay.workouts.length) {
             continue;
         }
-        var template = indexDay.workouts[0];
+        var template = { ...indexDay.workouts[0] };
         if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
             delete template.id;
             delete template.seconds;
