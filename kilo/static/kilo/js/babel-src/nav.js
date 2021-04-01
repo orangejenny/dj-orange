@@ -1,9 +1,7 @@
 export class Nav extends React.Component {
     constructor (props) {
         super(props);
-        this.state = {
-            activity: props.activity,
-        };
+        this.state = { ...props };
     }
 
     render() {
@@ -29,6 +27,25 @@ export class Nav extends React.Component {
                 </a>
               </li>
             </ul>
+            <div className="me-2">
+              <div className="dropdown dropstart">
+                <button className="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Add
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
+                  {this.props.templates.map((template, index) => (<li key={index}>
+                    <a className="dropdown-item" onClick={() => this.props.addDayRow(JSON.stringify(template))}>
+                      {template.activity} {template.distance} {template.distance_unit}
+                    </a>
+                  </li>))}
+                  <div role="separator" className="dropdown-divider"></div>
+                  <li>
+                    <a class="dropdown-item" href="#" onClick={this.props.addDayRow}>Blank Day</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </nav>
         );
     }

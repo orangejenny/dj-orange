@@ -19,55 +19,17 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
           crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"
           integrity="sha512-FHsFVKQ/T1KWJDGSbrUhTJyS1ph3eRrxI228ND0EGaEp6v4a/vGwPWd3Dtd/+9cI7ccofZvl/wulICEurHN1pg=="
-          crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.2/knockout.mapping.min.js"
-          integrity="sha512-sCLnmp1UrJki3R9zwZMLXg9lXlGxJ6yFVuiSJ1pi1qRST3CJPAkJIhOHEQZz10P2gWgY3H8Y33na5Ak9PV5PLA=="
           crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js"
           integrity="sha512-+IpCthlNahOuERYUSnKFjzjdKXIbJ/7Dd6xvUp+7bEw0Jp2dg6tluyxLs+zq9BMzZgrLv8886T4cBSqnKiVgUw=="
           crossorigin="anonymous"></script>
   <script src="{% static "react/umd/react.production.min.js" %}" crossorigin></script>
   <script src="{% static "react-dom/umd/react-dom.production.min.js" %}" crossorigin></script>
-  <script type="module" src="{% static "kilo/js/babel-prod/kilo.js" %}"></script>
+  <script type="module" src="{% static "kilo/js/babel-prod/app.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
-  <nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
-    <div class="me-2">
-      <div class="dropdown dropstart">
-        <button class="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Add
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
-          <!-- ko foreach: workoutTemplates -->
-          <li>
-            <a class="dropdown-item" data-bind="click: $root.showCurrentDay, attr: {'data-template': JSON.stringify($data)}">
-              <span data-bind="text: activity"></span>
-              <span data-bind="text: distance"></span>
-              <span data-bind="visible: distance, text: distance_unit"></span>
-            </a>
-          </li>
-          <!-- /ko -->
-          <div role="separator" class="dropdown-divider"></div>
-          <li>
-            <a class="dropdown-item" data-bs-toggle="modal" data-bind="click: $root.showCurrentDay">Blank Day</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <br />
-  <div class="container-fluid">
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {{ message }}
-      </div>
-    {% endfor %}
-    <div id="app"></div>
-  </div>
-
+  <div class="container-fluid" id="app"></div>
 {% endblock body %}

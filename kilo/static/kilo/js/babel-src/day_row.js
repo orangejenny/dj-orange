@@ -136,7 +136,7 @@ export class DayRow extends React.Component {
     $.ajax({
         method: 'POST',
         data: {
-          csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
+          csrfmiddlewaretoken: document.querySelector("#csrf-token input").value,
           day: JSON.stringify(this.state),
         },
         success: function (data) {

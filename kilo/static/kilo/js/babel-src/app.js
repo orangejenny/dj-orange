@@ -3,16 +3,22 @@ import { Loading } from "./loading.js";
 import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
 
-export class App extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activity: null,
       loading: true,
+      templates: [],
     };
 
+    this.addDayRow = this.addDayRow.bind(this);
     this.setActivity = this.setActivity.bind(this);
     this.getPanel = this.getPanel.bind(this);
+  }
+
+  addDayRow() {
+    console.log("TODO");
   }
 
   setActivity(e) {
@@ -40,6 +46,20 @@ export class App extends React.Component {
               activity: activity,
           },
           success: function (data) {
+              var templates = [];
+              var index = 0;
+              while (index < data.recent_days.length && templates.length < 3) {
+                  index++;
+                  if (!data.recent_days[index].workouts.length) {
+                      continue;
+                  }
+                  var template = data.recent_days[index].workouts[0];
+                  if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
+                      delete template.id;
+                      delete template.seconds;
+                      templates.push(template);
+                  }
+              }
               self.setState({
                 loading: false,
                 rows: data.recent_days.map((day) =>
@@ -50,6 +70,7 @@ export class App extends React.Component {
                     <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
                   </div>
                 ),
+                templates: templates,
               });
               if (!activity && data.graph_data) {
                 self.loadGraph(data.graph_data);
@@ -107,7 +128,7 @@ export class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setActivity={this.setActivity} />
+        <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} />
         <Loading show={this.state.loading} />
         <br />
         <div className="row">
@@ -128,3 +149,7 @@ export class App extends React.Component {
     );
   }
 }
+
+window.addEventListener('DOMContentLoaded', (event) => {
+  ReactDOM.render(React.createElement(App), document.getElementById("app"));
+});
