@@ -10,6 +10,7 @@ export class DayRow extends React.Component {
       dayOfMonth: props.day.split("-")[2],
       notes: props.notes,
       editing: props.editing || false,
+      saving: false,
       workouts: props.workouts.map((w) => Workout(w)),
     };
 
@@ -133,6 +134,7 @@ export class DayRow extends React.Component {
 
   saveDayEntry () {
     var self = this;
+    self.setState({saving: true});
     $.ajax({
         method: 'POST',
         data: {
@@ -140,7 +142,7 @@ export class DayRow extends React.Component {
           day: JSON.stringify(this.state),
         },
         success: function (data) {
-          // TODO: UI spinner; update ids in UI for the sake of repeated edits
+          // TODO: update ids in UI for the sake of repeated edits
           if  (data.success) {
             self.setState({editing: false});
           } else if (data.error) {
@@ -148,9 +150,11 @@ export class DayRow extends React.Component {
           } else {
             alert("Unknown error");
           }
+          self.setState({saving: false});
         },
         error: function () {
           alert("Unknown error");
+          self.setState({saving: false});
         },
     });
   }
@@ -254,12 +258,12 @@ export class DayRow extends React.Component {
           {!this.state.editing && this.state.notes}
         </td>
         <td className="col-1">
-          {this.state.editing && <div>
-            <button type="button" className="pull-right btn btn-primary" onClick={this.saveDayEntry}>
-              Save
+          {this.state.editing && <div className="btn-group" role="group">
+            <button type="button" className="pull-right btn btn-outline-success" onClick={this.saveDayEntry}>
+              <i className={`fa ${this.state.saving ? "fa-spin fa-spinner" : "fa-check"}`}></i>
             </button>
-            <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.clearDayEntry}>
-              Cancel
+            <button type="button" className="pull-right btn btn-outline-danger" onClick={this.clearDayEntry}>
+              <i className="fa fa-times"></i>
             </button>
           </div>}
           {!this.state.editing && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.showDayEntry}>
