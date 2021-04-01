@@ -9,7 +9,7 @@ export class DayRow extends React.Component {
       month: props.day.split("-")[1],
       dayOfMonth: props.day.split("-")[2],
       notes: props.notes,
-      editing: false,
+      editing: props.editing || false,
       workouts: props.workouts.map((w) => Workout(w)),
     };
 
@@ -140,7 +140,7 @@ export class DayRow extends React.Component {
           day: JSON.stringify(this.state),
         },
         success: function (data) {
-          // TODO
+          // TODO: UI indicator; update ids in UI for the sake of repeated edits
           alert("done successfully");
           self.setState({editing: false});
         },
@@ -157,7 +157,7 @@ export class DayRow extends React.Component {
 
   clearDayEntry () {
     this.setState({editing: false});
-    console.log("TODO: clear attributes");
+    console.log("TODO: clear attributes, and remove entire day if it's new");
   }
 
   render () {

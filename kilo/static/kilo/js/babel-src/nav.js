@@ -35,7 +35,7 @@ export class Nav extends React.Component {
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
                   {this.props.templates.map((template, index) => (<li key={index}>
-                    <a className="dropdown-item" onClick={() => this.props.addDayRow(JSON.stringify(template))}>
+                    <a className="dropdown-item" onClick={() => this.props.addDayRow(template)}>
                       {template.activity} {template.distance} {template.distance_unit}
                     </a>
                   </li>))}

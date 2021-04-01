@@ -2,6 +2,7 @@ import { DayRow } from "./day_row.js";
 import { Loading } from "./loading.js";
 import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
+import { Workout } from "../workout.js";
 
 class App extends React.Component {
   constructor(props) {
@@ -9,6 +10,7 @@ class App extends React.Component {
     this.state = {
       activity: null,
       loading: true,
+      rows: [],
       templates: [],
     };
 
@@ -17,8 +19,17 @@ class App extends React.Component {
     this.getPanel = this.getPanel.bind(this);
   }
 
-  addDayRow() {
-    console.log("TODO");
+  addDayRow(template) {
+    var day = new Date();
+    day = [day.getFullYear(), day.getMonth() + 1, day.getDate()].join("-");
+    var workouts = template ? [Workout(template)] : [];
+    this.setState((state, props) => {
+      var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0);
+      id -= 1;
+      return {
+        rows: [<DayRow key={id} id={id} day={day} workouts={workouts} editing={true} />, ...this.state.rows],
+      };
+    });
   }
 
   setActivity(e) {
