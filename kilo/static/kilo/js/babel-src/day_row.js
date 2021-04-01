@@ -105,7 +105,21 @@ export class DayRow extends React.Component {
   }
 
   addWorkout() {
-    console.log("TODO: add workout");
+    this.setState(function (state, props) {
+      var options = {};
+      if (state.workouts.length) {
+        options = { ...state.workouts[state.workouts.length - 1] };
+        delete options.id;
+        delete options.seconds;
+        options.id = state.workouts.reduce((accumulator, workout) => ( Math.min(accumulator, workout.id) ), 0);
+        options.id -= 1;
+      } else {
+        options.id = -1;
+      }
+      return {
+        workouts: [ ...state.workouts, Workout(options) ],
+      }
+    });
   }
 
   removeWorkout(e) {

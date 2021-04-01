@@ -48,7 +48,10 @@ def _days(request, activity=None):
                 workout.delete()
 
         for workout_data in post_data.get("workouts", []):
-            workout = Workout.objects.get(id=int(workout_data.get('id'))) if workout_data.get('id') else Workout(day=day)
+            try:
+                workout = Workout.objects.get(id=workout_data.get('id'))
+            except Workout.DoesNotExist:
+                workout = Workout(day=day)
             for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
                 setattr(workout, attr, workout_data.get(attr))
             if workout.activity:
