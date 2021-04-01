@@ -134,34 +134,36 @@ export class DayRow extends React.Component {
 
   saveDayEntry () {
     var self = this;
+    debugger;
     self.setState({saving: true});
-    $.ajax({
-        method: 'POST',
-        data: {
-          csrfmiddlewaretoken: document.querySelector("#csrf-token input").value,
-          day: JSON.stringify(this.state),
-        },
-        success: function (data) {
-          if  (data.success) {
-            self.setState(function (state, props) {
-              var newState = {
-                ...data.day,
-                editing: false,
-              };
-              newState.workouts = newState.workouts.map((w) => Workout(w));
-              return newState;
-            });
-          } else if (data.error) {
-            alert("Error: " + data.error);
-          } else {
-            alert("Unknown error");
-          }
-          self.setState({saving: false});
-        },
-        error: function () {
-          alert("Unknown error");
-          self.setState({saving: false});
-        },
+    fetch("", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector("#csrf-token input").value,
+      },
+      body: JSON.stringify({
+        day: this.state,
+      }),
+    }).then((resp) => resp.json()).then(data => {
+      if  (data.success) {
+        self.setState(function (state, props) {
+          var newState = {
+            ...data.day,
+            editing: false,
+          };
+          newState.workouts = newState.workouts.map((w) => Workout(w));
+          return newState;
+        });
+      } else if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        alert("Unexpected error");
+      }
+      self.setState({saving: false});
+    }).catch((error) => {
+      self.setState({saving: false});
+      alert('Unexpected error:', error);
     });
   }
 

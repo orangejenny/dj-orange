@@ -27,7 +27,7 @@ def days_running(request):
 @login_required
 def _days(request, activity=None):
     if request.method == "POST":
-        post_data = json.loads(request.POST.get('day'))
+        post_data = json.loads(request.body.decode("utf-8"))['day']
 
         date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
         try:

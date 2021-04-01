@@ -58,32 +58,32 @@ class App extends React.Component {
         loading: true,
         activity: activity,
       });
-      $.ajax({
-          url: '/kilo/panel',
-          method: 'GET',
-          data: {
-              activity: activity,
-          },
-          success: function (data) {
-              self.setState({
-                all_activities: data.all_activities,
-                all_distance_units: data.all_distance_units,
-                loading: false,
-                rows: data.recent_days.map((day) =>
-                  <DayRow key={day.id} {...day}
-                          all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
-                ),
-                stats: data.stats.map((stat) => 
-                  <div className="col" key={stat.name}>
-                    <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
-                  </div>
-                ),
-                templates: self.getTemplates(data.recent_days),
-              });
-              if (!activity && data.graph_data) {
-                self.loadGraph(data.graph_data);
-              }
-          },
+      fetch("/kilo/panel?activity=" + (activity || ""), {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((resp) => resp.json()).then(data => {
+        self.setState({
+          all_activities: data.all_activities,
+          all_distance_units: data.all_distance_units,
+          loading: false,
+          rows: data.recent_days.map((day) =>
+            <DayRow key={day.id} {...day}
+                    all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
+          ),
+          stats: data.stats.map((stat) => 
+            <div className="col" key={stat.name}>
+              <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
+            </div>
+          ),
+          templates: self.getTemplates(data.recent_days),
+        });
+        if (!activity && data.graph_data) {
+          self.loadGraph(data.graph_data);
+        }
+      }).catch((error) => {
+        alert('Unexpected error:', error);
       });
   }
 
