@@ -140,13 +140,17 @@ export class DayRow extends React.Component {
           day: JSON.stringify(this.state),
         },
         success: function (data) {
-          // TODO: UI indicator; update ids in UI for the sake of repeated edits
-          alert("done successfully");
-          self.setState({editing: false});
+          // TODO: UI spinner; update ids in UI for the sake of repeated edits
+          if  (data.success) {
+            self.setState({editing: false});
+          } else if (data.error) {
+            alert("Error: " + data.error);
+          } else {
+            alert("Unknown error");
+          }
         },
         error: function () {
-          // TODO
-          alert("had a problem");
+          alert("Unknown error");
         },
     });
   }

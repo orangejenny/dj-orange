@@ -3,7 +3,6 @@ import json
 from collections import defaultdict, Counter
 from datetime import datetime, timedelta
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -31,12 +30,22 @@ def _days(request, activity=None):
         post_data = json.loads(request.POST.get('day'))
 
         date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
+        try:
+            datetime(
+                int(post_data.get('year')),
+                int(post_data.get('month')),
+                int(post_data.get('dayOfMonth')),
+            )
+        except ValueError as e:
+            return JsonResponse({
+                "error": f"Received invalid date {date}: " + str(e),
+            })
         day = Day.objects.filter(day=date).first()
         if day:
-            # TODO: make ajax-friendly, restore date validity checking
             if day.id != int(post_data.get('id') or 0):
-                messages.error(request, f"Attempting to duplicate {day.day}")
-                return HttpResponse(render(request, "kilo/days.html"))
+                return JsonResponse({
+                    "error": f"Attempting to duplicate {day.day}",
+                })
         else:
             day = Day()
         day.day = date
@@ -57,8 +66,9 @@ def _days(request, activity=None):
             if workout.activity:
                 workout.save()
 
-        # TODO: make ajax-friendly
-        messages.success(request, "Saved!")
+        return JsonResponse({
+            "success": 1,
+        })
 
     return HttpResponse(render(request, "kilo/days.html"))
 
