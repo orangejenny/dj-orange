@@ -19,7 +19,10 @@ class Command(BaseCommand):
         files = self.get_files(commits)
         command = f"{settings.DEPLOY_USERNAME}@{settings.DEPLOY_SERVER}:{settings.DEPLOY_BASE_DIR}"
         for file in files:
-            subprocess.run(["scp", file, os.path.join(command, file)])
+            if os.path.exists(file):
+                subprocess.run(["scp", file, os.path.join(command, file)])
+            else:
+                print(f"Warning: {file} not found, unable to scp")
 
     def get_candidates(self):
         repo = self.get_repo()
