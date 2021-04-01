@@ -215,12 +215,12 @@ export class DayRow extends React.Component {
                  <div className="col-2">
                    <input type="text" className="form-control" placeholder="time" value={workout.time()} onChange={this.handleTimeChange} />
                  </div>
-                 <div className="col-2">{workout.pace()}</div>
                  <div className="col-1">
                    <button type="button" class="btn btn-outline-secondary btn-sm" onClick={this.removeWorkout}>
                      <i className="fa fa-times"></i>
                    </button>
                  </div>
+                 <div className="col-2">{workout.pace()}</div>
                </div>}
               {this.state.editing && workout.activity === "lifting" && <div className="row g-1 mb-1">
                   <div className="col-3"></div>
