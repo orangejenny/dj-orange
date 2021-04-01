@@ -106,19 +106,6 @@ var KiloModel = function () {
 
     });
 
-    self.getPanel = function (activity) {
-        $.ajax({
-            url: '/kilo/panel',
-            method: 'GET',
-            data: {
-                activity: self.activity(),
-            },
-            success: function (data) {
-                self.recentDays(data.recent_days.map(d => DayModel(d)));
-            },
-        });
-    };
-
     self.showCurrentDay = function (model, e) {
         var data = $(e.currentTarget).data();
         if (data.id) {
@@ -140,17 +127,11 @@ var KiloModel = function () {
         self.currentDay(undefined);
     };
 
-    $(function () {
-        self.activity($(".navbar .navbar-nav .nav-item.active").data("activity"));
-        self.getPanel(self.activity());
-    });
-
     return self;
 };
 
 $(function () {
     ko.applyBindings(KiloModel());
 
-    var activity = $(".navbar .navbar-nav .nav-item.active").data("activity");
-    ReactDOM.render(React.createElement(App, {activity: activity}), document.getElementById("app"));
+    ReactDOM.render(React.createElement(App), document.getElementById("app"));
 });

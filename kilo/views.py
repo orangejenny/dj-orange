@@ -97,7 +97,7 @@ def _get_stats(days, activity=None):
     last_month_days = days.filter(day__gte=today - timedelta(days=30))
     last_year_days = days.filter(day__gte=today - timedelta(days=365))
 
-    if activity is None:
+    if not activity:
         last_week_days = days.filter(day__gte=today - timedelta(days=7))
         text = "days/week"
         return [
@@ -188,7 +188,7 @@ def _get_graph_data(days, activity=None):
         return None
 
     data = {}
-    if activity is None:
+    if not activity:
         data["x"] = "day"
         all_activities = {w.activity for d in days for w in d.workout_set.all()}
         day_series = []

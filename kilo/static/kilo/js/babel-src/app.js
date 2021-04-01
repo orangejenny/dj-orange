@@ -1,23 +1,43 @@
 import { DayRow } from "./day_row.js";
 import { Loading } from "./loading.js";
+import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activity: props.activity,
+      activity: null,
       loading: true,
     };
+
+    this.setActivity = this.setActivity.bind(this);
+    this.getPanel = this.getPanel.bind(this);
+  }
+
+  setActivity(e) {
+    var activity = null;
+    if (e) {
+      activity = e.target.dataset.activity;
+    }
+    this.getPanel(activity);
   }
 
   componentDidMount() {
-    var self = this;
+    this.setActivity();
+  }
+
+  getPanel(activity) {
+      var self = this;
+      self.setState({
+        loading: true,
+        activity: activity,
+      });
       $.ajax({
           url: '/kilo/panel',
           method: 'GET',
           data: {
-              activity: this.state.activity,
+              activity: activity,
           },
           success: function (data) {
               self.setState({
@@ -31,7 +51,7 @@ export class App extends React.Component {
                   </div>
                 ),
               });
-              if (data.graph_data) {
+              if (!activity && data.graph_data) {
                 self.loadGraph(data.graph_data);
               }
           },
@@ -87,12 +107,14 @@ export class App extends React.Component {
   render() {
     return (
       <div>
+        <Nav setActivity={this.setActivity} />
         <Loading show={this.state.loading} />
+        <br />
         <div className="row">
-          <div class="col-5">
+          {!this.state.activity && <div class="col-5">
             <div id="graph"></div>
-          </div>
-          <div class="col-7">
+          </div>}
+          <div className={`${this.state.activity ? "col-12" : "col-7"}`}>
             <div className="row">
               {this.state.stats}
             </div>

@@ -36,23 +36,6 @@
 
 {% block body %}
   <nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
-    <ul class="navbar-nav flex-grow-1">
-      <li class="nav-item{% if not activity %} active{% endif %}">
-        <a class="nav-link" href="{% url "days" %}">
-          Kilo
-        </a>
-      </li>
-      <li class="nav-item{% if activity == "running" %} active{% endif %}" data-activity="running">
-        <a class="nav-link" href="{% url "days_running" %}">
-          Running
-        </a>
-      </li>
-      <li class="nav-item{% if activity == "erging" %} active{% endif %}" data-activity="erging">
-        <a class="nav-link" href="{% url "days_erging" %}">
-          Erging
-        </a>
-      </li>
-    </ul>
     <div class="me-2">
       <div class="dropdown dropstart">
         <button class="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
