@@ -1,6 +1,6 @@
 import json
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime, timedelta
 
 from django.contrib import messages
@@ -60,12 +60,7 @@ def _days(request, activity=None):
         # TODO: make ajax-friendly
         messages.success(request, "Saved!")
 
-    context = {
-        "activity": activity,
-        "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "activities": sorted(list({w.activity for d in Day.objects.all() for w in d.workout_set.all()})),
-    }
-    return HttpResponse(render(request, "kilo/days.html", context))
+    return HttpResponse(render(request, "kilo/days.html"))
 
 
 @require_GET
@@ -76,7 +71,14 @@ def panel(request):
     if activity:
         days = days.filter(workout__activity=activity).distinct()
 
+    all_activities = [w.activity for d in Day.objects.all() for w in d.workout_set.all()]
+    activity_counter = Counter(all_activities)
+    common_activities = [a[0] for a in activity_counter.most_common(3)]
+    other_activities = sorted({a for a in set(all_activities) if a not in common_activities})
+
     return JsonResponse({
+        "all_activities": common_activities + other_activities,
+        "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
         "recent_days": [_format_day(d) for d in days[:10]],
         "stats": _get_stats(days, activity),
         "graph_data": _get_graph_data(days, activity),

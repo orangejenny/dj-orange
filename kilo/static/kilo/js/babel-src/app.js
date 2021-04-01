@@ -20,14 +20,22 @@ class App extends React.Component {
   }
 
   addDayRow(template) {
-    var day = new Date();
+    var self = this,
+      day = new Date();
     day = [day.getFullYear(), day.getMonth() + 1, day.getDate()].join("-");
-    var workouts = template ? [Workout(template)] : [];
     this.setState((state, props) => {
-      var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0);
-      id -= 1;
+      var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
+        options = {
+          key: id,
+          id: id,
+          day: day,
+          workouts: template ? [Workout(template)] : [],
+          editing: true,
+          all_activities: self.state.all_activities,
+          all_distance_units: self.state.all_distance_units,
+        };
       return {
-        rows: [<DayRow key={id} id={id} day={day} workouts={workouts} editing={true} />, ...this.state.rows],
+        rows: [<DayRow { ...options } />, ...this.state.rows],
       };
     });
   }
@@ -58,9 +66,12 @@ class App extends React.Component {
           },
           success: function (data) {
               self.setState({
+                all_activities: data.all_activities,
+                all_distance_units: data.all_distance_units,
                 loading: false,
                 rows: data.recent_days.map((day) =>
-                  <DayRow key={day.id} {...day} />
+                  <DayRow key={day.id} {...day}
+                          all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
                 ),
                 stats: data.stats.map((stat) => 
                   <div className="col" key={stat.name}>

@@ -197,9 +197,9 @@ export class DayRow extends React.Component {
                {this.state.editing && <div className="row g-1 mb-1 align-items-center">
                  <div className="col-3">
                    <select className="form-control" name="activity" value={workout.activity} onChange={this.handleActivityChange}>
-                     <option>running</option>/* TODO: pull from server */
-                     <option>erging</option>
-                     <option>lifting</option>
+                     {this.props.all_activities.map((a) => (
+                      <option key={a}>{a}</option>
+                     ))}
                    </select>
                  </div>
                  <div className="col-2">
@@ -207,9 +207,9 @@ export class DayRow extends React.Component {
                  </div>
                  <div className="col-2">
                    <select className="form-control" name="distance_unit" value={workout.distance_unit} onChange={this.handleDistanceUnitChange}>
-                     <option>mi</option>/* TODO: pull from server */
-                     <option>km</option>
-                     <option>m</option>
+                     {this.props.all_distance_units.map((u) => (
+                      <option key={u}>{u}</option>
+                     ))}
                    </select>
                  </div>
                  <div className="col-2">
