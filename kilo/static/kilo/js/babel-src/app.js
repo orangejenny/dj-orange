@@ -57,20 +57,6 @@ class App extends React.Component {
               activity: activity,
           },
           success: function (data) {
-              var templates = [];
-              var index = 0;
-              while (index < data.recent_days.length && templates.length < 3) {
-                  index++;
-                  if (!data.recent_days[index].workouts.length) {
-                      continue;
-                  }
-                  var template = data.recent_days[index].workouts[0];
-                  if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
-                      delete template.id;
-                      delete template.seconds;
-                      templates.push(template);
-                  }
-              }
               self.setState({
                 loading: false,
                 rows: data.recent_days.map((day) =>
@@ -81,13 +67,32 @@ class App extends React.Component {
                     <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
                   </div>
                 ),
-                templates: templates,
+                templates: self.getTemplates(data.recent_days),
               });
               if (!activity && data.graph_data) {
                 self.loadGraph(data.graph_data);
               }
           },
       });
+  }
+
+  getTemplates(days) {
+    var index = 0,
+        templates = [];
+    while (index < days.length && templates.length < 3) {
+        var indexDay = days[index];
+        index++;
+        if (!indexDay.workouts.length) {
+            continue;
+        }
+        var template = indexDay.workouts[0];
+        if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
+            delete template.id;
+            delete template.seconds;
+            templates.push(template);
+        }
+    }
+    return templates;
   }
 
   loadGraph(data) {
