@@ -1,7 +1,8 @@
-from collections import defaultdict
+import json
+
+from collections import defaultdict, Counter
 from datetime import datetime, timedelta
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -26,53 +27,51 @@ def days_running(request):
 @login_required
 def _days(request, activity=None):
     if request.method == "POST":
-        # Saving a day
+        post_data = json.loads(request.body.decode("utf-8"))['day']
+
+        date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
         try:
-            date_string = "-".join([
-                request.POST.get('year'),
-                request.POST.get('month'),
-                request.POST.get('day_of_month')
-            ])
-            date = datetime(
-                int(request.POST.get('year')),
-                int(request.POST.get('month')),
-                int(request.POST.get('day_of_month'))
+            datetime(
+                int(post_data.get('year')),
+                int(post_data.get('month')),
+                int(post_data.get('dayOfMonth')),
             )
         except ValueError as e:
-            messages.error(request, f"Received invalid date {date_string}: " + str(e))
-            return HttpResponse(render(request, "kilo/days.html"))
+            return JsonResponse({
+                "error": f"Received invalid date {date}: " + str(e),
+            })
         day = Day.objects.filter(day=date).first()
         if day:
-            if day.id != int(request.POST.get('day_id') or 0):
-                messages.error(request, f"Attempting to duplicate {date_string}")
-                return HttpResponse(render(request, "kilo/days.html"))
+            if day.id != int(post_data.get('id') or 0):
+                return JsonResponse({
+                    "error": f"Attempting to duplicate {day.day}",
+                })
         else:
             day = Day()
         day.day = date
-        day.notes = request.POST.get('notes')
+        day.notes = post_data.get('notes')
         day.save()
 
         for workout in day.workout_set.all():
-            if workout.id not in [int(i) for i in request.POST.getlist("workout_id") if i]:
+            if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
                 workout.delete()
 
-        index = 0
-        for workout_id in request.POST.getlist("workout_id"):
-            workout = Workout.objects.get(id=int(workout_id)) if workout_id else Workout(day=day)
+        for workout_data in post_data.get("workouts", []):
+            try:
+                workout = Workout.objects.get(id=workout_data.get('id'))
+            except Workout.DoesNotExist:
+                workout = Workout(day=day)
             for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
-                setattr(workout, attr, request.POST.getlist(attr)[index] or None)
+                setattr(workout, attr, workout_data.get(attr))
             if workout.activity:
                 workout.save()
-            index += 1
 
-        messages.success(request, "Saved!")
+        return JsonResponse({
+            "success": 1,
+            "day": day.to_json(),
+        })
 
-    context = {
-        "activity": activity,
-        "distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "activities": sorted(list({w.activity for d in Day.objects.all() for w in d.workout_set.all()})),
-    }
-    return HttpResponse(render(request, "kilo/days.html", context))
+    return HttpResponse(render(request, "kilo/days.html"))
 
 
 @require_GET
@@ -83,7 +82,14 @@ def panel(request):
     if activity:
         days = days.filter(workout__activity=activity).distinct()
 
+    all_activities = [w.activity for d in Day.objects.all() for w in d.workout_set.all()]
+    activity_counter = Counter(all_activities)
+    common_activities = [a[0] for a in activity_counter.most_common(3)]
+    other_activities = sorted({a for a in set(all_activities) if a not in common_activities})
+
     return JsonResponse({
+        "all_activities": common_activities + other_activities,
+        "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
         "recent_days": [_format_day(d) for d in days[:10]],
         "stats": _get_stats(days, activity),
         "graph_data": _get_graph_data(days, activity),
@@ -94,15 +100,8 @@ def _format_day(day):
     return {
         "id": day.id,
         "day": day.day,
-        "pretty_day": day.day.strftime("%a, %b %d, %Y"),
         "notes": day.notes,
-        "workouts": [
-            {
-                "summary": w.summary,
-                **w.to_json(),
-            }
-            for w in day.workout_set.all()
-        ],
+        "workouts": [w.to_json() for w in day.workout_set.all()],
     }
 
 
@@ -111,7 +110,7 @@ def _get_stats(days, activity=None):
     last_month_days = days.filter(day__gte=today - timedelta(days=30))
     last_year_days = days.filter(day__gte=today - timedelta(days=365))
 
-    if activity is None:
+    if not activity:
         last_week_days = days.filter(day__gte=today - timedelta(days=7))
         text = "days/week"
         return [
@@ -202,7 +201,7 @@ def _get_graph_data(days, activity=None):
         return None
 
     data = {}
-    if activity is None:
+    if not activity:
         data["x"] = "day"
         all_activities = {w.activity for d in days for w in d.workout_set.all()}
         day_series = []
