@@ -29,7 +29,7 @@ class Command(BaseCommand):
         repo = self.get_repo()
         pointer = repo.heads.master.commit
         commits = []
-        while len(commits) < 10:
+        while len(commits) < 7:
             commits.append(pointer)
             pointer = pointer.parents[0]
         return commits
@@ -50,14 +50,14 @@ class Command(BaseCommand):
             files = files | set(commit.stats.files)
 
         # Handle any renames
-        files = [re.sub(r'{(.*) => (.*)}', "\\2", f) for f in files]
+        files = sorted([re.sub(r'{(.*) => (.*)}', "\\2", f) for f in files])
         
         print("Files:")
-        for file in sorted(files):
+        for file in files:
             print(file)
 
         if not files or input("\nGo ahead and scp (y/n)? ") not in ['y', 'Y']:
-            return set()
+            return []
 
         return files
 
