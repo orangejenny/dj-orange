@@ -1,3 +1,11 @@
+import { Star } from "./babel-prod/star.js";
+
+ko.bindingHandlers.reactStar = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        ReactDOM.render(React.createElement(Star, valueAccessor()), element);
+    },
+};
+
 var iconClasses = {
     'rating': 'fa-star',
     'energy': 'fa-fire',
@@ -58,40 +66,8 @@ $(document).ready(function() {
         }
         oldValue = undefined;
     });
-
-    $("body").on("click", ".song-table .icon-cell .fa-star", function() {
-        var $star = $(this);
-        toggleStar($star, $star.closest("tr").data("song-id"));
-    });
 });
 
 function ratingHTML(iconClass, number) {
     return StringMultiply("<span class='fas " + (number ? "" : "blank ") + iconClass + "'></span>", number || 5);
-}
-
-function toggleStar($star, id, sub) {
-    var isstarred = $star.hasClass("fas") ? 0 : 1;
-
-    // Update markup
-    $star.toggleClass("far");
-    $star.toggleClass("fas");
-
-    // Update server data
-    $star.addClass("update-in-progress");
-    $.ajax({
-        method: 'POST',
-        url: reverse('song_update'),
-        data: {
-            csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
-            id: id,
-            field: 'starred',
-            value: isstarred,
-        },
-        success: function (data) {
-            $star.removeClass("update-in-progress");
-        },
-        error: function () {
-            $star.closest("td").addClass("danger");
-        },
-    });
-}
+} 
