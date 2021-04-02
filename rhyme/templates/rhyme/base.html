@@ -1,5 +1,7 @@
 {% extends "orange/base.html" %}
 
+{% load static %}
+
 {% block title %}Rhyme{% endblock title %}
 
 {% block style %}{{ block.super }}
@@ -18,9 +20,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    <script src="/static/rhyme/js/utils.js"></script>
-    <script src="/static/rhyme/js/song_table.js"></script>
-    <script src="/static/rhyme/js/rhyme.js"></script>
+    <script src="{% static "rhyme/js/utils.js" %}"></script>
+    <script src="{% static "rhyme/js/song_table.js" %}"></script>
+    <script src="{% static "rhyme/js/rhyme.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
