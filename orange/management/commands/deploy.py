@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 from datetime import datetime
@@ -47,6 +48,9 @@ class Command(BaseCommand):
         files = set()
         for commit in commits:
             files = files | set(commit.stats.files)
+
+        # Handle any renames
+        files = [re.sub(r'{(.*) => (.*)}', "\\2", f) for f in files]
         
         print("Files:")
         for file in sorted(files):
