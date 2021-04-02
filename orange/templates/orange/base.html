@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -7,6 +9,8 @@
         {% block style %}
         {% endblock style %}
 
+        <script src="{% static "react/umd/react.production.min.js" %}"></script>
+        <script src="{% static "react-dom/umd/react-dom.production.min.js" %}"></script>
         {% block js %}
         {% endblock js %}
     </head>

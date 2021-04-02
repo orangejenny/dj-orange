@@ -8,6 +8,7 @@ localsettings.py
 __pycache__/
 
 kilo/static/kilo/js/babel-prod/*
+rhyme/static/rhyme/js/babel-prod/*
 rhyme/static/rhyme/img/collections/*
 rhyme/fixtures/*
 node_modules

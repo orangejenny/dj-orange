@@ -71,7 +71,7 @@ def _days(request, activity=None):
             "day": day.to_json(),
         })
 
-    return HttpResponse(render(request, "kilo/days.html"))
+    return HttpResponse(render(request, "kilo/base.html"))
 
 
 @require_GET
