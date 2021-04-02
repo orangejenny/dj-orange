@@ -93,12 +93,12 @@ export class DayRow extends React.Component {
   handleWeightChange(e) { this.handleWorkoutChange("weight", this.getWorkoutId(e.target), e.target.value); }
 
   dayOfWeek() {
-    return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day())).getDay()];
+    return ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"][(new Date(this.day() + "T00:00:00")).getDay()];
   }
 
   monthText() {
     return ["Jan", "Feb", "March", "April", "May", "June",
-            "July", "Aug", "Sept", "Oct", "Nov", "Dec"][(new Date(this.day())).getMonth()];
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"][(new Date(this.day() + "T00:00:00")).getMonth()];
   }
 
   day() {
