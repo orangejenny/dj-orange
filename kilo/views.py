@@ -121,7 +121,7 @@ def _get_stats(days, activity=None):
 
     if activity == "erging":
         stats = [
-            {"name": "Past Month", "primary": sum_erging(last_month_days), "secondary": "km erged"},
+            {"name": "Past Month", "primary": sum_erging(last_month_days), "secondary": "m erged"},
         ]
         workout = best_erg(last_month_days, km=2)
         if workout:
