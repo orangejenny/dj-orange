@@ -10,9 +10,27 @@
     <td data-bind="text: artist"></td>
     <td data-bind="text: albums"></td>
     <td data-bind="text: year"></td>
-    <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
-    <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
-    <td><div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
+    <td class="rating" data-bind="react: {
+        component: 'rating',
+        id: id,
+        field: 'rating',
+        icon: 'star',
+        value: rating
+    }"></td>
+    <td class="rating" data-bind="react: {
+        component: 'rating',
+        id: id,
+        field: 'energy',
+        icon: 'fire',
+        value: energy
+    }"></td>
+    <td class="rating" data-bind="react: {
+        component: 'rating',
+        id: id,
+        field: 'mood',
+        icon: 'heart',
+        value: mood
+    }"></td>
     <td class="tags" data-bind="react: {
         component: 'tags',
         id: id,

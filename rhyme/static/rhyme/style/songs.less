@@ -47,9 +47,14 @@
             }
 
             &.rating {
-                width: @fontSizeDefault * 5 + @spacingNarrow * 2;
+                @width: @fontSizeDefault * 5 + @spacingNarrow * 2;
+                width: @width;
                 .fas {
                     margin-left: -1px;    // cram icons together horizontally
+                }
+                input {
+                    width: @width;
+                    border: none;
                 }
             }
 
