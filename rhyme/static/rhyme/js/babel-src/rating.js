@@ -53,7 +53,7 @@ export class Rating extends React.Component {
 
     render() {
         return (
-            <div className={`rating ${this.state.saving ? "update-in-progress" : ""}`} onClick={this.onClick}>
+            <td className={`rating ${this.state.saving ? "update-in-progress" : ""}`} onClick={this.onClick}>
               {!this.state.editing && Array(this.state.value || this.state.maxRating).fill("x").map((x, i) => {
                 if (this.props.icon) {
                   return (
@@ -64,7 +64,7 @@ export class Rating extends React.Component {
                 }
               })}
               {this.state.editing && <input autoFocus type="text" onBlur={this.onBlur} />}
-            </div>
+            </td>
         );
     }
 }

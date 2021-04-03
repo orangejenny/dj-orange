@@ -63,12 +63,12 @@ export class Tags extends React.Component {
 
     render() {
         return (
-            <div className={this.state.saving ? "update-in-progress" : ""} onClick={this.onClick}>
+            <td className={this.state.saving ? "update-in-progress" : ""} onClick={this.onClick}>
               {!this.state.editing && this.state.value}
               {this.state.editing &&
                 <textarea value={this.state.value} className="form-control" autoFocus type="text" onChange={this.onChange} onBlur={this.onBlur}></textarea>
               }
-            </div>
+            </td>
         );
     }
 }

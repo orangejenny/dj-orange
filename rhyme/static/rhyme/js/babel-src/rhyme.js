@@ -1,3 +1,14 @@
+import { SongTable } from "./song_table.js";
+
+ko.bindingHandlers.reactSongTable = {
+    init: function(element, valueAccessor) {
+        ReactDOM.render(<SongTable { ...valueAccessor() } />, element);
+    },
+    update: function(element, valueAccessor) {
+        ReactDOM.render(<SongTable { ...valueAccessor() } />, element);
+    },
+};
+
 function filterModel (options) {
     AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
