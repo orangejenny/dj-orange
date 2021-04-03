@@ -119,7 +119,7 @@ def song_update(request):
     else:
         setattr(song, field, value)
     song.save()
-    return JsonResponse({"success": 1})
+    return JsonResponse({"success": 1, "value": value})
 
 
 @require_GET

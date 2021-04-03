@@ -1,8 +1,15 @@
 import { Star } from "./babel-prod/star.js";
+import { Tags } from "./babel-prod/tags.js";
 
-ko.bindingHandlers.reactStar = {
+ko.bindingHandlers.react = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-        ReactDOM.render(React.createElement(Star, valueAccessor()), element);
+        var options = valueAccessor(),
+            component = {
+                "star": Star,
+                "tags": Tags,
+            }[options.component];
+        delete options.component;
+        ReactDOM.render(React.createElement(component, options), element);
     },
 };
 

@@ -1,5 +1,6 @@
 <tr data-bind="attr: {'data-song-id': id }">
-    <td class="icon-cell is-starred" data-bind="reactStar: {
+    <td class="icon-cell is-starred" data-bind="react: {
+        component: 'star',
         id: id,
         value: starred,
     }">
@@ -12,5 +13,9 @@
     <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
     <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
     <td><div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
-    <td contenteditable='true' data-field='tags' class='tags' data-bind="text: tags.join(' ')"></td>
+    <td class="tags" data-bind="react: {
+        component: 'tags',
+        id: id,
+        value: tags.join(' '),
+    }"></td>
 </tr>
