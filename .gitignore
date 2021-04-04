@@ -3,6 +3,7 @@
 *.swo
 *.pyc
 *.sqlite3
+*.DS_STORE
 
 localsettings.py
 __pycache__/
