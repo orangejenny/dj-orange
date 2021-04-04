@@ -21,9 +21,7 @@ export function SongTable(props) {
         <tbody>
           {props.songs.map((song) => (
             <tr key={song.id}>
-              <td className="icon-cell is-starred">
-                  <Star id={song.id} value={song.starred} />
-              </td>
+              <Star id={song.id} field="starred" value={song.starred} />
               {song.track_number && <td>{song.track_number}.</td>}
               <td className="col-sm-2">{song.name}</td>
               <td>{song.artist}</td>
