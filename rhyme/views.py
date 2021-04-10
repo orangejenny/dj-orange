@@ -102,11 +102,13 @@ def song_list(request):
 def song_update(request):
     try:
         post_data = json.loads(request.body.decode("utf-8"))
+        song = Song.objects.get(id=post_data.get("id"))
+        field = post_data.get("field")
+        value = post_data.get("value")
     except JSONDecodeError:
-        post_data = dict(request.POST)
-    song = Song.objects.get(id=post_data.get("id")[0])
-    field = post_data.get("field")[0]
-    value = post_data.get("value")[0]
+        song = Song.objects.get(id=request.POST.get("id"))
+        field = request.POST.get("field")
+        value = request.POST.get("value")
 
     if field == 'tags':
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
