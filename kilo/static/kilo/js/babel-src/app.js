@@ -22,7 +22,11 @@ class App extends React.Component {
   addDayRow(template) {
     var self = this,
       day = new Date();
-    day = [day.getFullYear(), day.getMonth() + 1, day.getDate()].join("-");
+    day = [
+      day.getFullYear(),
+      (day.getMonth() < 9 ? "0" : "") + (day.getMonth() + 1),
+      (day.getDate() < 10 ? "0" : "") + day.getDate(),
+    ].join("-");
     this.setState((state, props) => {
       var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
         options = {
