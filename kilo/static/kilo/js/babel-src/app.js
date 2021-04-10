@@ -155,7 +155,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} />
+        <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
         <div className="row">
