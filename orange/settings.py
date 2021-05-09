@@ -137,6 +137,8 @@ SECURE_SSL_REDIRECT = False     # TODO: turn on?
 SESSION_COOKIE_SECURE = False   # TODO: turn on?
 X_FRAME_OPTIONS = 'DENY'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 DEPLOY_USERNAME = ''
 DEPLOY_SERVER = ''
 DEPLOY_BASE_DIR = ''
