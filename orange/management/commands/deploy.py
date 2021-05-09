@@ -51,7 +51,7 @@ class Command(BaseCommand):
 
         # Handle any renames
         files = sorted([re.sub(r'{(.*) => (.*)}', "\\2", f) for f in files])
-        
+
         print("Files:")
         for file in files:
             print(file)
