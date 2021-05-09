@@ -134,6 +134,8 @@ SECURE_SSL_REDIRECT = False     # TODO: turn on?
 SESSION_COOKIE_SECURE = False   # TODO: turn on?
 X_FRAME_OPTIONS = 'DENY'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 try:
     from orange.localsettings import *
 except ImportError:
