@@ -35,5 +35,4 @@ class Command(BaseCommand):
         print(f"mkdir {album_dir}/{album.id}")
 
         extension = filename.split(".")[-1]
-        print(f"scp {filename}
-        {settings.DEPLOY_USERNAME}@{settings.DEPLOY_SERVER}:{settings.DEPLOY_BASE_DIR}/{album_dir}/1.{extension}")
+        print(f"scp {filename} {settings.DEPLOY_USERNAME}@{settings.DEPLOY_SERVER}:{settings.DEPLOY_BASE_DIR}/{album_dir}/1.{extension}")
