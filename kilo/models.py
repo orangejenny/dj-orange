@@ -13,6 +13,14 @@ class Day(models.Model):
     def primary_activity(self):
         return self.workout_set.last().activity if self.workout_set.count() else None
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "day": self.day,
+            "notes": self.notes,
+            "workouts": [w.to_json() for w in self.workout_set.all()],
+        }
+
 
 class Workout(models.Model):
     MILES = 'mi'
@@ -46,33 +54,6 @@ class Workout(models.Model):
             kwargs['distance'] = kwargs.pop(unit)
             kwargs['distance_unit'] = unit
         super().__init__(*args, **kwargs)
-
-    @property
-    def summary(self):
-        text = ""
-
-        if self.sets:
-            text += f"{self.sets} x "
-
-        if self.reps:
-            text += f"{self.reps} "
-            if self.distance or self.seconds:
-                text += "x "
-
-        if self.distance:
-            text += f"{self.distance} {self.distance_unit} "
-            if self.seconds:
-                text += "in "
-
-        if self.seconds:
-            text += f"{self.time} "
-            if self.pace:
-                text += f"({self.pace}) "
-
-        if self.weight:
-            text += f"@ {self.weight}lb"
-
-        return text.strip()
 
     @property
     def m(self):

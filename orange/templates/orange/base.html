@@ -1,22 +1,24 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
     <head>
         <title>{% block title %}{% endblock title %}</title>
-        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" />
 
+        <link rel="stylesheet" type="text/css" href="/static/fontawesome/css/all.css" />
         {% block style %}
         {% endblock style %}
 
-        <!-- TODO: bower or yarn -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/3.7.1/less.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <script src="{% static "react/umd/react.production.min.js" %}"></script>
+        <script src="{% static "react-dom/umd/react-dom.production.min.js" %}"></script>
         {% block js %}
         {% endblock js %}
     </head>
     <body>
         {% block body %}
         {% endblock body %}
+        <div id="csrf-token">
+            {% csrf_token %}
+        </div>
     </body>
 </html>

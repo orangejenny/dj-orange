@@ -118,6 +118,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    'node_modules',
+]
 
 RHYME_EXPORT_CONFIGS = [
     {
@@ -135,6 +138,13 @@ SESSION_COOKIE_SECURE = False   # TODO: turn on?
 X_FRAME_OPTIONS = 'DENY'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+DEPLOY_USERNAME = ''
+DEPLOY_SERVER = ''
+DEPLOY_BASE_DIR = ''
+PLEX_USERNAME = ''
+PLEX_PASSWORD = ''
+PLEX_SERVER = ''
 
 try:
     from orange.localsettings import *

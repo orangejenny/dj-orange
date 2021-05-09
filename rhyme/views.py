@@ -3,6 +3,7 @@ import random
 import re
 
 from datetime import datetime, timezone
+from json.decoder import JSONDecodeError
 
 from plexapi.exceptions import NotFound
 from plexapi.playlist import Playlist as PlexPlaylist
@@ -99,9 +100,15 @@ def song_list(request):
 @require_POST
 @login_required
 def song_update(request):
-    song = Song.objects.get(id=request.POST.get("id"))
-    field = request.POST.get("field")
-    value = request.POST.get("value")
+    try:
+        post_data = json.loads(request.body.decode("utf-8"))
+        song = Song.objects.get(id=post_data.get("id"))
+        field = post_data.get("field")
+        value = post_data.get("value")
+    except JSONDecodeError:
+        song = Song.objects.get(id=request.POST.get("id"))
+        field = request.POST.get("field")
+        value = request.POST.get("value")
 
     if field == 'tags':
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
