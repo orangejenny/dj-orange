@@ -32,8 +32,8 @@ class Command(BaseCommand):
                 except (IndexError, ValueError):
                     pass
 
-        album_dir = "rhyme/static/rhyme/img/collections"
-        print(f"mkdir {album_dir}/{album.id}")
+        album_dir = "rhyme/static/rhyme/img/collections/{album.id}"
+        print(f"mkdir {album_dir}")
 
         extension = filename.split(".")[-1]
         print(f"scp {filename} {settings.DEPLOY_USERNAME}@{settings.DEPLOY_SERVER}:{settings.DEPLOY_BASE_DIR}/{album_dir}/1.{extension}")
