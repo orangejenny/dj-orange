@@ -65,7 +65,12 @@ class Command(BaseCommand):
             plex_playlist.removeItem(plex_items[key])
 
         keys_to_add = rhyme_keys - plex_items.keys()
-        items_to_add = [self.library.fetchItem(key) for key in keys_to_add]
+        items_to_add = []
+        for key in keys_to_add:
+            try:
+                items_to_add.append(self.library.fetchItem(key))
+            except NotFound:
+                pass
         if items_to_add:
             plex_playlist.addItems(items_to_add)
 
