@@ -144,34 +144,8 @@ def album_list(request):
     albums_per_page = 25
     album_queryset = Album.list(album_filters, song_filters, omni_filter)
     paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
-    albums = []
-    for album in paginator.get_page(page):
-        color = album.color
-        completion = album.completion
-        if completion > 0 and completion < 100:
-            completion_text = "({}% complete)".format(round(completion))
-        else:
-            completion_text = ""
-        albums.append({
-            "acronym": album.acronym,
-            "acronym_size": album.acronym_size,
-            "artist": album.artist,
-            "cover_art_filename": album.cover_art_filename,
-            "export_html": album.export_html,
-            "color": {                              # TODO: use jsonpickle instead?
-                "name": color.name,
-                "hex_code": color.hex_code,
-                "white_text": color.white_text,
-            } if color else {},
-            "completion_text": completion_text,
-            "stats": album.stats(),
-            "id": album.id,
-            "name": album.name,
-            "date_acquired": _format_date(album.date_acquired),
-            "export_count": album.export_count,
-            "last_export": _format_date(album.last_export),
-            "starred": album.starred,
-        })
+    albums = [album.to_json() for album in paginator.get_page(page)]
+
     context = {
         'count': album_queryset.count(),
         'omni_filter': omni_filter,
@@ -179,12 +153,6 @@ def album_list(request):
         'items': albums,
     }
     return JsonResponse(context)
-
-
-def _format_date(date):
-    if not date:
-        return ""
-    return date.strftime("%b %d, %Y")
 
 
 @require_GET
