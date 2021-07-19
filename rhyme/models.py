@@ -177,7 +177,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     @property
     def albums(self):
-        return [t.album.name for t in Track.objects.filter(song=self.id)]
+        return [t.album for t in Track.objects.filter(song=self.id)]
 
     def tags(self, category=None):
         tags = [t.name for t in self.tag_set.all()]
@@ -320,6 +320,12 @@ class Album(models.Model, FilterMixin, ExportableMixin):
         return completion * 100 / (len(Song.RATING_ATTRIBUTES) * len(songs))
 
     @property
+    def completion_text(self):
+        if self.completion > 0 and self.completion < 100:
+            return "({}% complete)".format(round(self.completion))
+        return ""
+
+    @property
     def export_html(self):
         if not self.export_count:
             return "Never exported"
@@ -378,6 +384,29 @@ class Album(models.Model, FilterMixin, ExportableMixin):
         shuffle(tags)
         return tags
 
+    def to_json(self):
+        return {
+            "acronym": self.acronym,
+            "acronym_size": self.acronym_size,
+            "artist": self.artist,
+            "cover_art_filename": self.cover_art_filename,
+            "export_html": self.export_html,
+            "color": self.color.to_json() if self.color else {},
+            "completion_text": self.completion_text,
+            "stats": self.stats(),
+            "id": self.id,
+            "name": self.name,
+            "date_acquired": self._format_date(self.date_acquired),
+            "export_count": self.export_count,
+            "last_export": self._format_date(self.last_export),
+            "starred": self.starred,
+        }
+
+    def _format_date(self, date):
+        if not date:
+            return ""
+        return date.strftime("%b %d, %Y")
+
 
 # Only named discs have entries here
 class Disc(models.Model):
@@ -418,3 +447,10 @@ class Color(models.Model):
 
     def __str__(self):
         return "{} (#{})".format(self.name, self.hex_code)
+
+    def to_json(self):
+        return {
+            "name": self.name,
+            "hex_code": self.hex_code,
+            "white_text": self.white_text,
+        }

@@ -7,7 +7,11 @@
     <td data-bind="visible: track_number, text: track_number + '.'"></td>
     <td class="col-sm-2" data-bind="text: name"></td>
     <td data-bind="text: artist"></td>
-    <td data-bind="text: albums"></td>
+    <td>
+        <ul class="list-unstyled" data-bind="foreach: albums">
+            <li><a href="javascript: void(0)" data-bind="text: name, click: $root.showModal"></a></li>
+        </ul>
+    </td>
     <td data-bind="text: year"></td>
     <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
     <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
