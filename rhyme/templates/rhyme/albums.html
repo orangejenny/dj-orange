@@ -24,35 +24,5 @@
 {% endblock content %}
 
 {% block modals %}
-    <div id="song-list" class="modal" data-bind="with: modalAlbum">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>
-                        <div class="pull-right">
-                            {% include "rhyme/partials/export_action.html" %}
-                        </div>
-                        <span class="modal-title" data-bind="text: name"></span>
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div data-bind="if: $root.modalDiscs().length > 1">
-                        <div data-bind="foreach: $root.modalDiscs()">
-                            <h4 data-bind="text: $data"></h4>
-                            <table class='song-table'>
-                                <tbody data-bind="foreach: _.filter($parent.songs(), function (song) { return song.disc_number === $index() + 1; })">
-                                    {% include "rhyme/partials/song_row.html" %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <table data-bind="ifnot: $root.modalDiscs().length > 1" class='song-table'>
-                        <tbody data-bind="foreach: songs">
-                            {% include "rhyme/partials/song_row.html" %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "rhyme/partials/modal_album.html" %}
 {% endblock %}

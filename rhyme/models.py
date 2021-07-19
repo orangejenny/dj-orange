@@ -177,7 +177,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     @property
     def albums(self):
-        return [t.album.name for t in Track.objects.filter(song=self.id)]
+        return [t.album for t in Track.objects.filter(song=self.id)]
 
     def tags(self, category=None):
         tags = [t.name for t in self.tag_set.all()]

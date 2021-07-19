@@ -43,7 +43,9 @@ function AlbumModel(options) {
 }
 
 function SongModel(options) {
-    return _.extend({}, options);
+    var self = _.extend({}, options);
+    self.albums = _.map(options.albums, AlbumModel);
+    return self;
 }
 
 function rhymeModel (options) {
@@ -226,12 +228,12 @@ function rhymeModel (options) {
                     $image.css("background-image", "url('" + album.cover_art_filename + "')")
                 }
                 $backdrop.before($image);
-    
+
                 $modal.one("hide.bs.modal", function() {
                     $image.remove();
                 });
             },
-            error: {
+            error: function () {
                 // TODO: error handling
             },
         });

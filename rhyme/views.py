@@ -87,7 +87,7 @@ def song_list(request):
             'mood': song.mood or '',
             'starred': song.starred,
             'year': song.year,
-            'albums': ", ".join(song.albums),
+            'albums': [album.to_json() for album in song.albums],
             'tags': song.tags(),
             'disc_number': disc_number,
             'track_number': track_number,

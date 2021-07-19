@@ -60,7 +60,7 @@
 
     {% block modals %}{% endblock %}
 
-    <div id="rhyme-urls" class="hidex">
+    <div id="rhyme-urls" class="hide">
         {% for name, url in RHYME_URLS.items %}
             <span data-name="{{ name }}" data-url="{{ url }}"></span>
         {% endfor %}
