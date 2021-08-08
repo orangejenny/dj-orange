@@ -231,6 +231,8 @@ def _get_graph_data(days, activity=None):
             for workout in day.workout_set.all():
                 if workout.activity == activity:
                     (x, y) = (None, None)
+                    if workout.km is None:
+                        continue
                     if workout.km <= boundary:
                         x = "x_short"
                         y = short_label
