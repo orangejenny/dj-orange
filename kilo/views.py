@@ -63,6 +63,8 @@ def _days(request, activity=None):
                 workout = Workout(day=day)
             for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
                 setattr(workout, attr, workout_data.get(attr))
+            if not workout.distance:
+                workout.distance_unit = None
             if workout.activity:
                 workout.save()
 
