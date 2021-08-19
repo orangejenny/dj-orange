@@ -198,6 +198,20 @@ class Song(models.Model, FilterMixin, ExportableMixin):
             tags = list(set(tags).intersection(set(tags_for_category)))
         return tags
 
+    def add_tag(self, tag_name):
+        if self.tag_set.filter(name=tag_name).exists():
+            return False
+        tag, created = Tag.objects.get_or_create(name=tag_name)
+        self.tag_set.add(tag)
+        return True
+
+    def remove_tag(self, tag_name):
+        if not self.tag_set.filter(name=tag_name).exists():
+            return False
+        tag = Tag.objects.get(name=tag_name)
+        self.tag_set.remove(tag)
+        return True
+
     def __str__(self):
         return "{} ({})".format(self.name, self.artist.name)
 
