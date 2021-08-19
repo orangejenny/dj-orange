@@ -80,6 +80,18 @@ class FilterMixin():
                 qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
                 for value in year_tags[1:]:
                     qcondition = qcondition | models.Q(**{"tag__name__exact": value})
+            elif lhs == "acquired_year":
+                lhs = "date_acquired"
+                rhs = int(rhs)
+                if op == '>=':
+                    lhs = lhs + "__gte"
+                    rhs = f"{rhs}-01-01"
+                elif op == '<=':
+                    lhs = lhs + "__lte"
+                    rhs = f"{rhs}-12-31"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                action = (lhs, rhs)
             elif lhs == "playlist":
                 song_ids = set()
                 for value in rhs.split(","):
@@ -185,6 +197,20 @@ class Song(models.Model, FilterMixin, ExportableMixin):
             tags_for_category = [t.name for t in Tag.objects.filter(category=category)]
             tags = list(set(tags).intersection(set(tags_for_category)))
         return tags
+
+    def add_tag(self, tag_name):
+        if self.tag_set.filter(name=tag_name).exists():
+            return False
+        tag, created = Tag.objects.get_or_create(name=tag_name)
+        self.tag_set.add(tag)
+        return True
+
+    def remove_tag(self, tag_name):
+        if not self.tag_set.filter(name=tag_name).exists():
+            return False
+        tag = Tag.objects.get(name=tag_name)
+        self.tag_set.remove(tag)
+        return True
 
     def __str__(self):
         return "{} ({})".format(self.name, self.artist.name)
