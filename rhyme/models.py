@@ -80,6 +80,18 @@ class FilterMixin():
                 qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
                 for value in year_tags[1:]:
                     qcondition = qcondition | models.Q(**{"tag__name__exact": value})
+            elif lhs == "acquired_year":
+                lhs = "date_acquired"
+                rhs = int(rhs)
+                if op == '>=':
+                    lhs = lhs + "__gte"
+                    rhs = f"{rhs}-01-01"
+                elif op == '<=':
+                    lhs = lhs + "__lte"
+                    rhs = f"{rhs}-12-31"
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+                action = (lhs, rhs)
             elif lhs == "playlist":
                 song_ids = set()
                 for value in rhs.split(","):

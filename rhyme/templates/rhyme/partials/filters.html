@@ -19,7 +19,8 @@
 
 <div class="btn-group">
     {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_select2' include_all=True condensed=condensed disallow_null=True %}
-    {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='calendar' lhs='tag_year' condensed=condensed disallow_null=True last=True %}
+    {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='calendar' lhs='tag_year' condensed=condensed disallow_null=True %}
+    {% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Year Acquired' icon='shopping-cart' lhs='acquired_year' condensed=condensed disallow_null=True last=True %}
 </div>
 
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_select2' include_all=True condensed=condensed disallow_null=True %}
