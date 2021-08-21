@@ -63,8 +63,9 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
 
-    self.modalAlbum = ko.observable();
-    self.modalDiscs = ko.observableArray();
+    self.modalName = ko.observable("");
+    self.modalHeaders = ko.observableArray();
+    self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
 
     self.goToPage = options.refreshCallback;
     self.page.subscribe(function (newValue) {
@@ -167,30 +168,30 @@ function rhymeModel (options) {
         }, self.serializeFilters()));
     };
 
-    self.showModal = function () {
-        var album = this;
-        self.modalAlbum(album);
-        self.modalDiscs([]);
+    self.showModal = function (name, songListParams, backgroundUrl) {
+        self.modalName(name);
+        self.modalHeaders([]);
+        self.modalSongs([]);
 
         var $modal = $("#song-list");
         $modal.modal();
+        self.isLoading(true);
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
-            data: {
-                album_id: album.id,
-            },
+            data: songListParams,
             success: function (data) {
-                album.songs(data.items);
-                self.modalDiscs(data.disc_names);
+                self.isLoading(false);
+                self.modalSongs(data.items);
+                self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();
                 $image.css("background-color", "transparent")
                       .css("background-size", "cover")
                       .css("background-repeat", "no-repeat")
                       .css("background-position", "center");
-                if (album.cover_art_filename) {
-                    $image.css("background-image", "url('" + album.cover_art_filename + "')")
+                if (backgroundUrl) {
+                    $image.css("background-image", "url('" + backgroundUrl + "')")
                 }
                 $backdrop.before($image);
 
