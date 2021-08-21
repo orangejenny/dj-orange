@@ -384,26 +384,19 @@ def network_json(request):
 
     strength = int(request.GET.get('strength', 35))
     category = request.GET.get('category')
-    paths = _network_tag_paths(songs, strength, category)
-    all_tags = {item for sublist in paths.keys() for item in sublist}
-
-    tags_with_counts = Tag.objects.all()
-    if category:
-        tags_with_counts = tags_with_counts.filter(category=category)
-    tags_with_counts = tags_with_counts.annotate(song_count=Count('songs'))
-    tags_with_counts = [t for t in tags_with_counts if t.name in all_tags]
-    ids_by_tag = {t.name: t.id for t in tags_with_counts}
+    paths, tags_with_counts = _network_tag_paths(songs, strength, category)
 
     def _song_text(num):
         return "song" if num == 1 else "songs"
 
+    ids_by_tag = {t.name: t.id for t in Tag.objects.all()}
     return JsonResponse({
         "nodes": [{
-            "id": tag.id,
-            "name": tag.name,
-            "count": tag.song_count,
-            "description": f"{tag.name}<br />{tag.song_count} {_song_text(tag.song_count)}",
-        } for tag in tags_with_counts],
+            "id": ids_by_tag.get(tag),
+            "name": tag,
+            "count": count,
+            "description": f"{tag}<br />{count} {_song_text(count)}",
+        } for tag, count in tags_with_counts.items()],
         "links": [{
             "source": ids_by_tag.get(key[0]),
             "target": ids_by_tag.get(key[1]),
@@ -416,9 +409,14 @@ def network_json(request):
 # TODO: add test
 def _network_tag_paths(songs, strength, category=None):
     paths = defaultdict(lambda: 0)
+    tags_with_counts = defaultdict(lambda: 0)
     for song in songs:
         tags = sorted(song.tags(category=category))
         for index, first_tag in enumerate(tags):
+            tags_with_counts[first_tag] += 1
             for second_tag in tags[index + 1:]:
                 paths[(first_tag, second_tag)] += 1
-    return {key: value for key, value in paths.items() if value >= strength}
+    paths = {key: value for key, value in paths.items() if value >= strength}
+    tags_in_paths = {item for sublist in paths.keys() for item in sublist}
+    tags_with_counts = {tag: count for tag, count in tags_with_counts.items() if tag in tags_in_paths}
+    return (paths, tags_with_counts)

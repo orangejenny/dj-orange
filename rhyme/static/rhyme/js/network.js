@@ -1,11 +1,4 @@
 // Modified from https://bl.ocks.org/mbostock/4062045
-$(document).ready(function() {
-    // TODO: add song filters
-    // TODO: add view/export modal
-    $("#network-controls .btn").click(draw);
-    draw();
-});
-
 function dragStarted(d, simulation) {
     if (!d3.event.active) {
         simulation.alphaTarget(0.3).restart();
@@ -36,7 +29,7 @@ function ticked(link, node) {
         .attr("cy", function(d) { return d.y; });
 }
 
-function draw() {
+function draw(rhymeModel) {
     var condition = function(tags) {
         return _.map(_.uniq(_.compact(tags)), function(t) { return "taglist like '% " + t + " %'" }).join(" and ");
     };
@@ -54,14 +47,14 @@ function draw() {
     var $filters = $("#network-controls"),
         category = $filters.find("[name='category']").val();
         strength = $filters.find("[name='strength']").val();
-    console.log("sent => " + category);    // TODO: spinner
+    console.log("sent");    // TODO: spinner
     $.ajax({
         method: 'GET',
-        url: reverse('network_json'),
-        data: {
+        url: rhymeModel.url,
+        data: $.extend({
             category: category,
             strength: strength,
-        },
+        }, rhymeModel.serializeFilters()),
         success: function(data) {
             console.log("got");
             data.nodes = _.map(data.nodes, function(node) {
@@ -115,3 +108,15 @@ function draw() {
         },
     });
 }
+
+$(function() {
+    var model = rhymeModel({
+        model: 'song',
+        url: reverse('network_json'),
+        refreshCallback: draw,
+    });
+    ko.applyBindings(model);
+    $("#network-controls .btn").click(function() {
+        draw(model);
+    });
+});
