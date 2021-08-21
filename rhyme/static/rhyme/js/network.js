@@ -47,7 +47,7 @@ function draw(rhymeModel) {
     var $filters = $("#network-controls"),
         category = $filters.find("[name='category']").val();
         strength = $filters.find("[name='strength']").val();
-    console.log("sent");    // TODO: spinner
+    rhymeModel.isLoading(true);
     $.ajax({
         method: 'GET',
         url: rhymeModel.url,
@@ -56,7 +56,7 @@ function draw(rhymeModel) {
             strength: strength,
         }, rhymeModel.serializeFilters()),
         success: function(data) {
-            console.log("got");
+            rhymeModel.isLoading(false);
             data.nodes = _.map(data.nodes, function(node) {
                 return _.extend(node, {
                     count: +node.count,
