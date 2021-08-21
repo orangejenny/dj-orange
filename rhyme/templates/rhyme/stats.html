@@ -30,10 +30,7 @@
     </button>
 </div>
 
-<p class='loading text-center' data-bind='visible: isLoading'>
-    <i class='fas fa-spinner fa-spin'></i>
-    Loading...
-</p>
+{% include "rhyme/partials/loading.html" %}
 <div class="chart-container">
     <svg class="{{ css_class }}" width="800" height="600"></svg>
 </div>

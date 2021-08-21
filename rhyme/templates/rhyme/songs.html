@@ -28,11 +28,8 @@
                 {% include "rhyme/partials/song_row.html" %}
             </tbody>
         </table>
-        <p class='loading text-center' data-bind='visible: isLoading'>
-            <i class='fas fa-spinner fa-spin'></i>
-            Loading...
-        </p>
     </div>
+    {% include "rhyme/partials/loading.html" %}
 {% endblock content %}
 
 {% block modals %}
