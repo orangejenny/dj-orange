@@ -264,13 +264,15 @@ $(function() {
     });
 
     // TODO: move to knockout
-    $(".select2.in-modal").each(function (index, element) {
+    $(".select2").each(function (index, element) {
         var $element = $(element),
             data = $element.data(),
             options = {
-                dropdownParent: $element.closest(".modal"),
                 width: "100%",
             };
+        if ($element.hasClass("in-modal")) {
+            options.dropdownParent = $element.closest(".modal");
+        }
         if (data.url) {
             options.ajax = {
                 url: reverse(data.url),

@@ -465,6 +465,10 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def all_categories(cls):
+        return sorted(set(cls.objects.filter(category__isnull=False).values_list("category", flat=True)))
+
 
 class Color(models.Model):
     name = models.CharField(max_length=255)

@@ -1,13 +1,8 @@
 // Modified from https://bl.ocks.org/mbostock/4062045
 $(document).ready(function() {
-    /*$(".category-select").change(draw);
-    $(".strength-select").keyup(_.debounce(draw, 500));
-    $(".strength-select .input-group-addon").click(function() {
-        var $nudge = $(this),
-            $input = $nudge.siblings("input");
-        $input.val(+$input.val() + +$nudge.data("increment")).change();
-    });
-    initSimpleFilter(draw);*/
+    // TODO: add song filters
+    // TODO: add view/export modal
+    $("#network-controls .btn").click(draw);
     draw();
 });
 
@@ -56,16 +51,16 @@ function draw() {
     svg.html("");
     svg.attr("viewBox", [0, 0, width, height]);
     
-    var category = $(".category-select").val(),
-        strength = $(".strength-select input").val(),
-        $simpleFilter = $("#simple-filter");
-    console.log("sent");    // TODO: spinner
+    var $filters = $("#network-controls"),
+        category = $filters.find("[name='category']").val();
+        strength = $filters.find("[name='strength']").val();
+    console.log("sent => " + category);    // TODO: spinner
     $.ajax({
         method: 'GET',
         url: reverse('network_json'),
         data: {
-            category: "",
-            strength: 35,
+            category: category,
+            strength: strength,
         },
         success: function(data) {
             console.log("got");

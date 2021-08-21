@@ -12,6 +12,22 @@
 
 {% block content %}
 
+<div class="well pull-right" id="network-controls">
+    <select class="select2" name="category">
+        <option value="">(All Categories)</option>
+        {% for category in categories %}
+            <option>{{ category }}</option>
+        {% endfor %}
+    </select>
+    <br /><br />
+    <input class="form-control" type="text" name="strength" value="{{ strength }}" />
+    <br />
+    <button class="btn btn-primary">
+        <i class="fab fa-pagelines"></i>
+        Generate
+    </button>
+</div>
+
 <div class="chart-container">
     <svg class="{{ css_class }}" width="800" height="600"></svg>
 </div>

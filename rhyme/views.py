@@ -354,18 +354,22 @@ def plex_in(request, api_key):
 
 
 def network(request):
-    return _stats(request, "Network", "network")
+    return _stats(request, {
+        "title": "Network",
+        "css_class": "network",
+        "categories": Tag.all_categories(),
+        "strength": 35,
+    })
 
 
 @require_GET
 @login_required
-def _stats(request, title, css_class):
+def _stats(request, extra_context):
     template = loader.get_template('rhyme/stats.html')
     context = {
         **_rhyme_context(),
+        **extra_context,
         "has_export": True,
-        "title": title,
-        "css_class": css_class,
     }
     return HttpResponse(template.render(context, request))
 
@@ -379,14 +383,13 @@ def network_json(request):
     songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
 
     strength = int(request.GET.get('strength', 35))
-    paths = _network_tag_paths(songs, strength)
+    category = request.GET.get('category')
+    paths = _network_tag_paths(songs, strength, category)
     all_tags = {item for sublist in paths.keys() for item in sublist}
 
-    category = request.GET.get('category')
     tags_with_counts = Tag.objects.all()
     if category:
         tags_with_counts = tags_with_counts.filter(category=category)
-    ids_by_category = {c: i for i, c in enumerate(set(tags_with_counts.values_list("category", flat=True)))}
     tags_with_counts = tags_with_counts.annotate(song_count=Count('songs'))
     tags_with_counts = [t for t in tags_with_counts if t.name in all_tags]
     ids_by_tag = {t.name: t.id for t in tags_with_counts}
@@ -399,7 +402,6 @@ def network_json(request):
             "id": tag.id,
             "name": tag.name,
             "count": tag.song_count,
-            "group": ids_by_category.get(tag.category, 0) + 1,
             "description": f"{tag.name}<br />{tag.song_count} {_song_text(tag.song_count)}",
         } for tag in tags_with_counts],
         "links": [{
@@ -412,10 +414,10 @@ def network_json(request):
 
 
 # TODO: add test
-def _network_tag_paths(songs, strength):
+def _network_tag_paths(songs, strength, category=None):
     paths = defaultdict(lambda: 0)
     for song in songs:
-        tags = sorted(song.tags())
+        tags = sorted(song.tags(category=category))
         for index, first_tag in enumerate(tags):
             for second_tag in tags[index + 1:]:
                 paths[(first_tag, second_tag)] += 1
