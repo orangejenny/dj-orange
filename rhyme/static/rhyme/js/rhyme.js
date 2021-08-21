@@ -49,7 +49,7 @@ function SongModel(options) {
 }
 
 function rhymeModel (options) {
-    AssertArgs(options, ['model', 'refreshCallback'], ['url']);
+    AssertArgs(options, ['model'], ['init', 'url']);
 
     var self = {};
 
@@ -67,9 +67,44 @@ function rhymeModel (options) {
     self.modalHeaders = ko.observableArray();
     self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
 
-    self.goToPage = options.refreshCallback;
+    self.refresh = function(page) {
+        if (!self.url) {
+            return;
+        }
+
+        page = page || 1;
+        self.allowScroll(false);
+        self.isLoading(true);
+        $.ajax({
+            method: 'GET',
+            url: self.url,
+            data: _.extend({
+                page: page,
+                omni_filter: self.omniFilter(),
+                conjunction: self.conjunction(),
+            }, self.serializeFilters()),
+            success: function(data) {
+                if (data.omni_filter !== self.omniFilter()) {
+                    return;
+                }
+
+                self.isLoading(false);
+                self.count(data.count);
+
+                if (page === 1) {
+                    self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
+                } else {
+                    self.items(self.items().concat(data.items));
+                }
+                if (data.more) {
+                    self.allowScroll(true);
+                }
+            },
+        });
+    };
+
     self.page.subscribe(function (newValue) {
-        self.goToPage(self, newValue);
+        self.refresh(newValue);
     });
 
     self.nextPage = function() {
@@ -85,11 +120,11 @@ function rhymeModel (options) {
             op: op,
             rhs: rhs,
         }));
-        self.goToPage(self, 1);
+        self.refresh();
     };
 
     self.omniFilter.subscribe(_.throttle(function (newValue) {
-        self.goToPage(self, 1);
+        self.refresh();
     }, {leading: false}));
 
     self.getFilterValue = function (e) {
@@ -115,7 +150,7 @@ function rhymeModel (options) {
 
     self.removeFilter = function (filter) {
         self.filters.remove(filter);
-        self.goToPage(self, 1);
+        self.refresh();
     };
 
     self.focusFilter = function (model, e) {
@@ -150,7 +185,7 @@ function rhymeModel (options) {
         } else {
             self.conjunction("&&");
         }
-        self.goToPage(self, 1);
+        self.refresh();
     };
 
     self.useAnd = ko.computed(function () {
@@ -206,7 +241,9 @@ function rhymeModel (options) {
     };
 
     // Initialize: go to first page
-    self.goToPage(self, 1);
+    if (options.init || options.init === undefined) {
+        self.refresh();
+    }
 
     return self;
 }
