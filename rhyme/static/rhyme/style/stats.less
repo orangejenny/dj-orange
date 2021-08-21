@@ -1,0 +1,87 @@
+@import "base.less";
+
+@barColor: #31b0d5;    // bootstrap "info"
+
+.background-with-states(@color) {
+    fill: @color;
+    stroke: @color;
+    &.highlighted {
+        fill: lighten(@color, 5%);
+    }
+    &.selected {
+        fill: darken(@color, 25%);
+    }
+}
+
+svg {
+    rect, circle, text {
+        cursor: pointer;
+    }
+    rect, circle {
+        .background-with-states(@barColor);
+    }
+    path {
+        stroke-width: 2px;
+        fill: none;
+        stroke: @barColor;
+    }
+    text {
+        fill: @white;
+        font: @fontSizeDefault sans-serif;
+        text-anchor: middle;
+    }
+    line {
+        stroke-width: 2;
+        stroke: @grey;
+    }
+
+    &.network {
+        circle {
+            stroke: @white;
+            stroke-width: 2px;
+        }
+
+        line {
+            .background-with-states(@grey);
+            stroke-width: 3px;
+        }
+    }
+
+    .axis {
+        stroke-width: 1px;    // hand-drawn
+
+        path, line {    // d3-generated paths and ticks
+            display: none;
+        }
+
+        text {
+            cursor: auto;
+            fill: @grey;
+        }
+    }
+}
+
+// Not necessarily inside an axis, or an avg, because matrix fakes its axes with CSS
+.axis-label {
+    color: @grey;
+    font-size: @fontSizeLarge;
+}
+
+#tooltip {
+    position: absolute;
+    padding: @spacingNarrow;
+    background-color: @greyDark;
+    color: @white;
+    opacity: 0.8;
+    border-radius: @borderRadius;
+    > div {
+        font-weight: bold;
+    }
+    ul {
+        margin: @spacingNormal 0 0 0;
+        padding: 0;
+        li {
+            list-style-type: none;
+        }
+    }
+}

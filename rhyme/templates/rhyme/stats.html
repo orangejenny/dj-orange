@@ -1,0 +1,21 @@
+{% extends 'rhyme/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ block.super }}: {{ title }}{% endblock title %}
+
+{% block js %}{{ block.super }}
+    <script src="{% static "d3/dist/d3.js" %}"></script>
+    <script src="{% static "rhyme/js/stats_utils.js" %}"></script>
+    <script src="{% static "rhyme/js/network.js" %}"></script>
+{% endblock js %}
+
+{% block content %}
+
+<div class="chart-container">
+    <svg class="{{ css_class }}" width="800" height="600"></svg>
+</div>
+
+<div id="tooltip" class="hide"></div>
+
+{% endblock content %}

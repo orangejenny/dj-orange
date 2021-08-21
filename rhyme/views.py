@@ -2,6 +2,7 @@ import json
 import random
 import re
 
+from collections import defaultdict
 from datetime import datetime, timezone
 from json.decoder import JSONDecodeError
 
@@ -11,6 +12,7 @@ from plexapi.playlist import Playlist as PlexPlaylist
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -349,3 +351,72 @@ def plex_in(request, api_key):
             return JsonResponse({"success": 1, "message": "Updated {}".format(song)})
 
     return JsonResponse({"success": 0, "message": "Could not find song"})
+
+
+def network(request):
+    return _stats(request, "Network", "network")
+
+
+@require_GET
+@login_required
+def _stats(request, title, css_class):
+    template = loader.get_template('rhyme/stats.html')
+    context = {
+        **_rhyme_context(),
+        "has_export": True,
+        "title": title,
+        "css_class": css_class,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
+def network_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+    songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
+
+    strength = int(request.GET.get('strength', 35))
+    paths = _network_tag_paths(songs, strength)
+    all_tags = {item for sublist in paths.keys() for item in sublist}
+
+    category = request.GET.get('category')
+    tags_with_counts = Tag.objects.all()
+    if category:
+        tags_with_counts = tags_with_counts.filter(category=category)
+    ids_by_category = {c: i for i, c in enumerate(set(tags_with_counts.values_list("category", flat=True)))}
+    tags_with_counts = tags_with_counts.annotate(song_count=Count('songs'))
+    tags_with_counts = [t for t in tags_with_counts if t.name in all_tags]
+    ids_by_tag = {t.name: t.id for t in tags_with_counts}
+
+    def _song_text(num):
+        return "song" if num == 1 else "songs"
+
+    return JsonResponse({
+        "nodes": [{
+            "id": tag.id,
+            "name": tag.name,
+            "count": tag.song_count,
+            "group": ids_by_category.get(tag.category, 0) + 1,
+            "description": f"{tag.name}<br />{tag.song_count} {_song_text(tag.song_count)}",
+        } for tag in tags_with_counts],
+        "links": [{
+            "source": ids_by_tag.get(key[0]),
+            "target": ids_by_tag.get(key[1]),
+            "value": value,
+            "description": f"{key[0]} and {key[1]}<br />{value} {_song_text(value)}",
+        } for key, value in paths.items()],
+    })
+
+
+# TODO: add test
+def _network_tag_paths(songs, strength):
+    paths = defaultdict(lambda: 0)
+    for song in songs:
+        tags = sorted(song.tags())
+        for index, first_tag in enumerate(tags):
+            for second_tag in tags[index + 1:]:
+                paths[(first_tag, second_tag)] += 1
+    return {key: value for key, value in paths.items() if value >= strength}
