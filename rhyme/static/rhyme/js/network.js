@@ -6,12 +6,12 @@ function dragStarted(d, simulation) {
     d.fx = d.x;
     d.fy = d.y;
 }
-    
+
 function dragged(d, simulation) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
 }
-    
+
 function dragEnded(d, simulation) {
     if (!d3.event.active) {
         simulation.alphaTarget(0);
@@ -34,7 +34,10 @@ function rhymeStatsModel(options) {
     var self = rhymeModel(options);
 
     self.viewSelection = function () {
-        self.showModal(self.getSelectionFilename(), self.serializeFilters());
+        self.showModal(
+            self.getSelectionFilename(d3.selectAll("svg .selected")),
+            self.serializeFilters(d3.selectAll("svg .selected"))
+        );
     };
 
     self.hideModal = function () {
@@ -44,9 +47,9 @@ function rhymeStatsModel(options) {
     };
 
     var super_serializeFilters = self.serializeFilters;
-    self.serializeFilters = function () {
+    self.serializeFilters = function (selection) {
         var filters = super_serializeFilters(),
-            selectionFilter = self.getSelectionFilter();
+            selectionFilter = self.getSelectionFilter(selection);
         if (!selectionFilter) {
             return filters;
         }
@@ -58,16 +61,15 @@ function rhymeStatsModel(options) {
         return filters;
     };
 
-    self.getSelectionFilter = function () {
-        var selected = d3.selectAll("svg .selected");
-        if (!selected.data().length) {
+    self.getSelectionFilter = function (selection) {
+        if (!selection) {
             return '';
         }
-        return "tag=" + _.uniq(_.flatten(_.pluck(selected.data(), 'tags'))).join(",");
+        return "tag=" + _.uniq(_.flatten(_.pluck(selection.data(), 'tags'))).join(",");
     };
 
-    self.getSelectionFilename = function () {
-        var filenames = _.uniq(_.pluck(d3.selectAll("svg .selected").data(), 'filename'));
+    self.getSelectionFilename = function (selection) {
+        var filenames = _.uniq(_.pluck(selection.data(), 'filename'));
         if (filenames.length === 1) {
             return filenames[0];
         }
@@ -98,10 +100,10 @@ function rhymeStatsModel(options) {
             svg = d3.select(selector + " svg"),
             width = +svg.attr("width"),
             height = +svg.attr("height");
-        
+
         svg.html("");
         svg.attr("viewBox", [0, 0, width, height]);
-        
+
         var $filters = $("#network-controls"),
             category = $filters.find("[name='category']").val();
             strength = $filters.find("[name='strength']").val();
@@ -127,26 +129,26 @@ function rhymeStatsModel(options) {
                         return nodesById[id].name;
                     };
 
-    
+
                 var simulation = d3.forceSimulation(data.nodes)
                     .force("link", d3.forceLink().id(function(d) { return d.id; }))
                     .force("charge", d3.forceManyBody())
                     .force("center", d3.forceCenter(width / 2, height / 2));
-    
+
                 data.links = _.map(data.links, function(link) {
                     return _.extend(link, {
                         tags: [nodeNameById(link.source), nodeNameById(link.target)],
                         filename: filename([nodeNameById(link.source), nodeNameById(link.target)]),
                     });
                 });
-    
+
                 var link = svg.append("g")
                               .attr("class", "links")
                               .selectAll("line")
                               .data(data.links)
                               .enter().append("line")
                                       .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
-            
+
                 var count = function(n) { return n.count; },
                     rScale = d3.scaleLinear()
                                .range([5, 15])
@@ -161,17 +163,111 @@ function rhymeStatsModel(options) {
                                               .on("start", function(d) { dragStarted(d, simulation); })
                                               .on("drag", function(d) { dragged(d, simulation); })
                                               .on("end", function(d) { dragEnded(d, simulation); }));
-            
+
                 simulation.nodes(data.nodes)
                           .on("tick", function() { ticked(link, node); });
                 simulation.force("link").links(data.links);
-            
-                attachTooltip(selector + " g circle, " + selector + " g line");
-                attachSelectionHandlers(selector + " g circle, " + selector + " g line");
+
+                self.attachTooltip(selector + " g circle, " + selector + " g line");
+                self.attachSelectionHandlers(selector + " g circle, " + selector + " g line");
             },
         });
     };
 
+    self.attachTooltip = function (selector) {
+        var positionTooltip = function() {
+            var $tooltip = $("#tooltip");
+            if (!$tooltip.is(":visible")) {
+                return;
+            }
+            if (d3.event.pageX + 10 + $tooltip.width() > $("body").width()) {
+                $tooltip.css("left", d3.event.pageX - $tooltip.width() - 10);
+            }
+            else {
+                $tooltip.css("left", d3.event.pageX + 10);
+            }
+            if (d3.event.pageY + $tooltip.height() > $("body").height() - $(".post-nav").scrollTop()) {
+                $tooltip.css("top", d3.event.pageY - $tooltip.height());
+            }
+            else {
+                $tooltip.css("top", d3.event.pageY);
+            }
+        };
+
+        d3.selectAll(selector).on("mouseenter.tooltip", function() {
+            var data = d3.select(this).data()[0];
+            var $tooltip = $("#tooltip");
+            var show = false;
+
+            $tooltip.html("");
+            if (data.description) {
+                show = true;
+                var description = data.description;
+                $tooltip.html(description);
+            }
+
+            if (show) {
+                $tooltip.removeClass("hide");
+                positionTooltip();
+            }
+        });
+        d3.selectAll(selector).on("mouseleave.tooltip", function() {
+            $("#tooltip").addClass("hide");
+        });
+        d3.selectAll(selector).on("mousemove.tooltip", function() {
+            positionTooltip();
+        });
+    };
+
+    self.attachSelectionHandlers = function (selector, actsOn) {
+        if (!actsOn) {
+            actsOn = function(obj) {
+                return d3.select(obj);
+            };
+        }
+
+        $(selector).css("cursor", "pointer");
+        self.highlightOnHover(selector, actsOn);
+        self.selectOnClick(selector, actsOn);
+        self.viewOnDoubleClick(selector, actsOn);
+    };
+
+    self.highlightOnHover = function (selector, actsOn) {
+        d3.selectAll(selector).on("mouseenter.highlight", function() {
+            actsOn(this).classed("highlighted", true);
+            actsOn(this).selectAll("rect, circle").classed("highlighted", true);
+        });
+        d3.selectAll(selector).on("mouseleave.highlight", function() {
+            actsOn(this).classed("highlighted", false);
+            actsOn(this).selectAll(".highlighted").classed("highlighted", false);
+        });
+    };
+
+    self.viewOnDoubleClick = function (selector, actsOn) {
+        d3.selectAll(selector).on("dblclick", function(e) {
+            var obj = actsOn(this);
+            self.showModal(
+                self.getSelectionFilename(obj),
+                self.serializeFilters(obj)
+            );
+            d3.event.preventDefault();
+        });
+    }
+
+    self.selectOnClick = function (selector, actsOn) {
+        d3.selectAll(selector).on("click", function() {
+            self.selectData(actsOn(this));
+        });
+    };
+
+    self.selectData = function (obj) {
+        var isSelected = obj.classed("selected");
+        obj.classed("selected", !isSelected);
+        obj.selectAll("rect, circle").classed("selected", !isSelected);
+        self.setClearVisibility();
+    };
+
+    // Initialize
     self.refresh();
 
     return self;
