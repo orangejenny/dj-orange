@@ -34,23 +34,27 @@ function rhymeStatsModel(options) {
     var self = rhymeModel(options);
 
     self.viewSelection = function () {
-        var songListParams = self.serializeFilters(),
+        self.showModal(self.getSelectionFilename(), self.serializeFilters());
+    };
+
+    var super_serializeFilters = self.serializeFilters;
+    self.serializeFilters = function () {
+        var filters = super_serializeFilters(),
             selectionFilter = self.getSelectionFilter();
         if (!selectionFilter) {
-            return;
+            return filters;
         }
-        if (songListParams.song_filters) {
-            songListParams.song_filters += "&&" + selectionFilter;
+        if (filters.song_filters) {
+            filters.song_filters += "&&" + selectionFilter;
         } else {
-            songListParams.song_filters = selectionFilter;
+            filters.song_filters = selectionFilter;
         }
-        self.showModal(self.getSelectionFilename(), songListParams);
+        return filters;
     };
 
     self.getSelectionFilter = function () {
         var selected = d3.selectAll("svg .selected");
         if (!selected.data().length) {
-            alert("Nothing selected");
             return '';
         }
         return "tag=" + _.uniq(_.flatten(_.pluck(selected.data(), 'tags'))).join(",");

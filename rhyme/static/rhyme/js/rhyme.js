@@ -209,8 +209,9 @@ function rhymeModel (options) {
         self.modalSongs([]);
 
         var $modal = $("#song-list");
-        $modal.modal();
         self.isLoading(true);
+        $modal.modal();
+        songListParams.songs_per_page = 100;    // TODO: paginate modal?
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),

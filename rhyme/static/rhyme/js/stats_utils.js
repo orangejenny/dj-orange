@@ -1,17 +1,4 @@
 $(document).ready(function() {
-    // Controls: export selections
-    $(".export-dropdown a").click(function() {
-        var condition = getSelectionCondition();
-        if (condition) {
-            ExportPlaylist({
-                CONFIG: $(this).data("name"),
-                FILTER: augmentFilter(condition),
-                SIMPLEFILTER: $("#filter").val(),
-                STARRED: $("#simple-filter .fas.fa-star").length,
-            });
-        }
-    });
-
     $("#song-list").on("hide hide.bs.modal", function() {
         d3.selectAll('.selected').classed("selected", false);
         setClearVisibility();

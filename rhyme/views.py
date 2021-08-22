@@ -68,7 +68,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
         song_filters = request.GET.get('song_filters')
-        songs_per_page = 20
+        songs_per_page = request.GET.get('songs_per_page', 20)
         songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
