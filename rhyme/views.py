@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import connection
-from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -382,7 +381,9 @@ def network_json(request):
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
 
-    song_ids = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter).values_list("id", flat=True)
+    song_ids = Song.list(song_filters=song_filters,
+                         album_filters=album_filters,
+                         omni_filter=omni_filter).values_list("id", flat=True)
     if len(song_ids) > Song.objects.count() / 2:
         include = None
         exclude = set(Song.objects.all().values_list("id", flat=True)).difference(song_ids)
@@ -392,7 +393,6 @@ def network_json(request):
 
     def allow_song_id(song_id):
         return (include is not None and (song_id in include)) or (exclude is not None and (song_id not in exclude))
-        
 
     strength = int(request.GET.get('strength', 35))
     category = request.GET.get('category')
@@ -416,7 +416,11 @@ def network_json(request):
             **node,
         } for node in nodes.values()],
         "links": [{
-            "description": f"{nodes[link['source']]['name']} and {nodes[link['target']]['name']}<br />{link['value']} {'song' if link['value'] == 1 else 'songs'}",
+            "description": f"""
+                {nodes[link['source']]['name']} and {nodes[link['target']]['name']}
+                <br />
+                {link['value']} {'song' if link['value'] == 1 else 'songs'}
+             """,
             **link,
         } for link in links],
     })
