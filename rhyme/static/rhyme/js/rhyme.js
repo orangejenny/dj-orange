@@ -241,6 +241,11 @@ function rhymeModel (options) {
         });
     };
 
+    self.hideModal = function () {
+        // needed for subclasses
+        return true;
+    };
+
     // Initialize: go to first page
     if (options.init || options.init === undefined) {
         self.refresh();

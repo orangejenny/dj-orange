@@ -1,10 +1,3 @@
-$(document).ready(function() {
-    $("#song-list").on("hide hide.bs.modal", function() {
-        d3.selectAll('.selected').classed("selected", false);
-        setClearVisibility();
-    });
-});
-
 function setClearVisibility() {
     if ($(".selected").length) {
         $(".selection-buttons").removeClass("hide");

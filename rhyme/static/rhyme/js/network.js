@@ -37,6 +37,12 @@ function rhymeStatsModel(options) {
         self.showModal(self.getSelectionFilename(), self.serializeFilters());
     };
 
+    self.hideModal = function () {
+        d3.selectAll('svg .selected').classed("selected", false);
+        self.setClearVisibility();
+        return true;
+    };
+
     var super_serializeFilters = self.serializeFilters;
     self.serializeFilters = function () {
         var filters = super_serializeFilters(),
@@ -74,7 +80,7 @@ function rhymeStatsModel(options) {
     };
 
     self.setClearVisibility = function () {
-        if ($(".selected").length) {
+        if ($("svg .selected").length) {
             $(".selection-buttons").removeClass("hide");
         } else {
             $(".selection-buttons").addClass("hide");
