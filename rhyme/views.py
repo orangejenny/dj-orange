@@ -358,7 +358,7 @@ def network(request):
         "title": "Network",
         "css_class": "network",
         "categories": Tag.all_categories(),
-        "strength": 35,
+        "strength": 50,
     })
 
 
@@ -394,7 +394,7 @@ def network_json(request):
     def allow_song_id(song_id):
         return (include is not None and (song_id in include)) or (exclude is not None and (song_id not in exclude))
 
-    strength = int(request.GET.get('strength', 35))
+    strength = int(request.GET.get('strength', 50))
     category = request.GET.get('category')
     links = _network_tag_links(allow_song_id, strength, category)
 
