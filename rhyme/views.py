@@ -12,6 +12,7 @@ from plexapi.playlist import Playlist as PlexPlaylist
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import connection
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
@@ -380,43 +381,78 @@ def network_json(request):
     omni_filter = request.GET.get('omni_filter', '')
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
-    songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
+
+    song_ids = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter).values_list("id", flat=True)
+    if len(song_ids) > Song.objects.count() / 2:
+        include = None
+        exclude = set(Song.objects.all().values_list("id", flat=True)).difference(song_ids)
+    else:
+        include = song_ids
+        exclude = None
+
+    def allow_song_id(song_id):
+        return (include is not None and (song_id in include)) or (exclude is not None and (song_id not in exclude))
+        
 
     strength = int(request.GET.get('strength', 35))
     category = request.GET.get('category')
-    paths, tags_with_counts = _network_tag_paths(songs, strength, category)
+    links = _network_tag_links(allow_song_id, strength, category)
 
-    def _song_text(num):
-        return "song" if num == 1 else "songs"
+    tag_ids = set([link["source"] for link in links] + [link["target"] for link in links])
+    nodes = {}
+    for tag in Tag.objects.all():
+        if tag.id not in tag_ids:
+            continue
+        for song in tag.songs.all():
+            if allow_song_id(song.id):
+                if tag.id not in nodes:
+                    nodes[tag.id] = {"id": tag.id, "name": tag.name, "count": 1}
+                else:
+                    nodes[tag.id]["count"] += 1
 
-    ids_by_tag = {t.name: t.id for t in Tag.objects.all()}
     return JsonResponse({
         "nodes": [{
-            "id": ids_by_tag.get(tag),
-            "name": tag,
-            "count": count,
-            "description": f"{tag}<br />{count} {_song_text(count)}",
-        } for tag, count in tags_with_counts.items()],
+            "description": f"{node['name']}<br />{node['count']} {'song' if node['count'] == 1 else 'songs'}",
+            **node,
+        } for node in nodes.values()],
         "links": [{
-            "source": ids_by_tag.get(key[0]),
-            "target": ids_by_tag.get(key[1]),
-            "value": value,
-            "description": f"{key[0]} and {key[1]}<br />{value} {_song_text(value)}",
-        } for key, value in paths.items()],
+            "description": f"{nodes[link['source']]['name']} and {nodes[link['target']]['name']}<br />{link['value']} {'song' if link['value'] == 1 else 'songs'}",
+            **link,
+        } for link in links],
     })
 
 
 # TODO: add test
-def _network_tag_paths(songs, strength, category=None):
-    paths = defaultdict(lambda: 0)
-    tags_with_counts = defaultdict(lambda: 0)
-    for song in songs:
-        tags = sorted(song.tags(category=category))
-        for index, first_tag in enumerate(tags):
-            tags_with_counts[first_tag] += 1
-            for second_tag in tags[index + 1:]:
-                paths[(first_tag, second_tag)] += 1
-    paths = {key: value for key, value in paths.items() if value >= strength}
-    tags_in_paths = {item for sublist in paths.keys() for item in sublist}
-    tags_with_counts = {tag: count for tag, count in tags_with_counts.items() if tag in tags_in_paths}
-    return (paths, tags_with_counts)
+def _network_tag_links(allow_song_id, strength, category=None):
+    if category:
+        binds = [category, category]
+        category_join = """
+            inner join rhyme_tag tag1 on tag1.id = t1.tag_id and tag1.category = %s
+            inner join rhyme_tag tag2 on tag2.id = t2.tag_id and tag2.category = %s
+        """
+    else:
+        binds = []
+        category_join = ""
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select t1.song_id, t1.tag_id, t2.tag_id
+            from rhyme_tag_songs t1
+            inner join rhyme_tag_songs t2
+            on t1.song_id = t2.song_id
+            and t1.tag_id > t2.tag_id
+            {category_join}
+            group by t1.song_id, t1.tag_id, t2.tag_id
+        """.format(category_join=category_join), binds)
+        rows = cursor.fetchall()
+
+    links = defaultdict(lambda: 0)
+    for row in rows:
+        song_id, first_tag, second_tag = row
+        if allow_song_id(song_id):
+            links[(first_tag, second_tag)] += 1
+
+    return [{
+        "source": key[0],
+        "target": key[1],
+        "value": value,
+    } for key, value in links.items() if value >= strength]

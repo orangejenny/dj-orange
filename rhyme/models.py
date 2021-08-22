@@ -194,10 +194,10 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     def albums(self):
         return [t.album for t in Track.objects.filter(song=self.id)]
 
-    def tags(self, category=None):
-        tags = [t.name for t in self.tag_set.all()]
+    def tags(self, category=None, attr='name'):
+        tags = [getattr(t, attr) for t in self.tag_set.all()]
         if category:
-            tags_for_category = [t.name for t in Tag.objects.filter(category=category)]
+            tags_for_category = [getattr(t, attr) for t in Tag.objects.filter(category=category)]
             tags = list(set(tags).intersection(set(tags_for_category)))
         return tags
 
