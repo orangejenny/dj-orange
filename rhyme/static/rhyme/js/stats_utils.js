@@ -1,24 +1,4 @@
 $(document).ready(function() {
-    // Controls: clear anything selected
-    $(".clear-button").click(function() {
-        d3.selectAll(".selected").classed("selected", false);
-        setClearVisibility();
-    });
-
-    // Controls: open selection in songs.pl
-    $(".songs-button").click(function() {
-        var condition = getSelectionCondition();
-        if (condition) {
-            showSongModal({
-                TITLE: getSelectionFilename(),
-                SUB: 'Flavors::Data::Song::List', 
-                FILTER: augmentFilter(condition),
-                SIMPLEFILTER: $("#filter").val(),
-                STARRED: $("#simple-filter .fas.fa-star").length,
-            });
-        }
-    });
-
     // Controls: export selections
     $(".export-dropdown a").click(function() {
         var condition = getSelectionCondition();
@@ -147,14 +127,6 @@ function viewOnDoubleClick(selector, actsOn) {
         }
         d3.event.preventDefault();
     });
-}
-
-function getSelectionFilename() {
-    var filenames = _.uniq(_.pluck(d3.selectAll("svg .selected").data(), 'filename'));
-    if (filenames.length === 1) {
-        return filenames[0];
-    }
-    return "";
 }
 
 function getSelectionCondition() {

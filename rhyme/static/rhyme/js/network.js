@@ -33,6 +33,50 @@ function rhymeStatsModel(options) {
     options.init = false;
     var self = rhymeModel(options);
 
+    self.viewSelection = function () {
+        var songListParams = self.serializeFilters(),
+            selectionFilter = self.getSelectionFilter();
+        if (!selectionFilter) {
+            return;
+        }
+        if (songListParams.song_filters) {
+            songListParams.song_filters += "&&" + selectionFilter;
+        } else {
+            songListParams.song_filters = selectionFilter;
+        }
+        self.showModal(self.getSelectionFilename(), songListParams);
+    };
+
+    self.getSelectionFilter = function () {
+        var selected = d3.selectAll("svg .selected");
+        if (!selected.data().length) {
+            alert("Nothing selected");
+            return '';
+        }
+        return "tag=" + _.uniq(_.flatten(_.pluck(selected.data(), 'tags'))).join(",");
+    };
+
+    self.getSelectionFilename = function () {
+        var filenames = _.uniq(_.pluck(d3.selectAll("svg .selected").data(), 'filename'));
+        if (filenames.length === 1) {
+            return filenames[0];
+        }
+        return "";
+    }
+
+    self.clearSelection = function () {
+        d3.selectAll(".selected").classed("selected", false);
+        self.setClearVisibility();
+    };
+
+    self.setClearVisibility = function () {
+        if ($(".selected").length) {
+            $(".selection-buttons").removeClass("hide");
+        } else {
+            $(".selection-buttons").addClass("hide");
+        }
+    };
+
     self.refresh = function () {
         var condition = function(tags) {
             return _.map(_.uniq(_.compact(tags)), function(t) { return "taglist like '% " + t + " %'" }).join(" and ");
@@ -64,10 +108,15 @@ function rhymeStatsModel(options) {
                 data.nodes = _.map(data.nodes, function(node) {
                     return _.extend(node, {
                         count: +node.count,
-                        condition: condition([node.id]),
-                        filename: filename([node.id]),
+                        tags: [node.name],
+                        filename: filename([node.name]),
                     });
                 });
+                var nodesById = _.indexBy(data.nodes, "id"),
+                    nodeNameById = function (id) {
+                        return nodesById[id].name;
+                    };
+
     
                 var simulation = d3.forceSimulation(data.nodes)
                     .force("link", d3.forceLink().id(function(d) { return d.id; }))
@@ -76,8 +125,8 @@ function rhymeStatsModel(options) {
     
                 data.links = _.map(data.links, function(link) {
                     return _.extend(link, {
-                        condition: condition([link.source, link.target]),
-                        filename: filename([link.source, link.target]),
+                        tags: [nodeNameById(link.source), nodeNameById(link.target)],
+                        filename: filename([nodeNameById(link.source), nodeNameById(link.target)]),
                     });
                 });
     
