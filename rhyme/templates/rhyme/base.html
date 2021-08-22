@@ -28,7 +28,9 @@
             <a class='navbar-brand' href='#'>Rhyme</a>
             {% if has_export %}
                 <div class="controls">
-                    {% include "rhyme/partials/export_action.html" %}
+                    {% block controls %}
+                        {% include "rhyme/partials/export_action.html" %}
+                    {% endblock controls %}
                 </div>
             {% endif %}
             <ul class="nav navbar-nav">
@@ -42,6 +44,12 @@
                     <a href='{% url "albums" %}'>
                         <i class="fas fa-compact-disc"></i>
                         Albums
+                    </a>
+                </li>
+                <li>
+                    <a href='{% url "network" %}'>
+                        <i class="fas fa-globe-asia"></i>
+                        Network
                     </a>
                 </li>
                 <li>

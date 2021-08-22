@@ -49,7 +49,7 @@ function SongModel(options) {
 }
 
 function rhymeModel (options) {
-    AssertArgs(options, ['model'], ['url']);
+    AssertArgs(options, ['model'], ['init', 'url']);
 
     var self = {};
 
@@ -63,24 +63,16 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
 
-    self.modalAlbum = ko.observable();
-    self.modalDiscs = ko.observableArray();
+    self.modalName = ko.observable("");
+    self.modalHeaders = ko.observableArray();
+    self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
 
-    self.page.subscribe(function (newValue) {
-        self.goToPage(newValue);
-    });
-
-    self.nextPage = function() {
-        if (self.allowScroll()) {
-            self.page(self.page() + 1);
-        }
-    };
-
-    self.goToPage = function (page) {
+    self.refresh = function(page) {
         if (!self.url) {
             return;
         }
 
+        page = page || 1;
         self.allowScroll(false);
         self.isLoading(true);
         $.ajax({
@@ -101,7 +93,6 @@ function rhymeModel (options) {
 
                 if (page === 1) {
                     self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
-                    //$postNav.scrollTop(0);    // TODO
                 } else {
                     self.items(self.items().concat(data.items));
                 }
@@ -112,6 +103,16 @@ function rhymeModel (options) {
         });
     };
 
+    self.page.subscribe(function (newValue) {
+        self.refresh(newValue);
+    });
+
+    self.nextPage = function() {
+        if (self.allowScroll()) {
+            self.page(self.page() + 1);
+        }
+    };
+
     self.addFilter = function (model, lhs, op, rhs) {
         self.filters.push(filterModel({
             model: model,
@@ -119,11 +120,11 @@ function rhymeModel (options) {
             op: op,
             rhs: rhs,
         }));
-        self.goToPage(1);
+        self.refresh();
     };
 
     self.omniFilter.subscribe(_.throttle(function (newValue) {
-        self.goToPage(1);
+        self.refresh();
     }, {leading: false}));
 
     self.getFilterValue = function (e) {
@@ -149,7 +150,7 @@ function rhymeModel (options) {
 
     self.removeFilter = function (filter) {
         self.filters.remove(filter);
-        self.goToPage(1);
+        self.refresh();
     };
 
     self.focusFilter = function (model, e) {
@@ -184,7 +185,7 @@ function rhymeModel (options) {
         } else {
             self.conjunction("&&");
         }
-        self.goToPage(1);
+        self.refresh();
     };
 
     self.useAnd = ko.computed(function () {
@@ -202,30 +203,31 @@ function rhymeModel (options) {
         }, self.serializeFilters()));
     };
 
-    self.showModal = function () {
-        var album = this;
-        self.modalAlbum(album);
-        self.modalDiscs([]);
+    self.showModal = function (name, songListParams, backgroundUrl) {
+        self.modalName(name);
+        self.modalHeaders([]);
+        self.modalSongs([]);
 
         var $modal = $("#song-list");
+        self.isLoading(true);
         $modal.modal();
+        songListParams.songs_per_page = 100;    // TODO: paginate modal?
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
-            data: {
-                album_id: album.id,
-            },
+            data: songListParams,
             success: function (data) {
-                album.songs(data.items);
-                self.modalDiscs(data.disc_names);
+                self.isLoading(false);
+                self.modalSongs(data.items);
+                self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();
                 $image.css("background-color", "transparent")
                       .css("background-size", "cover")
                       .css("background-repeat", "no-repeat")
                       .css("background-position", "center");
-                if (album.cover_art_filename) {
-                    $image.css("background-image", "url('" + album.cover_art_filename + "')")
+                if (backgroundUrl) {
+                    $image.css("background-image", "url('" + backgroundUrl + "')")
                 }
                 $backdrop.before($image);
 
@@ -239,38 +241,30 @@ function rhymeModel (options) {
         });
     };
 
+    self.hideModal = function () {
+        // needed for subclasses
+        return true;
+    };
+
     // Initialize: go to first page
-    self.goToPage(1);
+    if (options.init || options.init === undefined) {
+        self.refresh();
+    }
 
     return self;
 }
 
 $(function() {
-    var $postNav = $(".post-nav"),
-        $itemPage = $postNav.find(".item-page");
-
-    var model = rhymeModel({
-        model: document.location.href.indexOf("albums") == -1 ? 'song' : 'album',
-        url: $itemPage.data("url"),
-    });
-    ko.applyBindings(model);
-
     // TODO: move to knockout
-    $itemPage.scroll(function(e) {
-        var overflowHeight = $itemPage.find(".infinite-scroll-container").height() - $itemPage.height()
-        if ($itemPage.scrollTop() / overflowHeight > 0.8) {
-            model.nextPage();
-        }
-    });
-
-    // TODO: move to knockout
-    $(".select2.in-modal").each(function (index, element) {
+    $(".select2").each(function (index, element) {
         var $element = $(element),
             data = $element.data(),
             options = {
-                dropdownParent: $element.closest(".modal"),
                 width: "100%",
             };
+        if ($element.hasClass("in-modal")) {
+            options.dropdownParent = $element.closest(".modal");
+        }
         if (data.url) {
             options.ajax = {
                 url: reverse(data.url),

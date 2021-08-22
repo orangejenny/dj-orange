@@ -1,4 +1,4 @@
-<div id="song-list" class="modal" data-bind="with: modalAlbum">
+<div id="song-list" class="modal" data-bind="event: {hide: hideModal, 'hide.bs.modal': hideModal}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,22 +6,23 @@
                     <div class="pull-right">
                         {% include "rhyme/partials/export_action.html" %}
                     </div>
-                    <span class="modal-title" data-bind="text: name"></span>
+                    <span class="modal-title" data-bind="text: modalName"></span>
                 </h4>
             </div>
             <div class="modal-body">
-                <div data-bind="if: $root.modalDiscs().length > 1">
-                    <div data-bind="foreach: $root.modalDiscs()">
+                {% include "rhyme/partials/loading.html" %}
+                <div data-bind="if: modalHeaders().length">
+                    <div data-bind="foreach: modalHeaders()">
                         <h4 data-bind="text: $data"></h4>
                         <table class='song-table'>
-                            <tbody data-bind="foreach: _.filter($parent.songs(), function (song) { return song.disc_number === $index() + 1; })">
+                            <tbody data-bind="foreach: _.filter($root.modalSongs(), function (song) { return song.disc_number === $index() + 1; })">
                                 {% include "rhyme/partials/song_row.html" %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <table data-bind="ifnot: $root.modalDiscs().length > 1" class='song-table'>
-                    <tbody data-bind="foreach: songs">
+                <table data-bind="ifnot: modalHeaders().length" class='song-table'>
+                    <tbody data-bind="foreach: modalSongs">
                         {% include "rhyme/partials/song_row.html" %}
                     </tbody>
                 </table>

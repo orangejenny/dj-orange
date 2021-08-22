@@ -1,16 +1,15 @@
 {% extends 'rhyme/base.html' %}
 
+{% load static %}
+
 {% block title %}{{ block.super }}: Songs{% endblock title %}
 
+{% block js %}{{ block.super }}
+    <script src="{% static "rhyme/js/infinite_scroll_page.js" %}"></script>
+{% endblock js %}
+
 {% block content %}
-    <div class="row">
-        <div class="col-sm-12 text-center">
-            {% include "rhyme/partials/infinite_scroll_item_count.html" %}
-            {% include "rhyme/partials/omni_filter.html" %}
-            {% include "rhyme/partials/filters.html" with condensed=True %}
-            {% include "rhyme/partials/read_only_filters.html" %}
-        </div>
-    </div>
+    {% include "rhyme/partials/all_filters.html" %}
 
     <div class="item-page" data-url="{% url "song_list" %}">
         <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
@@ -29,13 +28,10 @@
                 {% include "rhyme/partials/song_row.html" %}
             </tbody>
         </table>
-        <p class='loading text-center' data-bind='visible: isLoading'>
-            <i class='fas fa-spinner fa-spin'></i>
-            Loading...
-        </p>
     </div>
+    {% include "rhyme/partials/loading.html" %}
 {% endblock content %}
 
-{% block modals %}
-    {% include "rhyme/partials/modal_album.html" %}
+{% block modals %}{{ block.super }}
+    {% include "rhyme/partials/modal_song_list.html" %}
 {% endblock %}

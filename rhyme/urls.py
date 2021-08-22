@@ -6,6 +6,8 @@ from rhyme.views import (
     album_export,
     artist_select2,
     index,
+    network,
+    network_json,
     playlist,
     playlist_export,
     playlist_select2,
@@ -29,5 +31,7 @@ urlpatterns = [
     path('songs/list/', song_list, name='song_list'),
     path('songs/update/', song_update, name='song_update'),
     path('songs/export/', song_export, name='song_export'),
+    path('stats/network/', network, name='network'),
+    path('stats/network/json/', network_json, name='network_json'),
     path('tags/select2/', tag_select2, name='tag_select2'),
 ]

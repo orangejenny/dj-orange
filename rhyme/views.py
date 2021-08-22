@@ -2,6 +2,7 @@ import json
 import random
 import re
 
+from collections import defaultdict
 from datetime import datetime, timezone
 from json.decoder import JSONDecodeError
 
@@ -11,6 +12,7 @@ from plexapi.playlist import Playlist as PlexPlaylist
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import connection
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -66,7 +68,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
         song_filters = request.GET.get('song_filters')
-        songs_per_page = 20
+        songs_per_page = request.GET.get('songs_per_page', 20)
         songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
@@ -349,3 +351,112 @@ def plex_in(request, api_key):
             return JsonResponse({"success": 1, "message": "Updated {}".format(song)})
 
     return JsonResponse({"success": 0, "message": "Could not find song"})
+
+
+def network(request):
+    return _stats(request, {
+        "title": "Network",
+        "css_class": "network",
+        "categories": Tag.all_categories(),
+        "strength": 50,
+    })
+
+
+@require_GET
+@login_required
+def _stats(request, extra_context):
+    template = loader.get_template('rhyme/stats.html')
+    context = {
+        **_rhyme_context(),
+        **extra_context,
+        "has_export": True,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
+def network_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+
+    song_ids = Song.list(song_filters=song_filters,
+                         album_filters=album_filters,
+                         omni_filter=omni_filter).values_list("id", flat=True)
+    if len(song_ids) > Song.objects.count() / 2:
+        include = None
+        exclude = set(Song.objects.all().values_list("id", flat=True)).difference(song_ids)
+    else:
+        include = song_ids
+        exclude = None
+
+    def allow_song_id(song_id):
+        return (include is not None and (song_id in include)) or (exclude is not None and (song_id not in exclude))
+
+    strength = int(request.GET.get('strength', 50))
+    category = request.GET.get('category')
+    links = _network_tag_links(allow_song_id, strength, category)
+
+    tag_ids = set([link["source"] for link in links] + [link["target"] for link in links])
+    nodes = {}
+    for tag in Tag.objects.all():
+        if tag.id not in tag_ids:
+            continue
+        for song in tag.songs.all():
+            if allow_song_id(song.id):
+                if tag.id not in nodes:
+                    nodes[tag.id] = {"id": tag.id, "name": tag.name, "count": 1}
+                else:
+                    nodes[tag.id]["count"] += 1
+
+    return JsonResponse({
+        "nodes": [{
+            "description": f"{node['name']}<br />{node['count']} {'song' if node['count'] == 1 else 'songs'}",
+            **node,
+        } for node in nodes.values()],
+        "links": [{
+            "description": f"""
+                {nodes[link['source']]['name']} and {nodes[link['target']]['name']}
+                <br />
+                {link['value']} {'song' if link['value'] == 1 else 'songs'}
+             """,
+            **link,
+        } for link in links],
+    })
+
+
+# TODO: add test
+def _network_tag_links(allow_song_id, strength, category=None):
+    if category:
+        binds = [category, category]
+        category_join = """
+            inner join rhyme_tag tag1 on tag1.id = t1.tag_id and tag1.category = %s
+            inner join rhyme_tag tag2 on tag2.id = t2.tag_id and tag2.category = %s
+        """
+    else:
+        binds = []
+        category_join = ""
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select t1.song_id, t1.tag_id, t2.tag_id
+            from rhyme_tag_songs t1
+            inner join rhyme_tag_songs t2
+            on t1.song_id = t2.song_id
+            and t1.tag_id > t2.tag_id
+            {category_join}
+            group by t1.song_id, t1.tag_id, t2.tag_id
+        """.format(category_join=category_join), binds)
+        rows = cursor.fetchall()
+
+    links = defaultdict(lambda: 0)
+    for row in rows:
+        song_id, first_tag, second_tag = row
+        if allow_song_id(song_id):
+            links[(first_tag, second_tag)] += 1
+
+    return [{
+        "source": key[0],
+        "target": key[1],
+        "value": value,
+    } for key, value in links.items() if value >= strength]
