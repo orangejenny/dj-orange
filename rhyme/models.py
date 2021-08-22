@@ -31,12 +31,12 @@ class FilterMixin():
         conjunction = "||" if "||" in filters else "&&"
         for condition in filters.split(conjunction):
             (lhs, op, rhs) = re.match(r'(\w+)\s*([<>=*!?]*)\s*(\S.*)', condition).groups()
-            action = None
+            actions = []
             qcondition = None
             if op == '=?':
-                action = (f"{lhs}__isnull", bool(rhs != "true"))
+                actions = [(f"{lhs}__isnull", bool(rhs != "true"), True)]
             elif lhs in cls.bool_fields:
-                action = (lhs, rhs)
+                actions = [(lhs, rhs, True)]
             elif lhs in cls.numeric_fields:
                 if op == '>=':
                     lhs = lhs + "__gte"
@@ -44,7 +44,7 @@ class FilterMixin():
                     lhs = lhs + "__lte"
                 elif op != '=':
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                action = (lhs, rhs)
+                actions = [(lhs, rhs, True)]
             elif lhs in cls.text_fields:
                 if op == '*=':
                     lhs = lhs + "__icontains"
@@ -52,17 +52,15 @@ class FilterMixin():
                     lhs = lhs + "__iexact"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                action = (lhs, rhs)
+                actions = [(lhs, rhs, True)]
             elif lhs in cls.related_fields:
                 field = cls.related_fields[lhs]
+                values = rhs.split(",")
                 if op == '=':       # all
-                    for value in rhs.split(","):
-                        action = (f"{field}__iexact", value)
+                    actions = [(f"{field}__iexact", v, True) for v in values]
                 elif op == '!=':    # none
-                    for value in rhs.split(","):
-                        action = (f"{field}__iexact", value)    # TODO: exclude
+                    actions = [(f"{field}__iexact", v, False) for v in values]
                 elif op == '*=':    # any
-                    values = rhs.split(",")
                     qcondition = models.Q(**{f"{field}__iexact": values[0]})
                     for value in values[1:]:
                         qcondition = qcondition | models.Q(**{f"{field}__iexact": value})
@@ -91,7 +89,7 @@ class FilterMixin():
                     rhs = f"{rhs}-12-31"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
-                action = (lhs, rhs)
+                actions = [(lhs, rhs, True)]
             elif lhs == "playlist":
                 song_ids = set()
                 for value in rhs.split(","):
@@ -104,17 +102,22 @@ class FilterMixin():
                         song_ids = song_ids | {s.id for s in playlist.songs}
 
                 if op == '!=':    # none
-                    action = ("id__in", song_ids)   # TODO: exclude
+                    actions = [("id__in", song_ids, False)]
                 elif op == '=' or op == '*=':             # any, all (will have different values for song_ids)
-                    action = ("id__in", song_ids)
+                    actions = [("id__in", song_ids, True)]
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
             if conjunction == "&&":
-                if action:
-                    objects = objects.filter(**{action[0]: action[1]})
+                if actions:
+                    for action in actions:
+                        lhs, rhs, include = action
+                        if include:
+                            objects = objects.filter(**{lhs: rhs})
+                        else:
+                            objects = objects.exclude(**{lhs: rhs})
                 elif qcondition:
                     objects = objects.filter(qcondition)
             else:
