@@ -18,9 +18,6 @@ svg {
     rect, circle, text {
         cursor: pointer;
     }
-    rect, circle {
-        .background-with-states(@barColor);
-    }
     path {
         stroke-width: 2px;
         fill: none;
@@ -36,6 +33,11 @@ svg {
         stroke: @grey;
     }
 
+    &:not(.network) {
+        rect, circle {
+            .background-with-states(@barColor);
+        }
+    }
     &.network {
         circle {
             stroke: @white;

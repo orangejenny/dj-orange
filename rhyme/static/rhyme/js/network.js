@@ -153,12 +153,14 @@ function rhymeStatsModel(options) {
                     rScale = d3.scaleLinear()
                                .range([5, 15])
                                .domain([d3.min(data.nodes, count), d3.max(data.nodes, count)]);
+                var myColor = d3.scaleSequential().domain([1, _.max(_.pluck(data.nodes, 'category'))]).interpolator(d3.interpolateViridis);
                 var node = svg.append("g")
                               .attr("class", "nodes")
                               .selectAll("circle")
                               .data(data.nodes)
                               .enter().append("circle")
                                       .attr("r", function(n) { return rScale(n.count); })
+                                      .attr("fill", function(d){return myColor(d.category)})
                                       .call(d3.drag()
                                               .on("start", function(d) { dragStarted(d, simulation); })
                                               .on("drag", function(d) { dragged(d, simulation); })

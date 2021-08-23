@@ -399,6 +399,7 @@ def network_json(request):
     links = _network_tag_links(allow_song_id, strength, category)
 
     tag_ids = set([link["source"] for link in links] + [link["target"] for link in links])
+    category_ids = {c: index for index, c in enumerate(Tag.all_categories())}
     nodes = {}
     for tag in Tag.objects.all():
         if tag.id not in tag_ids:
@@ -406,7 +407,12 @@ def network_json(request):
         for song in tag.songs.all():
             if allow_song_id(song.id):
                 if tag.id not in nodes:
-                    nodes[tag.id] = {"id": tag.id, "name": tag.name, "count": 1}
+                    nodes[tag.id] = {
+                        "id": tag.id,
+                        "name": tag.name,
+                        "count": 1,
+                        "category": category_ids.get(tag.category, ""),
+                    }
                 else:
                     nodes[tag.id]["count"] += 1
 
