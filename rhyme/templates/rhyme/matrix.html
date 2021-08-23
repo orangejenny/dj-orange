@@ -8,6 +8,30 @@
 
 {% block visualization %}
 
-here are the bubbles
+<div class="matrix-container">
+    <div class="axis-label mood-high">
+        <span class="fas fa-heart"></span>
+        <span class="fas fa-heart"></span>
+        <span class="fas fa-heart"></span>
+        <span class="fas fa-heart"></span>
+        <span class="fas fa-heart"></span>
+    </div>
+    <div class="axis-label energy-high">
+        <span class="fas fa-fire"></span>
+        <span class="fas fa-fire"></span>
+        <span class="fas fa-fire"></span>
+        <span class="fas fa-fire"></span>
+        <span class="fas fa-fire"></span>
+    </div>
+    <div class="axis-label energy-low">
+        <span class="fas fa-fire"></span>
+    </div>
+    <div class="chart-container">
+        <svg></svg>
+    </div>
+    <div class="axis-label mood-low">
+        <span class="fas fa-heart"></span>
+    </div>
+</div>
 
 {% endblock visualization %}
