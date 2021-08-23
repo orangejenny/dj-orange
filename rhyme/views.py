@@ -353,13 +353,24 @@ def plex_in(request, api_key):
     return JsonResponse({"success": 0, "message": "Could not find song"})
 
 
+def matrix(request):
+    template = loader.get_template('rhyme/matrix.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
+        "title": "Matrix",
+        "has_export": True,
+    }, request))
+
+
 def network(request):
-    return _stats(request, {
+    template = loader.get_template('rhyme/network.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
         "title": "Network",
-        "css_class": "network",
+        "has_export": True,
         "categories": Tag.all_categories(),
         "strength": 50,
-    })
+    }, request))
 
 
 @require_GET
@@ -372,6 +383,12 @@ def _stats(request, extra_context):
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
+def matrix_json(request):
+    return JsonResponse({})
 
 
 @require_GET
