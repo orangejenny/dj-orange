@@ -153,7 +153,7 @@ function rhymeStatsModel(options) {
                     rScale = d3.scaleLinear()
                                .range([5, 15])
                                .domain([d3.min(data.nodes, count), d3.max(data.nodes, count)]);
-                var myColor = d3.scaleSequential().domain([1, _.max(_.pluck(data.nodes, 'category'))]).interpolator(d3.interpolateViridis);
+                var myColor = d3.scaleSequential().domain([1, _.max(_.pluck(data.nodes, 'category'))]).interpolator(d3.interpolateTurbo);
                 var node = svg.append("g")
                               .attr("class", "nodes")
                               .selectAll("circle")
