@@ -29,16 +29,6 @@ function filterModel (options) {
 function AlbumModel(options) {
     var self = _.extend({}, options);
     self.songs = ko.observableArray();
-
-    self.exportPlaylist = function (config) {
-        ExportPlaylist({
-            config: config,
-            album_id: self.id,
-            filename: self.artist + " - " + self.name,
-            model: 'album',
-        });
-    };
-
     return self;
 }
 
@@ -66,6 +56,7 @@ function rhymeModel (options) {
     self.modalName = ko.observable("");
     self.modalHeaders = ko.observableArray();
     self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
+    self.songListParams = ko.observable();
 
     self.refresh = function(page) {
         if (!self.url) {
@@ -196,17 +187,18 @@ function rhymeModel (options) {
         return self.conjunction() === "||";
     });
 
-    self.exportPlaylist = function (config) {
+    self.exportPlaylist = function (config, additionalParams) {
         ExportPlaylist(_.extend({
             config: config,
             model: self.model,
-        }, self.serializeFilters()));
+        }, self.serializeFilters(), additionalParams));
     };
 
     self.showModal = function (name, songListParams, backgroundUrl) {
         self.modalName(name);
         self.modalHeaders([]);
         self.modalSongs([]);
+        self.songListParams(songListParams);
 
         var $modal = $("#song-list");
         self.isLoading(true);
