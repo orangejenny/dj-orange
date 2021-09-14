@@ -121,8 +121,9 @@ class FilterMixin():
                 elif qcondition:
                     objects = objects.filter(qcondition)
             else:
-                if action:
-                    qconditions.append(models.Q(**{action[0]: action[1]}))
+                if actions:
+                    for action in actions:
+                        qconditions.append(models.Q(**{action[0]: action[1]}))
                 elif qcondition:
                     qconditions.append(qcondition)
 
