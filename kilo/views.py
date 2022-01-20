@@ -92,7 +92,7 @@ def panel(request):
     return JsonResponse({
         "all_activities": common_activities + other_activities,
         "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "recent_days": [_format_day(d) for d in days[:100]],
+        "recent_days": [_format_day(d) for d in days[:500]],
         "stats": _get_stats(days, activity),
         "graph_data": _get_graph_data(days, activity),
     })
