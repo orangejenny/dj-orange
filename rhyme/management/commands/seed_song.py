@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from rhyme.models import *
-from rhyme.views import create_plex_playlist
+from rhyme.plex import create_plex_playlist
 
 from collections import defaultdict
 from datetime import datetime

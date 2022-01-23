@@ -6,9 +6,6 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from json.decoder import JSONDecodeError
 
-from plexapi.exceptions import NotFound
-from plexapi.playlist import Playlist as PlexPlaylist
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -21,7 +18,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Album, Artist, Color, Playlist, Song, Tag, Track
-from rhyme.plex import plex_library, plex_server
+from rhyme.plex import create_plex_playlist
 
 
 def _rhyme_context():
@@ -302,32 +299,6 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
         response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
 
     return response
-
-
-def create_plex_playlist(name, songs, song_filters=None, album_filters=None, omni_filter=None):
-    server = plex_server()
-    library = plex_library(server)
-    items = []
-    for song in songs:
-        if song.plex_key:
-            try:
-                items.append(library.fetchItem(song.plex_key))
-            except NotFound:
-                pass
-    plex_playlist = PlexPlaylist.create(server, name, items=items, section='Music')
-    if song_filters or album_filters or omni_filter:
-        playlist = Playlist(
-            name=name,
-            plex_guid=plex_playlist.guid,
-            plex_key=plex_playlist.key,
-            plex_count=len(items),
-            song_filters=song_filters,
-            album_filters=album_filters,
-            omni_filter=omni_filter,
-        )
-        playlist.save()
-
-    return len(items)
 
 
 @csrf_exempt

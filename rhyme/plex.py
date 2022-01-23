@@ -1,4 +1,7 @@
+from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
+from plexapi.playlist import Playlist as PlexPlaylist
+
 from django.conf import settings
 
 def plex_server():
@@ -75,3 +78,29 @@ def get_tracks(library, artist, song_name_query):
 # Get rhyme songs for given artist and song title substring
 def get_songs(artist, song_name_query):
     return Song.objects.filter(artist__name=artist, name__icontains=song_name_query)
+
+# Create playlist on Plex server. Slow.
+def create_plex_playlist(name, songs, song_filters=None, album_filters=None, omni_filter=None):
+    server = plex_server()
+    library = plex_library(server)
+    items = []
+    for song in songs:
+        if song.plex_key:
+            try:
+                items.append(library.fetchItem(song.plex_key))
+            except NotFound:
+                pass
+    plex_playlist = PlexPlaylist.create(server, name, items=items, section='Music')
+    if song_filters or album_filters or omni_filter:
+        playlist = Playlist(
+            name=name,
+            plex_guid=plex_playlist.guid,
+            plex_key=plex_playlist.key,
+            plex_count=len(items),
+            song_filters=song_filters,
+            album_filters=album_filters,
+            omni_filter=omni_filter,
+        )
+        playlist.save()
+
+    return len(items)
