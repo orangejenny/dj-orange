@@ -169,7 +169,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     omni_fields = ['name', 'artist', 'tag']
 
-    name = models.CharField(max_length=127)
+    name = models.CharField(max_length=127, db_index=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
     rating = models.IntegerField(null=True)
@@ -272,13 +272,16 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
     omni_fields = ['name']
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, db_index=True)
     date_acquired = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
     is_mix = models.BooleanField(default=False)
 
     export_count = models.IntegerField(default=0)
     last_export = models.DateTimeField(null=True)
+
+    class Meta:
+        ordering = ["-date_acquired"]
 
     def __str__(self):
         return self.name

@@ -145,7 +145,7 @@ def album_list(request):
     song_filters = request.GET.get('song_filters')
     albums_per_page = 25
     album_queryset = Album.list(album_filters, song_filters, omni_filter)
-    paginator = Paginator(album_queryset.order_by('-date_acquired'), albums_per_page)
+    paginator = Paginator(album_queryset, albums_per_page)
     albums = [album.to_json() for album in paginator.get_page(page)]
 
     context = {
