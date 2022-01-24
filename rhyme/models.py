@@ -287,6 +287,18 @@ class Album(models.Model, FilterMixin, ExportableMixin):
         return self.name
 
     @classmethod
+    def alternate_sort(cls, album):
+        if album.is_mix:
+            secondary = album.name.lower()
+        else:
+            artist = album.artist
+            if artist == "Various Artists":
+                secondary = album.name.lower()
+            else:
+                secondary = artist.lower()
+        return (album.is_mix, secondary)
+
+    @classmethod
     def list(cls, album_filters=None, song_filters=None, omni_filter=''):
         albums = Album.objects.all()
 

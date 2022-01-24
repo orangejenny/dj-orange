@@ -3,8 +3,7 @@ from django.core.management.base import BaseCommand
 from plexapi.exceptions import NotFound
 
 from rhyme.models import Playlist, Song
-from rhyme.views import create_plex_playlist    # TODO: move to helpers/utils
-from rhyme.plex import plex_server, plex_library
+from rhyme.plex import create_plex_playlist, plex_server, plex_library
 
 
 class Command(BaseCommand):
