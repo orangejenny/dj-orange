@@ -4,39 +4,40 @@ from django.db.models import Q
 from rhyme.models import *
 from rhyme.plex import create_plex_playlist
 
-from collections import defaultdict
 from datetime import datetime
 import random
 
 
 class Command(BaseCommand):
-    album_ids = set()
-
     def handle(self, *args, **options):
         seed = self.get_seed()
         print(f"Seed: {seed}")
 
         # Limits for rating, mood, energy
-        ocean = Song.objects.filter(rating__gte=3)
+        ocean = Song.objects.filter(Q(rating__gte=3) | Q(rating__isnull=True))
+        print(f"Start with {ocean.count()} songs")
         if seed.mood is not None:
             ocean = ocean.filter(mood__in={seed.mood, seed.mood + 1, seed.mood - 1})
+        print(f"Mood reduces it to {ocean.count()}")
         if seed.energy is not None:
             ocean = ocean.filter(energy__in={seed.energy, seed.energy + 1, seed.energy - 1})
+        print(f"Energy reduces it to {ocean.count()}")
         if seed.artist.genre:
             ocean = ocean.filter(artist__genre=seed.artist.genre)
-        print(f"Ocean size: {ocean.count()}")
+        print(f"Genre reduces it to {ocean.count()}")
 
         # Limit to related songs
         lake = {}
         seed_album_ids = self.album_ids(seed)
         seed_tags = seed.tags()
+        years = Tag.objects.filter(category="years")
         for i, song in enumerate(ocean):
             if i % 100 == 0:
                 print(f"Processed {i} of {len(ocean)}")
             match = False
             lake[song.id] = 0.9
 
-            if seed_album_ids | self.album_ids(song):
+            if seed_album_ids & self.album_ids(song):
                 match = True
             else:
                 lake[song.id] *= 0.8
@@ -55,7 +56,7 @@ class Command(BaseCommand):
             else:
                 lake[song.id] *= 0.7
 
-            if self.year_match(tags):
+            if tags & years:
                 match = True
             else:
                 lake[song.id] *= 0.7
@@ -104,11 +105,8 @@ class Command(BaseCommand):
     def tag_match(self, tags):
         return len(tags) > 1
 
-    def year_match(self, tags):
-        return any([Tag.objects.get(name=t).category == 'years' for t in tags])
-
     def common_tags(self, tags, song):
-        return set(tags) | set(song.tags())
+        return set(tags) & set(song.tags())
 
     def get_seed(self):
         seed = None
