@@ -30,7 +30,7 @@ class Command(BaseCommand):
         lake = {}
         seed_album_ids = self.album_ids(seed)
         seed_tags = seed.tags()
-        years = Tag.objects.filter(category="years")
+        years = set(Tag.objects.filter(category="years").values_list("name", flat=True))
         for i, song in enumerate(ocean):
             if i % 100 == 0:
                 print(f"Processed {i} of {len(ocean)}")
