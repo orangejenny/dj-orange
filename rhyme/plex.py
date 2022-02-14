@@ -1,6 +1,7 @@
 from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.playlist import Playlist as PlexPlaylist
+from rhyme.models import Playlist
 
 from django.conf import settings
 
