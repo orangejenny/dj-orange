@@ -21,8 +21,15 @@ class Command(BaseCommand):
 
             saved = False
             while not saved:
-                choice = input(f"{tag.name} (q to skip): ").lower()
-                if choice == "q":
+                choice = input(f"{tag.name} (s to skip, r to rename): ").lower()
+                if choice == "s":
+                    saved = True
+                elif choice == "r":
+                    new_name = input("New tag? ").lower()
+                    for song in tag.songs.all():
+                        song.remove_tag(tag)
+                        song.add_tag(new_name)
+                        print(f"Updated {song}")
                     saved = True
                 else:
                     matches = [c for c in categories if c.startswith(choice)]
