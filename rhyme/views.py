@@ -51,6 +51,10 @@ def index(request):
 @login_required
 def song_list(request):
     omni_filter = request.GET.get('omni_filter', '')
+    context = {
+        'omni_filter': omni_filter,
+    }
+
     if request.GET.get("album_id"):
         album = Album.objects.get(id=request.GET.get("album_id"))
         tracks = [(track.disc, track.ordinal, track.song)
@@ -61,6 +65,9 @@ def song_list(request):
             disc_names = [f"Disc {index + 1}" for index in range(max([disc for disc, ordinal, song in tracks]))]
         count = len(tracks)
         more = False
+        context.update({
+            'cover_art_filename': album.cover_art_filename,
+        })
     else:
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
@@ -73,9 +80,8 @@ def song_list(request):
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
 
-    context = {
+    context.update({
         'count': count,
-        'omni_filter': omni_filter,
         'more': more,
         'items': [{
             'id': song.id,
@@ -92,7 +98,7 @@ def song_list(request):
             'track_number': track_number,
         } for disc_number, track_number, song in tracks],
         'disc_names': disc_names,
-    }
+    })
     return JsonResponse(context)
 
 
