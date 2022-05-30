@@ -9,7 +9,7 @@
     <td data-bind="text: artist"></td>
     <td>
         <ul class="list-unstyled" data-bind="foreach: albums">
-            <li><a href="javascript: void(0)" data-bind="text: name, click: function() { $root.showModal(name, {album_id: id, filename: artist + ' - ' + name}) }"></a></li>
+            <li><a href="javascript: void(0)" data-bind="text: name, click: function() { $root.showModal(name, {album_id: id}) }"></a></li>
         </ul>
     </td>
     <td data-bind="text: year"></td>
