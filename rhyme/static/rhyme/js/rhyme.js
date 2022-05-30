@@ -194,7 +194,7 @@ function rhymeModel (options) {
         }, self.serializeFilters(), additionalParams));
     };
 
-    self.showModal = function (name, songListParams, backgroundUrl) {
+    self.showModal = function (name, songListParams) {
         self.modalName(name);
         self.modalHeaders([]);
         self.modalSongs([]);
@@ -218,8 +218,8 @@ function rhymeModel (options) {
                       .css("background-size", "cover")
                       .css("background-repeat", "no-repeat")
                       .css("background-position", "center");
-                if (backgroundUrl) {
-                    $image.css("background-image", "url('" + backgroundUrl + "')")
+                if (data.cover_art_filename) {
+                    $image.css("background-image", "url('" + data.cover_art_filename + "')")
                 }
                 $backdrop.before($image);
 
