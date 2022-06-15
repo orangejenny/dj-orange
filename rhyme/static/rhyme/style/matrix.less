@@ -1,0 +1,39 @@
+@import "base.less";
+@import "stats.less";
+
+.matrix-container {
+    position: relative;
+    padding-top: @spacingNormal;
+    text-align: center;
+
+    .chart-container {
+        display: inline-block;
+        width: 50%;
+        margin: 0 25%;
+
+        circle {
+            opacity: 0.7;
+        }
+    }
+
+    .axis-label {
+        margin: @spacingNarrow;
+
+        &.mood-high {
+            top: 0;
+        }
+        &.mood-low {
+            bottom: 0;
+        }
+        &.energy-high, &.energy-low {
+            position: absolute;
+            top: calc(~'50% - ' @fontSizeLarge / 2 + @spacingNarrow);
+        }
+        &.energy-high {
+            left: 75%;
+        }
+        &.energy-low {
+            right: 75%;
+        }
+    }
+}

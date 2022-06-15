@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import connection
+from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -330,13 +331,24 @@ def plex_in(request, api_key):
     return JsonResponse({"success": 0, "message": "Could not find song"})
 
 
+def matrix(request):
+    template = loader.get_template('rhyme/matrix.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
+        "title": "Matrix",
+        "has_export": True,
+    }, request))
+
+
 def network(request):
-    return _stats(request, {
+    template = loader.get_template('rhyme/network.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
         "title": "Network",
-        "css_class": "network",
+        "has_export": True,
         "categories": Tag.all_categories(),
         "strength": 50,
-    })
+    }, request))
 
 
 @require_GET
@@ -349,6 +361,20 @@ def _stats(request, extra_context):
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
+def matrix_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+
+    attrs = ['rating', 'mood', 'energy']
+    stats = Song.list(song_filters=song_filters,
+                      album_filters=album_filters,
+                      omni_filter=omni_filter).values(*attrs).annotate(count=Count('id')).order_by(*attrs)
+    return JsonResponse({'stats': [s for s in stats]})
 
 
 @require_GET
