@@ -18,7 +18,7 @@ function rhymeStatsModel(options) {
     var super_serializeFilters = self.serializeFilters;
     self.serializeFilters = function (selection) {
         var filters = super_serializeFilters(),
-            selectionFilter = self.getSelectionFilter(selection);
+            selectionFilter = selection ? self.getSelectionFilter(selection) : '';
         if (!selectionFilter) {
             return filters;
         }
@@ -31,10 +31,7 @@ function rhymeStatsModel(options) {
     };
 
     self.getSelectionFilter = function (selection) {
-        if (!selection) {
-            return '';
-        }
-        return "tag=" + _.uniq(_.flatten(_.pluck(selection.data(), 'tags'))).join(",");
+        throw new Error("must override getSelectionFilter");
     };
 
     self.getSelectionFilename = function (selection) {

@@ -33,6 +33,10 @@ function rhymeStatsNetworkModel(options) {
     options.init = false;
     var self = rhymeStatsModel(options);
 
+    self.getSelectionFilter = function (selection) {
+        return "tag=" + _.uniq(_.flatten(_.pluck(selection.data(), 'tags'))).join(",");
+    };
+
     self.refresh = function () {
         var condition = function(tags) {
             return _.map(_.uniq(_.compact(tags)), function(t) { return "taglist like '% " + t + " %'" }).join(" and ");

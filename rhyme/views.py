@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import connection
+from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -388,7 +389,15 @@ def _stats(request, extra_context):
 @require_GET
 @login_required
 def matrix_json(request):
-    return JsonResponse({})
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+
+    attrs = ['rating', 'mood', 'energy']
+    stats = Song.list(song_filters=song_filters,
+                      album_filters=album_filters,
+                      omni_filter=omni_filter).values(*attrs).annotate(count=Count('id')).order_by(*attrs)
+    return JsonResponse({'stats': [s for s in stats]})
 
 
 @require_GET

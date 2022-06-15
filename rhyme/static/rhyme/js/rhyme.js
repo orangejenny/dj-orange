@@ -1,3 +1,7 @@
+function pluralize(count, stem) {
+    return +count === 1 ? stem : stem + "s";
+}
+
 function filterModel (options) {
     AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
