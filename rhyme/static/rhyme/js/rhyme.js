@@ -66,6 +66,7 @@ function rhymeModel (options) {
         page = page || 1;
         self.allowScroll(false);
         self.isLoading(true);
+        console.log(decodeURIComponent(new URLSearchParams(self.serializeFilters()).toString()));
         $.ajax({
             method: 'GET',
             url: self.url,
