@@ -10,8 +10,9 @@ $(function() {
 
     // TODO: move to knockout
     $itemPage.scroll(function(e) {
-        var overflowHeight = $itemPage.find(".infinite-scroll-container").height() - $itemPage.height()
-        if ($itemPage.scrollTop() / overflowHeight > 0.8) {
+        var contentHeight = $itemPage.find(".infinite-scroll-container").height(),
+            screenHeight = $itemPage.height();
+        if (contentHeight - (screenHeight + $itemPage.scrollTop() < 100) {
             model.nextPage();
         }
     });
