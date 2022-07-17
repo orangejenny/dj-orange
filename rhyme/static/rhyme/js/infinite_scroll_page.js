@@ -12,7 +12,7 @@ $(function() {
     $itemPage.scroll(function(e) {
         var contentHeight = $itemPage.find(".infinite-scroll-container").height(),
             screenHeight = $itemPage.height();
-        if (contentHeight - (screenHeight + $itemPage.scrollTop() < 100) {
+        if (contentHeight - (screenHeight + $itemPage.scrollTop() < 100)) {     // 100 pixels from bottom, then scroll
             model.nextPage();
         }
     });
