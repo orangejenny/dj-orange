@@ -221,7 +221,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     @classmethod
     def list(cls, song_filters=None, album_filters=None, omni_filter=''):
-        songs = Song.objects.all()
+        songs = Song.objects.prefetch_related('tag_set').prefetch_related('track_set').all()
 
         if song_filters:
             songs = Song.filter_queryset(songs, song_filters)
