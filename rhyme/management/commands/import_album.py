@@ -100,7 +100,7 @@ class Command(BaseCommand):
             self.new_artists.append(artist)
 
         album_name = album_name or input("Album name? ")
-        filename = f"{artist.name}/{album_name}/{name}.mp3"
+        filename = "/".join([x for x in [artist.name, album_name, name] if x]) + ".mp3"
 
         song = Song(
             name=name,
