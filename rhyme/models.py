@@ -184,7 +184,6 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     play_count = models.IntegerField(default=0)
     last_play = models.DateTimeField(null=True)
 
-    plex_filename = models.CharField(max_length=255, null=True)
     plex_guid = models.CharField(max_length=255, null=True)
     plex_key = models.CharField(max_length=255, null=True, db_index=True)
 
