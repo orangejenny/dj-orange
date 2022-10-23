@@ -301,7 +301,7 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
         except IndexError:
             raise ExportConfigNotFoundException(f"Could not find {config_name}")
-        filenames = [config["prefix"] + (s.plex_filename or s.filename) for s in songs]
+        filenames = [config["prefix"] + s.filename for s in songs]
         response = HttpResponse("\n".join(filenames))
         response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
 
