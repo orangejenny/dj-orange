@@ -309,7 +309,7 @@ def csv_tags(request):
     for s in Song.list():
         for tag in s.tags():
             category = category_map[tag]
-            lines.append(f"{tag},{category},{s.id},{s.rating},{s.mood},{s.energy}")
+            lines.append(f"{tag},{category or ''},{s.id},{s.rating or ''},{s.mood or ''},{s.energy or ''}")
 
     response = HttpResponse("\n".join(lines))
     response['Content-Disposition'] = 'attachment; filename="tags.csv"'
