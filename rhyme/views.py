@@ -283,6 +283,37 @@ def song_export(request):
     return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
 
 
+@require_GET
+@login_required
+def csv_songs(request):
+    response = HttpResponse("\n".join([
+        f"{s.id},{s.rating or ''},{s.mood or ''},{s.energy or ''},{s.artist.genre or ''}"
+        for s in Song.list()
+    ]))
+
+    response['Content-Disposition'] = 'attachment; filename="songs.csv"'
+    return response
+
+
+@require_GET
+@login_required
+def csv_tags(request):
+    category_map = {
+        tag.name: tag.category
+        for tag in Tag.objects.all()
+    }
+
+    lines = []
+    for s in Song.list():
+        for tag in s.tags():
+            category = category_map[tag]
+            lines.append(f"{tag},{category},{s.id},{s.rating},{s.mood},{s.energy}")
+
+    response = HttpResponse("\n".join(lines))
+    response['Content-Disposition'] = 'attachment; filename="tags.csv"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()
