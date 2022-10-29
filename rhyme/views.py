@@ -286,11 +286,13 @@ def song_export(request):
 @require_GET
 @login_required
 def csv_songs(request):
-    response = HttpResponse("\n".join([
+    lines = ["song_id,rating,mood,energy,genre"]
+    lines.extend([
         f"{s.id},{s.rating or ''},{s.mood or ''},{s.energy or ''},{s.artist.genre or ''}"
         for s in Song.list()
-    ]))
+    ])
 
+    response = HttpResponse("\n".join(lines))
     response['Content-Disposition'] = 'attachment; filename="songs.csv"'
     return response
 
@@ -303,7 +305,7 @@ def csv_tags(request):
         for tag in Tag.objects.all()
     }
 
-    lines = []
+    lines = ["tag,tag_category,song_id,rating,mood,energy"]
     for s in Song.list():
         for tag in s.tags():
             category = category_map[tag]
