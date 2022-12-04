@@ -11,6 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('playlist_file', help="M3U playlist")
+        parser.add_argument('--quiet', action='store_true')
 
     def input_choice(self, options, message=None):
         if message:
@@ -49,6 +50,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         playlist_file = options.get("playlist_file")
+        quiet = options.get('quiet', False)
         if not os.path.exists(playlist_file):
             print(f"{playlist_file} does not exist")
             exit(1)
@@ -93,13 +95,13 @@ class Command(BaseCommand):
 
             dest_dir = os.path.split(path)[0]
             if not os.path.exists(dest_dir):
-                if input(f"Make directories for {dest_dir}? (y/n) ").lower() == "y":
+                if quiet or input(f"Make directories for {dest_dir}? (y/n) ").lower() == "y":
                     os.makedirs(dest_dir)
                 else:
                     continue
             source_path = os.path.join(root_dir, source_path)
             dest_path = os.path.join(root_dir, path)
-            if input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
+            if quiet or input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
                 moved.append(path)
                 shutil.move(source_path, dest_path)
 
