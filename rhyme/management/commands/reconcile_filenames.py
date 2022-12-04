@@ -11,15 +11,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('playlist_file', help="M3U playlist")
+        parser.add_argument('--quiet', action='store_true')
 
-    def input_choice(self, options, message=None):
+    def input_choice(self, options, message=None, display=None):
         if message:
             print(message)
         if len(options) == 1:
             return options[0]
 
+        if not display:
+            display = lambda x: x
+
         for i, option in enumerate(options):
-            print(f"{i + 1}) {option}")
+            print(f"{i + 1}) {display(option)}")
         selection = input("Pick an option (s to skip): ").lower()
         try:
             return options[int(selection) - 1]
@@ -49,6 +53,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         playlist_file = options.get("playlist_file")
+        quiet = options.get('quiet', False)
         if not os.path.exists(playlist_file):
             print(f"{playlist_file} does not exist")
             exit(1)
@@ -86,20 +91,20 @@ class Command(BaseCommand):
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
                 continue
-            source_path = self.input_choice(options)
+            source_path = self.input_choice(options, display=lambda x: x.replace(root_dir, "")[1:])
             if not source_path:
                 skipped.append(path)
                 continue
 
             dest_dir = os.path.split(path)[0]
             if not os.path.exists(dest_dir):
-                if input(f"Make directories for {dest_dir}? (y/n) ").lower() == "y":
+                if quiet or input(f"Make directories for {dest_dir}? (y/n) ").lower() == "y":
                     os.makedirs(dest_dir)
                 else:
                     continue
             source_path = os.path.join(root_dir, source_path)
             dest_path = os.path.join(root_dir, path)
-            if input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
+            if quiet or input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
                 moved.append(path)
                 shutil.move(source_path, dest_path)
 
