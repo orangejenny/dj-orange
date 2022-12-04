@@ -13,14 +13,17 @@ class Command(BaseCommand):
         parser.add_argument('playlist_file', help="M3U playlist")
         parser.add_argument('--quiet', action='store_true')
 
-    def input_choice(self, options, message=None):
+    def input_choice(self, options, message=None, display=None):
         if message:
             print(message)
         if len(options) == 1:
             return options[0]
 
+        if not display:
+            display = lambda x: x
+
         for i, option in enumerate(options):
-            print(f"{i + 1}) {option}")
+            print(f"{i + 1}) {display(option)}")
         selection = input("Pick an option (s to skip): ").lower()
         try:
             return options[int(selection) - 1]
@@ -88,7 +91,7 @@ class Command(BaseCommand):
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
                 continue
-            source_path = self.input_choice(options)
+            source_path = self.input_choice(options, display=lambda x: x.replace(root_dir, "")[1:])
             if not source_path:
                 skipped.append(path)
                 continue
