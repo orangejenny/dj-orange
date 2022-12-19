@@ -14,7 +14,7 @@ class Command(BaseCommand):
         this_year = int(datetime.utcnow().strftime("%Y"))
         this_month = int(datetime.utcnow().strftime("%m"))
         seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
-        this_season = seasons[this_month]
+        this_season = seasons[this_month - 1]
 
         # Current
         albums = Album.objects.all()[:3]
