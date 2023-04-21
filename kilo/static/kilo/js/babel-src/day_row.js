@@ -134,7 +134,6 @@ export class DayRow extends React.Component {
 
   saveDayEntry () {
     var self = this;
-    debugger;
     self.setState({saving: true});
     fetch("", {
       method: "POST",
