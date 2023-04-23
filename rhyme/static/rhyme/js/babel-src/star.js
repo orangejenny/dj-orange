@@ -5,6 +5,7 @@ export class Star extends React.Component {
             id: this.props.id,
             value: this.props.value,
             saving: false,
+            error: false,
         };
 
         this.toggleStar = this.toggleStar.bind(this);
@@ -29,13 +30,18 @@ export class Star extends React.Component {
                 value: !this.state.value,
             });
         }).catch((error) => {
+            this.setState({
+                saving: false,
+                error: true,
+                value: !this.state.value,
+            });
             throw(error);
         });
     }
 
     render() {
         return (
-            <i className={`fa-star ${this.state.value ? "fas" : "far"} ${this.state.saving ? "update-in-progress" : ""}`}
+            <i className={`fa-star ${!this.state.value && !this.state.saving || this.state.error ? "far" : "fas"} ${this.state.saving ? "update-in-progress" : ""} ${this.state.error ? "text-danger" : ""}`}
                onClick={this.toggleStar}></i>
         );
     }

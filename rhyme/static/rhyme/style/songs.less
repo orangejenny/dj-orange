@@ -29,6 +29,12 @@
 
                 .far, .fas {
                     cursor: pointer;
+
+                    &.update-in-progress {
+                        // Both !important as the base definition of .update-in-progress is
+                        background-color: inherit !important;
+                        color: @updateInProgressColor !important;
+                    }
                 }
             }
             &.is-starred {
@@ -37,11 +43,6 @@
                 .fas {
                     &.fa-star {
                         color: @grey;
-                    }
-
-                    &.update-in-progress {
-                        background-color: @white;
-                        color: @updateInProgressColor;
                     }
                 }
             }

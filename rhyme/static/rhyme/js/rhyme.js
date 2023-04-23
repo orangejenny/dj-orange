@@ -193,22 +193,38 @@ function rhymeModel (options) {
     });
 
     self.exportPlaylist = function (config, additionalParams) {
-        ExportPlaylist(_.extend({
+        var params = {
             config: config,
             model: self.model,
-        }, self.serializeFilters(), additionalParams));
+        };
+        if (self.modalName()) {
+            params = _.extend(params, {
+                filename: self.modalName(),
+            }, self.songListParams());
+        } else {
+            params = _.extend(params, self.serializeFilters());
+        }
+        params = _.extend(params, additionalParams);
+
+        ExportPlaylist(params);
+    };
+
+    self.resetModal = function () {
+        self.modalName("");
+        self.modalHeaders([]);
+        self.modalSongs([]);
+        self.songListParams({});
     };
 
     self.showModal = function (name, songListParams) {
+        self.resetModal();
         self.modalName(name);
-        self.modalHeaders([]);
-        self.modalSongs([]);
         self.songListParams(songListParams);
 
         var $modal = $("#song-list");
         self.isLoading(true);
         $modal.modal();
-        songListParams.songs_per_page = 100;    // TODO: paginate modal?
+        songListParams.songs_per_page = 100;
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
@@ -230,6 +246,7 @@ function rhymeModel (options) {
 
                 $modal.one("hide.bs.modal", function() {
                     $image.remove();
+                    self.resetModal();
                 });
             },
             error: function () {
