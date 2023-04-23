@@ -35,7 +35,7 @@ export class Star extends React.Component {
 
     render() {
         return (
-            <i className={`fa-star ${this.state.value ? "fas" : "far"} ${this.state.saving ? "update-in-progress" : ""}`}
+            <i className={`fa-star ${this.state.value || this.state.saving ? "fas" : "far"} ${this.state.saving ? "update-in-progress" : ""}`}
                onClick={this.toggleStar}></i>
         );
     }
