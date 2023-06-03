@@ -1,6 +1,7 @@
 *.log
 *.swp
 *.swo
+*.m3u
 *.pyc
 *.sqlite3
 
