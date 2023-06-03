@@ -10,8 +10,9 @@ class Command(BaseCommand):
         return "Copy files from a playlist to a disk location"
 
     def add_arguments(self, parser):
-        parser.add_argument('playlist_file', help="M3U playlist")
         parser.add_argument('location', help="Disk location")
+        parser.add_argument('playlists', help="M3U playlist locations", nargs="*")
+        parser.add_argument('--force', action='store_true')
 
     def check_path(self, path):
         if not os.path.exists(path):
@@ -19,11 +20,27 @@ class Command(BaseCommand):
             exit(1)
 
     def handle(self, *args, **options):
-        playlist_file = options.get("playlist_file")
-        location = options.get("location")
+        self.force = options.get('force', False)
 
+        self.location = options.get("location")
+        self.check_path(self.location)
+        location_files = os.listdir(self.location)
+        if len(location_files) and input(f"Remove {len(location_files)} files from {self.location}? (y/n) ").lower() == "y":
+            for f in location_files:
+                f = os.path.join(self.location, f)
+                if os.path.exists(f):
+                    print(f"Removing {f}")
+                    os.remove(f)
+                else:
+                    print(f"Could not find {f}")
+
+
+        playlists = options.get("playlists")
+        for p in playlists:
+            self.handle_playlist(p)
+
+    def handle_playlist(self, playlist_file):
         self.check_path(playlist_file)
-        self.check_path(location)
 
         with open(playlist_file, 'r', encoding='utf-8') as f:
             song_files = f.readlines()
@@ -33,16 +50,7 @@ class Command(BaseCommand):
         song_files = [path for path in song_files if os.path.exists(path)]
         print(f"Found {len(song_files)} of {playlist_file_count} song files")
 
-        location_files = os.listdir(location)
-        if input(f"Remove {len(location_files)} files from {location}? (y/n) ").lower() == "y":
-            for f in location_files:
-                f = os.path.join(location, f)
-                if os.path.exists(f):
-                    print(f"Removing {f}")
-                    os.remove(f)
-                else:
-                    print(f"could not find {f}")
-
         for i, f in enumerate(song_files):
             print(f"Copying {i + 1} of {len(song_files)}: {f}")
-            copy(f, location)
+            if self.force or not os.path.exists(os.path.join(self.location, os.path.basename(f))):
+                copy(f, self.location)
