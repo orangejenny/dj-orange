@@ -493,12 +493,10 @@ class Color(models.Model):
     hex_code = models.CharField(max_length=8, default='ffffff')
     white_text = models.BooleanField(default=False)
 
+    import_fields = set(['name', 'hex_code', 'white_text'])
+
     def __str__(self):
         return "{} (#{})".format(self.name, self.hex_code)
 
     def to_json(self):
-        return {
-            "name": self.name,
-            "hex_code": self.hex_code,
-            "white_text": self.white_text,
-        }
+        return {field: getattr(self, field) for field in self.import_fields}

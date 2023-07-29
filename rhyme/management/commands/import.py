@@ -35,7 +35,7 @@ class Importer(object):
 
     def import_items(self, filename, save=False):
         with open(filename, encoding='utf-8') as f:
-            data = json.load(f)['data']
+            data = json.load(f)
             for item in data:
                 if set(item.keys()) != set([f.split(".")[-1] for f in self.fields]):    # de-namespace fields
                     raise Exception("Mismatched fields, expected [{}] and got [{}]".format(self.fields, item.keys()))
@@ -108,7 +108,7 @@ class ArtistImporter(Importer):
 
 
 class ColorImporter(Importer):
-    fields = set(['name', 'hex', 'whitetext'])
+    fields = Color.import_fields
 
     @property
     def query(self):
@@ -119,8 +119,8 @@ class ColorImporter(Importer):
 
     def import_item(self, item, save=False):
         (color, created) = Color.objects.get_or_create(name=item['name'])
-        color.hex_code = item['hex']
-        color.white_text = bool(int(item['whitetext'] or 0))
+        color.hex_code = item['hex_code']
+        color.white_text = bool(int(item['white_text'] or 0))
         if save:
             color.save()
         elif created:

@@ -316,6 +316,14 @@ def csv_tags(request):
     return response
 
 
+@require_GET
+@login_required
+def json_colors(request):
+    response = HttpResponse(json.dumps([c.to_json() for c in Color.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="colors.json"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()
