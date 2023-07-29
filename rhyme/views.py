@@ -318,6 +318,14 @@ def csv_tags(request):
 
 @require_GET
 @login_required
+def json_artists(request):
+    response = HttpResponse(json.dumps([a.to_json() for a in Artist.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="artists.json"'
+    return response
+
+
+@require_GET
+@login_required
 def json_colors(request):
     response = HttpResponse(json.dumps([c.to_json() for c in Color.objects.all()], indent=4))
     response['Content-Disposition'] = 'attachment; filename="colors.json"'

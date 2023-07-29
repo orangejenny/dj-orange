@@ -147,8 +147,13 @@ class Artist(models.Model):
     name = models.CharField(max_length=63, unique=True)
     genre = models.CharField(max_length=63)
 
+    import_fields = set(['name', 'genre'])
+
     def __str__(self):
         return self.name
+
+    def to_json(self):
+        return {field: getattr(self, field) for field in self.import_fields}
 
     @classmethod
     def all_genres(cls):

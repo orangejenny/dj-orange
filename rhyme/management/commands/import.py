@@ -88,7 +88,7 @@ class AlbumImporter(Importer):
 
 
 class ArtistImporter(Importer):
-    fields = set(['artist', 'genre'])
+    fields = Artist.import_fields
 
     @property
     def query(self):
@@ -98,7 +98,7 @@ class ArtistImporter(Importer):
         return super(ArtistImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        (artist, created) = Artist.objects.get_or_create(name=item['artist'])
+        (artist, created) = Artist.objects.get_or_create(name=item['name'])
         artist.genre = item['genre']
         self.log("Importing {}".format(artist.name))
         if save:
