@@ -318,6 +318,17 @@ def csv_tags(request):
 
 @require_GET
 @login_required
+def json_albums(request):
+    albums = [{k: getattr(a, k) for k in Album.import_fields} for a in Album.objects.all()]
+    for album in albums:
+        album['date_acquired'] = datetime.strftime(album['date_acquired'], "%Y-%m-%d %H:%M:%S %Z")
+    response = HttpResponse(json.dumps(albums, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="albums.json"'
+    return response
+
+
+@require_GET
+@login_required
 def json_artists(request):
     response = HttpResponse(json.dumps([a.to_json() for a in Artist.objects.all()], indent=4))
     response['Content-Disposition'] = 'attachment; filename="artists.json"'

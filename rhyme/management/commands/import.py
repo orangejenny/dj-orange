@@ -63,7 +63,7 @@ class Importer(object):
 
 
 class AlbumImporter(Importer):
-    fields = set(['id', 'name', 'created', 'ismix'])
+    fields = Album.import_fields
 
     @property
     def query(self):
@@ -75,9 +75,9 @@ class AlbumImporter(Importer):
     def import_item(self, item, save=False):
         (album, created) = Album.objects.get_or_create(id=item['id'])
         album.name = item['name']
-        if item['created']:
-            album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
-        if item['ismix']:
+        if item['date_acquired']:
+            album.date_acquired = pytz.utc.localize(datetime.strptime(item['date_acquired'], "%Y-%m-%d %H:%M:%S %Z"))
+        if item['is_mix']:
             album.is_mix = True
 
         self.log("Importing {}".format(album))

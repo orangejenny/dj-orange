@@ -276,6 +276,8 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
     omni_fields = ['name']
 
+    import_fields = set(['id', 'name', 'date_acquired', 'is_mix'])
+
     name = models.CharField(max_length=255, db_index=True)
     date_acquired = models.DateTimeField(null=True)
     starred = models.BooleanField(default=False)
