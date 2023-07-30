@@ -367,6 +367,18 @@ def json_songs(request):
     return response
 
 
+@require_GET
+@login_required
+def json_tags(request):
+    response = HttpResponse(json.dumps([{
+        "name": tag.name,
+        "catgory": tag.category,
+        "song_id": song.id
+    } for tag in Tag.objects.all() for song in tag.songs.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="tags.json"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()

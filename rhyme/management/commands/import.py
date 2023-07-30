@@ -181,7 +181,7 @@ class SongImporter(Importer):
 
 
 class TagImporter(Importer):
-    fields = set(['songid', 'songtag.tag', 'category'])
+    fields = Tag.import_fields
 
     @property
     def query(self):
@@ -195,10 +195,10 @@ class TagImporter(Importer):
         return super(TagImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        (tag, tag_created) = Tag.objects.get_or_create(name=item['tag'])
+        (tag, tag_created) = Tag.objects.get_or_create(name=item['name'])
         tag.category = item['category']
         self.log("Importing {}".format(tag))
-        song = Song.objects.get(id=item['songid'])
+        song = Song.objects.get(id=item['song_id'])
         song.tag_set.add(tag)
         if save:
             tag.save()

@@ -495,6 +495,8 @@ class Tag(models.Model):
     category = models.CharField(max_length=255, null=True)
     songs = models.ManyToManyField(Song)
 
+    import_fields = set(['song_id', 'name', 'category'])
+
     def __str__(self):
         return self.name
 
