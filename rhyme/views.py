@@ -372,7 +372,7 @@ def json_songs(request):
 def json_tags(request):
     response = HttpResponse(json.dumps([{
         "name": tag.name,
-        "catgory": tag.category,
+        "category": tag.category,
         "song_id": song.id,
     } for tag in Tag.objects.all() for song in tag.songs.all()], indent=4))
     response['Content-Disposition'] = 'attachment; filename="tags.json"'
