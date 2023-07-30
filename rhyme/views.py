@@ -316,6 +316,82 @@ def csv_tags(request):
     return response
 
 
+@require_GET
+@login_required
+def json_albums(request):
+    albums = [{k: getattr(a, k) for k in Album.import_fields} for a in Album.objects.all()]
+    for album in albums:
+        album['date_acquired'] = datetime.strftime(album['date_acquired'], "%Y-%m-%d %H:%M:%S %Z")
+    response = HttpResponse(json.dumps(albums, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="albums.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_artists(request):
+    response = HttpResponse(json.dumps([a.to_json() for a in Artist.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="artists.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_colors(request):
+    response = HttpResponse(json.dumps([c.to_json() for c in Color.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="colors.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_discs(request):
+    response = HttpResponse(json.dumps([{
+        "album_id": d.album.id,
+        "name": d.name,
+        "ordinal": d.ordinal,
+    } for d in Disc.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="discs.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_songs(request):
+    songs = [{k: getattr(a, k) for k in Song.import_fields} for a in Song.objects.all()]
+    for song in songs:
+        if song["artist"] is not None:
+            song["artist"] = song["artist"].name
+    response = HttpResponse(json.dumps(songs, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="songs.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_tags(request):
+    response = HttpResponse(json.dumps([{
+        "name": tag.name,
+        "catgory": tag.category,
+        "song_id": song.id,
+    } for tag in Tag.objects.all() for song in tag.songs.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="tags.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_tracks(request):
+    response = HttpResponse(json.dumps([{
+        "song_id": track.song.id,
+        "album_id": tag.album.id,
+        "ordinal": track.ordinal,
+        "disc_ordinal": track.disc,
+    } for track in Track.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="tracks.json"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()

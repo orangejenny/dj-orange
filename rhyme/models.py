@@ -147,8 +147,13 @@ class Artist(models.Model):
     name = models.CharField(max_length=63, unique=True)
     genre = models.CharField(max_length=63)
 
+    import_fields = set(['name', 'genre'])
+
     def __str__(self):
         return self.name
+
+    def to_json(self):
+        return {field: getattr(self, field) for field in self.import_fields}
 
     @classmethod
     def all_genres(cls):
@@ -168,6 +173,9 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     }
 
     omni_fields = ['name', 'artist', 'tag']
+
+    import_fields = set(['id', 'name', 'artist', 'rating', 'mood',
+                         'energy', 'starred', 'year', 'time', 'filename'])
 
     name = models.CharField(max_length=127, db_index=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
@@ -270,6 +278,8 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     related_fields = {}
 
     omni_fields = ['name']
+
+    import_fields = set(['id', 'name', 'date_acquired', 'is_mix'])
 
     name = models.CharField(max_length=255, db_index=True)
     date_acquired = models.DateTimeField(null=True)
@@ -458,8 +468,13 @@ class Disc(models.Model):
     name = models.CharField(max_length=255, null=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
+    import_fields = set(['album_id', 'ordinal', 'name'])
+
     class Meta:
         unique_together = ("ordinal", "album")
+
+    def __str__(self):
+        return "{} #{}: {}".format(str(self.album), self.ordinal, self.name)
 
 
 class Track(models.Model):
@@ -467,6 +482,8 @@ class Track(models.Model):
     disc = models.IntegerField(default=1)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
+
+    fields = set(['song_id', 'album_id', 'ordinal', 'disc_ordinal'])
 
     class Meta:
         unique_together = ("song", "album")
@@ -479,6 +496,8 @@ class Tag(models.Model):
     name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
     songs = models.ManyToManyField(Song)
+
+    import_fields = set(['song_id', 'name', 'category'])
 
     def __str__(self):
         return self.name
@@ -493,12 +512,10 @@ class Color(models.Model):
     hex_code = models.CharField(max_length=8, default='ffffff')
     white_text = models.BooleanField(default=False)
 
+    import_fields = set(['name', 'hex_code', 'white_text'])
+
     def __str__(self):
         return "{} (#{})".format(self.name, self.hex_code)
 
     def to_json(self):
-        return {
-            "name": self.name,
-            "hex_code": self.hex_code,
-            "white_text": self.white_text,
-        }
+        return {field: getattr(self, field) for field in self.import_fields}

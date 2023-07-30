@@ -19,10 +19,6 @@ class Importer(object):
 
     fields = set()
 
-    @property
-    def query(self):
-        raise Exception("Subclasses should override this method")
-
     def __init__(self, out=None):
         self._out = out
 
@@ -35,7 +31,7 @@ class Importer(object):
 
     def import_items(self, filename, save=False):
         with open(filename, encoding='utf-8') as f:
-            data = json.load(f)['data']
+            data = json.load(f)
             for item in data:
                 if set(item.keys()) != set([f.split(".")[-1] for f in self.fields]):    # de-namespace fields
                     raise Exception("Mismatched fields, expected [{}] and got [{}]".format(self.fields, item.keys()))
@@ -63,11 +59,7 @@ class Importer(object):
 
 
 class AlbumImporter(Importer):
-    fields = set(['id', 'name', 'created', 'ismix'])
-
-    @property
-    def query(self):
-        return "select {} from collection".format(", ".join(self.fields))
+    fields = Album.import_fields
 
     def __init__(self, out=None):
         return super(AlbumImporter, self).__init__(out)
@@ -75,9 +67,9 @@ class AlbumImporter(Importer):
     def import_item(self, item, save=False):
         (album, created) = Album.objects.get_or_create(id=item['id'])
         album.name = item['name']
-        if item['created']:
-            album.date_acquired = pytz.utc.localize(datetime.strptime(item['created'], "%Y-%m-%d %H:%M:%S"))
-        if item['ismix']:
+        if item['date_acquired']:
+            album.date_acquired = pytz.utc.localize(datetime.strptime(item['date_acquired'], "%Y-%m-%d %H:%M:%S %Z"))
+        if item['is_mix']:
             album.is_mix = True
 
         self.log("Importing {}".format(album))
@@ -88,17 +80,13 @@ class AlbumImporter(Importer):
 
 
 class ArtistImporter(Importer):
-    fields = set(['artist', 'genre'])
-
-    @property
-    def query(self):
-        return "select {} from artistgenre".format(", ".join(self.fields))
+    fields = Artist.import_fields
 
     def __init__(self, out=None):
         return super(ArtistImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        (artist, created) = Artist.objects.get_or_create(name=item['artist'])
+        (artist, created) = Artist.objects.get_or_create(name=item['name'])
         artist.genre = item['genre']
         self.log("Importing {}".format(artist.name))
         if save:
@@ -108,19 +96,15 @@ class ArtistImporter(Importer):
 
 
 class ColorImporter(Importer):
-    fields = set(['name', 'hex', 'whitetext'])
-
-    @property
-    def query(self):
-        return "select {} from color".format(", ".join(self.fields))
+    fields = Color.import_fields
 
     def __init__(self, out=None):
         return super(ColorImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
         (color, created) = Color.objects.get_or_create(name=item['name'])
-        color.hex_code = item['hex']
-        color.white_text = bool(int(item['whitetext'] or 0))
+        color.hex_code = item['hex_code']
+        color.white_text = bool(int(item['white_text'] or 0))
         if save:
             color.save()
         elif created:
@@ -128,20 +112,16 @@ class ColorImporter(Importer):
 
 
 class DiscImporter(Importer):
-    fields = set(['collectionid', 'discnumber', 'name'])
-
-    @property
-    def query(self):
-        return "select {} from collectiondisc".format(", ".join(self.fields))
+    fields = Disc.import_fields
 
     def __init__(self, out=None):
         return super(DiscImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
         try:
-            album = Album.objects.get(id=item['collectionid'])
+            album = Album.objects.get(id=item['album_id'])
             (disc, created) = Disc.objects.get_or_create(
-                album=album, name=item['name'], ordinal=item['discnumber'])
+                album=album, name=item['name'], ordinal=item['ordinal'])
             self.log("Importing {}".format(disc))
             if save:
                 disc.save()
@@ -149,32 +129,22 @@ class DiscImporter(Importer):
                 disc.delete()
         except Album.DoesNotExist as e:
             self.log("FAIL: Disc {}, (tried albumid={})".format(
-                item['name'], item['collectionid']))
+                item['name'], item['album_id']))
 
 
 class SongImporter(Importer):
-    fields = set(['id', 'name', 'artist', 'rating', 'mood',
-                  'energy', 'isstarred', 'year', 'time', 'filename'])
-
-    @property
-    def query(self):
-        return "select {} from song".format(", ".join(self.fields))
+    fields = Song.import_fields
 
     def __init__(self, out=None):
         return super(SongImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
         (song, song_created) = Song.objects.get_or_create(id=item['id'])
-        for field in self.fields.difference({'artist', 'isstarred', 'time'}):
+        for field in self.fields.difference({'artist', 'starred'}):
             setattr(song, field, item[field])
         (artist, artist_created) = Artist.objects.get_or_create(name=item['artist'])
         song.artist = artist
-        song.starred = bool(item['isstarred'])
-        (minutes, seconds) = item['time'].split(':') if item['time'] else (0, 0)
-        try:
-            song.time = int(minutes) * 60 + int(seconds)
-        except ValueError:
-            import pdb; pdb.set_trace()
+        song.starred = bool(item['starred'])
         self.log("Importing {}".format(song))
         if save:
             song.save()
@@ -187,24 +157,16 @@ class SongImporter(Importer):
 
 
 class TagImporter(Importer):
-    fields = set(['songid', 'songtag.tag', 'category'])
-
-    @property
-    def query(self):
-        return """
-            select {} from song
-            inner join songtag on song.id = songtag.songid
-            left join tagcategory on songtag.tag = tagcategory.tag
-        """.format(", ".join(self.fields))
+    fields = Tag.import_fields
 
     def __init__(self, out=None):
         return super(TagImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
-        (tag, tag_created) = Tag.objects.get_or_create(name=item['tag'])
+        (tag, tag_created) = Tag.objects.get_or_create(name=item['name'])
         tag.category = item['category']
         self.log("Importing {}".format(tag))
-        song = Song.objects.get(id=item['songid'])
+        song = Song.objects.get(id=item['song_id'])
         song.tag_set.add(tag)
         if save:
             tag.save()
@@ -215,32 +177,28 @@ class TagImporter(Importer):
 
 
 class TrackImporter(Importer):
-    fields = set(['songid', 'collectionid', 'tracknumber', 'discnumber'])
-
-    @property
-    def query(self):
-        return "select {} from songcollection".format(", ".join(self.fields))
+    fields = Track.import_fields
 
     def __init__(self, out=None):
         return super(TrackImporter, self).__init__(out)
 
     def import_item(self, item, save=False):
         try:
-            album = Album.objects.get(id=item['collectionid'])
-            song = Song.objects.get(id=item['songid'])
+            album = Album.objects.get(id=item['album_id'])
+            song = Song.objects.get(id=item['song_id'])
             (track, created) = Track.objects.get_or_create(album=album,
-                                                           song=song, disc=item['discnumber'], ordinal=item['tracknumber'])
+                                                           song=song, disc=item['disc_ordinal'], ordinal=item['ordinal'])
             self.log("Importing {}".format(track))
             if save:
                 track.save()
             elif created:
                 track.delete()
         except Album.DoesNotExist as e:
-            self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(
-                item['tracknumber'], item['collectionid'], item['songid']))
+            self.log("FAIL: Track #{}, (tried album_id={}, song_id={}))".format(
+                item['tracknumber'], item['album_id'], item['song_id']))
         except Song.DoesNotExist as e:
-            self.log("FAIL: Track #{} in {} (tried songid={})".format(
-                item['tracknumber'], album, item['songid']))
+            self.log("FAIL: Track #{} in {} (tried song_id={})".format(
+                item['ordinal'], album, item['song_id']))
 
 
 class Command(BaseCommand):
@@ -258,11 +216,9 @@ class Command(BaseCommand):
     @property
     def help(self):
         return '''
-Import items from a csv.
+Import items from a json files. Export data using /rhyme/json/* views
 Available models: {}
-Queries:
-{}
-        '''.format(", ".join(self.models), "\n".join(["\t{}: {}".format(model, Importer.create(model).query) for model in self.models]))
+        '''.format(", ".join(self.models))
 
     def add_arguments(self, parser):
         parser.add_argument('model', help="One of {}".format(", ".join(self.models)))
