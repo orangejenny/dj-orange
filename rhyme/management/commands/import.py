@@ -19,10 +19,6 @@ class Importer(object):
 
     fields = set()
 
-    @property
-    def query(self):
-        raise Exception("Subclasses should override this method")
-
     def __init__(self, out=None):
         self._out = out
 
@@ -65,10 +61,6 @@ class Importer(object):
 class AlbumImporter(Importer):
     fields = Album.import_fields
 
-    @property
-    def query(self):
-        return "select {} from collection".format(", ".join(self.fields))
-
     def __init__(self, out=None):
         return super(AlbumImporter, self).__init__(out)
 
@@ -90,10 +82,6 @@ class AlbumImporter(Importer):
 class ArtistImporter(Importer):
     fields = Artist.import_fields
 
-    @property
-    def query(self):
-        return "select {} from artistgenre".format(", ".join(self.fields))
-
     def __init__(self, out=None):
         return super(ArtistImporter, self).__init__(out)
 
@@ -110,10 +98,6 @@ class ArtistImporter(Importer):
 class ColorImporter(Importer):
     fields = Color.import_fields
 
-    @property
-    def query(self):
-        return "select {} from color".format(", ".join(self.fields))
-
     def __init__(self, out=None):
         return super(ColorImporter, self).__init__(out)
 
@@ -129,10 +113,6 @@ class ColorImporter(Importer):
 
 class DiscImporter(Importer):
     fields = Disc.import_fields
-
-    @property
-    def query(self):
-        return "select {} from collectiondisc".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(DiscImporter, self).__init__(out)
@@ -154,10 +134,6 @@ class DiscImporter(Importer):
 
 class SongImporter(Importer):
     fields = Song.import_fields
-
-    @property
-    def query(self):
-        return "select {} from song".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(SongImporter, self).__init__(out)
@@ -183,14 +159,6 @@ class SongImporter(Importer):
 class TagImporter(Importer):
     fields = Tag.import_fields
 
-    @property
-    def query(self):
-        return """
-            select {} from song
-            inner join songtag on song.id = songtag.songid
-            left join tagcategory on songtag.tag = tagcategory.tag
-        """.format(", ".join(self.fields))
-
     def __init__(self, out=None):
         return super(TagImporter, self).__init__(out)
 
@@ -210,10 +178,6 @@ class TagImporter(Importer):
 
 class TrackImporter(Importer):
     fields = Track.import_fields
-
-    @property
-    def query(self):
-        return "select {} from songcollection".format(", ".join(self.fields))
 
     def __init__(self, out=None):
         return super(TrackImporter, self).__init__(out)
@@ -252,11 +216,9 @@ class Command(BaseCommand):
     @property
     def help(self):
         return '''
-Import items from a csv.
+Import items from a json files. Export data using /rhyme/json/* views
 Available models: {}
-Queries:
-{}
-        '''.format(", ".join(self.models), "\n".join(["\t{}: {}".format(model, Importer.create(model).query) for model in self.models]))
+        '''.format(", ".join(self.models))
 
     def add_arguments(self, parser):
         parser.add_argument('model', help="One of {}".format(", ".join(self.models)))
