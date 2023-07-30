@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Artist, Color, Playlist, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Disc, Playlist, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 
