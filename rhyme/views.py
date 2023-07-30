@@ -384,7 +384,7 @@ def json_tags(request):
 def json_tracks(request):
     response = HttpResponse(json.dumps([{
         "song_id": track.song.id,
-        "album_id": tag.album.id,
+        "album_id": track.album.id,
         "ordinal": track.ordinal,
         "disc_ordinal": track.disc,
     } for track in Track.objects.all()], indent=4))
