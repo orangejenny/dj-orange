@@ -153,8 +153,7 @@ class DiscImporter(Importer):
 
 
 class SongImporter(Importer):
-    fields = set(['id', 'name', 'artist', 'rating', 'mood',
-                  'energy', 'isstarred', 'year', 'time', 'filename'])
+    fields = Song.import_fields
 
     @property
     def query(self):
@@ -165,16 +164,11 @@ class SongImporter(Importer):
 
     def import_item(self, item, save=False):
         (song, song_created) = Song.objects.get_or_create(id=item['id'])
-        for field in self.fields.difference({'artist', 'isstarred', 'time'}):
+        for field in self.fields.difference({'artist', 'starred'}):
             setattr(song, field, item[field])
         (artist, artist_created) = Artist.objects.get_or_create(name=item['artist'])
         song.artist = artist
-        song.starred = bool(item['isstarred'])
-        (minutes, seconds) = item['time'].split(':') if item['time'] else (0, 0)
-        try:
-            song.time = int(minutes) * 60 + int(seconds)
-        except ValueError:
-            import pdb; pdb.set_trace()
+        song.starred = bool(item['starred'])
         self.log("Importing {}".format(song))
         if save:
             song.save()

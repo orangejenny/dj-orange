@@ -174,6 +174,9 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     omni_fields = ['name', 'artist', 'tag']
 
+    import_fields = set(['id', 'name', 'artist', 'rating', 'mood',
+                         'energy', 'starred', 'year', 'time', 'filename'])
+
     name = models.CharField(max_length=127, db_index=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)

@@ -355,6 +355,18 @@ def json_discs(request):
     return response
 
 
+@require_GET
+@login_required
+def json_songs(request):
+    songs = [{k: getattr(a, k) for k in Song.import_fields} for a in Song.objects.all()]
+    for song in songs:
+        if song["artist"] is not None:
+            song["artist"] = song["artist"].name
+    response = HttpResponse(json.dumps(songs, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="songs.json"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()
