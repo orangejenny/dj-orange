@@ -209,7 +209,7 @@ class TagImporter(Importer):
 
 
 class TrackImporter(Importer):
-    fields = set(['songid', 'collectionid', 'tracknumber', 'discnumber'])
+    fields = Track.import_fields
 
     @property
     def query(self):
@@ -220,21 +220,21 @@ class TrackImporter(Importer):
 
     def import_item(self, item, save=False):
         try:
-            album = Album.objects.get(id=item['collectionid'])
-            song = Song.objects.get(id=item['songid'])
+            album = Album.objects.get(id=item['album_id'])
+            song = Song.objects.get(id=item['song_id'])
             (track, created) = Track.objects.get_or_create(album=album,
-                                                           song=song, disc=item['discnumber'], ordinal=item['tracknumber'])
+                                                           song=song, disc=item['disc_ordinal'], ordinal=item['ordinal'])
             self.log("Importing {}".format(track))
             if save:
                 track.save()
             elif created:
                 track.delete()
         except Album.DoesNotExist as e:
-            self.log("FAIL: Track #{}, (tried albumid={}, songid={}))".format(
-                item['tracknumber'], item['collectionid'], item['songid']))
+            self.log("FAIL: Track #{}, (tried album_id={}, song_id={}))".format(
+                item['tracknumber'], item['album_id'], item['song_id']))
         except Song.DoesNotExist as e:
-            self.log("FAIL: Track #{} in {} (tried songid={})".format(
-                item['tracknumber'], album, item['songid']))
+            self.log("FAIL: Track #{} in {} (tried song_id={})".format(
+                item['ordinal'], album, item['song_id']))
 
 
 class Command(BaseCommand):

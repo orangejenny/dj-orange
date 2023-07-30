@@ -483,6 +483,8 @@ class Track(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
+    fields = set(['song_id', 'album_id', 'ordinal', 'disc_ordinal'])
+
     class Meta:
         unique_together = ("song", "album")
 
