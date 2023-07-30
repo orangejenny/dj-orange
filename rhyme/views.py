@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Artist, Color, Playlist, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Disc, Playlist, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 
@@ -372,7 +372,7 @@ def json_songs(request):
 def json_tags(request):
     response = HttpResponse(json.dumps([{
         "name": tag.name,
-        "catgory": tag.category,
+        "category": tag.category,
         "song_id": song.id,
     } for tag in Tag.objects.all() for song in tag.songs.all()], indent=4))
     response['Content-Disposition'] = 'attachment; filename="tags.json"'
@@ -384,7 +384,7 @@ def json_tags(request):
 def json_tracks(request):
     response = HttpResponse(json.dumps([{
         "song_id": track.song.id,
-        "album_id": tag.album.id,
+        "album_id": track.album.id,
         "ordinal": track.ordinal,
         "disc_ordinal": track.disc,
     } for track in Track.objects.all()], indent=4))
