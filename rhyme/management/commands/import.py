@@ -128,7 +128,7 @@ class ColorImporter(Importer):
 
 
 class DiscImporter(Importer):
-    fields = set(['collectionid', 'discnumber', 'name'])
+    fields = Disc.import_fields
 
     @property
     def query(self):
@@ -139,9 +139,9 @@ class DiscImporter(Importer):
 
     def import_item(self, item, save=False):
         try:
-            album = Album.objects.get(id=item['collectionid'])
+            album = Album.objects.get(id=item['album_id'])
             (disc, created) = Disc.objects.get_or_create(
-                album=album, name=item['name'], ordinal=item['discnumber'])
+                album=album, name=item['name'], ordinal=item['ordinal'])
             self.log("Importing {}".format(disc))
             if save:
                 disc.save()
@@ -149,7 +149,7 @@ class DiscImporter(Importer):
                 disc.delete()
         except Album.DoesNotExist as e:
             self.log("FAIL: Disc {}, (tried albumid={})".format(
-                item['name'], item['collectionid']))
+                item['name'], item['album_id']))
 
 
 class SongImporter(Importer):

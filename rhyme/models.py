@@ -465,8 +465,13 @@ class Disc(models.Model):
     name = models.CharField(max_length=255, null=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
+    import_fields = set(['album_id', 'ordinal', 'name'])
+
     class Meta:
         unique_together = ("ordinal", "album")
+
+    def __str__(self):
+        return "{} #{}: {}".format(str(self.album), self.ordinal, self.name)
 
 
 class Track(models.Model):

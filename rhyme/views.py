@@ -343,6 +343,18 @@ def json_colors(request):
     return response
 
 
+@require_GET
+@login_required
+def json_discs(request):
+    response = HttpResponse(json.dumps([{
+        "album_id": d.album.id,
+        "name": d.name,
+        "ordinal": d.ordinal,
+    } for d in Disc.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="discs.json"'
+    return response
+
+
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
     for song in songs:
         song.audit_export()
