@@ -50,11 +50,10 @@ function rhymeModel (options) {
     self.model = options.model;
     self.url = options.url;
     self.page = ko.observable(1);
-    self.allowScroll = ko.observable(true);
     self.items = ko.observableArray();
     self.filters = ko.observableArray();
     self.count = ko.observable(0);
-    self.isLoading = ko.observable(true);
+    self.isLoading = ko.observable(false);
     self.omniFilter = ko.observable('');
 
     self.modalName = ko.observable("");
@@ -68,7 +67,6 @@ function rhymeModel (options) {
         }
 
         page = page || 1;
-        self.allowScroll(false);
         self.isLoading(true);
         console.log(decodeURIComponent(new URLSearchParams(self.serializeFilters()).toString()));
         $.ajax({
@@ -92,9 +90,7 @@ function rhymeModel (options) {
                 } else {
                     self.items(self.items().concat(data.items));
                 }
-                if (data.more) {
-                    self.allowScroll(true);
-                }
+console.log("page " + page + ": [" + _.pluck(data.items, 'id').join(", ") + "]");
             },
         });
     };
@@ -104,7 +100,7 @@ function rhymeModel (options) {
     });
 
     self.nextPage = function() {
-        if (self.allowScroll()) {
+        if (self.items().length < self.count() && !self.isLoading()) {
             self.page(self.page() + 1);
         }
     };
