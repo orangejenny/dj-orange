@@ -272,6 +272,19 @@ class Playlist(models.Model):
         )
 
 
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    inclusion = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("playlist", "song")
+
+    def __str__(self):
+        verb = "includes" if self.inclusion else "excludes"
+        return "{} {} {}".format(str(self.playlist), verb, str(self.song))
+
+
 class Album(models.Model, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
