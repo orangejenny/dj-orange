@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Artist, Color, Disc, Playlist, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Disc, Playlist, PlaylistSong, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 
@@ -124,6 +124,27 @@ def song_update(request):
             song.tag_set.add(tag)
             if tag_created:
                 tag.save()
+    elif field == 'starred' and playlist_id is not None:
+        playlist = Playlist.objects.get(id=playlist_id)
+        playlist_song = PlaylistSong.objects.filter(playlist_id=playlist_id, song_id=song.id).first()
+        is_natural = song.id in [s.id for s in playlist.natural_songs]
+
+        if value:
+            if is_natural:
+                if playlist_song:
+                    # delete presumable exclusion
+                    playlist_song.delete()
+            else:
+                # add inclusion
+                PlaylistSong(playlist_id=playlist_id, song_id=song.id, inclusion=True).save()
+        else:
+            if is_natural:
+                # add exclusion
+                PlaylistSong(playlist_id=playlist_id, song_id=song.id, inclusion=False).save()
+            else:
+                if playlist_song:
+                    # delete presumable inclusion
+                    playlist_song.delete()
     else:
         setattr(song, field, value)
     song.save()

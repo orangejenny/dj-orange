@@ -264,12 +264,16 @@ class Playlist(models.Model):
         return self.name
 
     @property
-    def songs(self):
+    def natural_songs(self):
         return Song.list(
             song_filters=self.song_filters,
             album_filters=self.album_filters,
             omni_filter=self.omni_filter,
         )
+
+    @property
+    def songs(self):
+        return self.natural_songs
 
 
 class PlaylistSong(models.Model):
