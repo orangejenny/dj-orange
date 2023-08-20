@@ -2,6 +2,24 @@ function pluralize(count, stem) {
     return +count === 1 ? stem : stem + "s";
 }
 
+function filterTypeModel (options) {
+    AssertArgs(options, ['lhs', 'allFilters']);
+
+    let self = {};
+    self.lhs = options.lhs;
+    self.allFilters = options.allFilters;
+
+    self.filterText = ko.computed(function () {
+        return _.map(_.filter(self.allFilters(), function (f) {
+            return f.lhs === self.lhs;
+        }), function (f) {
+            return f.readOnly();
+        }).join(", ");
+    });
+
+    return self;
+}
+
 function filterModel (options) {
     AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
@@ -24,7 +42,7 @@ function filterModel (options) {
             rhs = '"' + rhs + '"';
         }
 
-        return self.lhs + ' ' + op + ' ' + rhs;
+        return op + ' ' + rhs;
     };
 
     return self;
@@ -117,6 +135,17 @@ function rhymeModel (options) {
             self.page(self.page() + 1);
         }
     };
+
+    self.filterTypeModels = {};
+    self.getFilterTypeModel = function(lhs) {
+         if (!self.filterTypeModels[lhs]) {
+            self.filterTypeModels[lhs] = new filterTypeModel({
+                lhs: lhs,
+                allFilters: self.filters,
+            });
+        }
+        return self.filterTypeModels[lhs];
+    }
 
     self.addFilter = function (model, lhs, op, rhs) {
         self.filters.push(filterModel({
