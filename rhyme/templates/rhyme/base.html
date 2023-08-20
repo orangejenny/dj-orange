@@ -63,8 +63,17 @@
     </div>
 
     <div class="post-nav">
-        {# TODO: bring column structure in here #}
-        {% block content %}{% endblock %}
+        <div class="row">
+            <div class="col-sm-2">
+                {% block filters %}
+                    {% include "rhyme/partials/all_filters.html" %}
+                {% endblock %}
+            </div>
+            <div class="col-sm-10 text-center">
+                {% block content %}{% endblock %}
+                {% include "rhyme/partials/loading.html" %}
+            </div>
+        </div>
     </div>
 
     {% block modals %}{% endblock %}

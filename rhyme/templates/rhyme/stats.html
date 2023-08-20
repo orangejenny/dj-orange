@@ -24,18 +24,8 @@
 {% endblock controls %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-sm-2 text-center">
-            {% include "rhyme/partials/all_filters.html" %}
-        </div>
-        <div class="col-sm-10 text-center">
-            {% include "rhyme/partials/loading.html" %}
-
-            {% block visualization %}{% endblock %}
-
-            <div id="tooltip" class="hide"></div>
-        </div>
-    </div>
+    {% block visualization %}{% endblock %}
+    <div id="tooltip" class="hide"></div>
 {% endblock content %}
 
 {% block modals %}{{ block.super }}
