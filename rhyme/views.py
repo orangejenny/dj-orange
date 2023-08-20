@@ -44,6 +44,10 @@ def index(request):
     context = {
         **_rhyme_context(),
         "has_export": True,
+        "playlists": [
+            {"id": p.id, "name": p.name}
+            for p in Playlist.objects.all()
+        ],
     }
     return HttpResponse(template.render(context, request))
 
@@ -111,6 +115,7 @@ def song_update(request):
         song = Song.objects.get(id=post_data.get("id"))
         field = post_data.get("field")
         value = post_data.get("value")
+        playlist_id = post_data.get("playlist_id") or None
     except JSONDecodeError:
         song = Song.objects.get(id=request.POST.get("id"))
         field = request.POST.get("field")

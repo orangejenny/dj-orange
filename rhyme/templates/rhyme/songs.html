@@ -11,6 +11,15 @@
 {% block content %}
     {% include "rhyme/partials/all_filters.html" %}
 
+    <div class="btn-group" role="group" style="width: 200px;"><!-- TODO: re-layout -->
+        <select class="form-control select2" id="active-playlist">
+            <option></option>
+            {% for playlist in playlists %}
+                <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
     <div class="item-page" data-url="{% url "song_list" %}">
         <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
             <thead>

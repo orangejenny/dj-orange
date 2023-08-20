@@ -23,6 +23,7 @@ export class Star extends React.Component {
                 id: this.state.id,
                 field: 'starred',
                 value: this.state.value ? 0 : 1,
+                playlist_id: $("#active-playlist").val(),
             }),
         }).then((resp) => resp.json()).then(data => {
             this.setState({
