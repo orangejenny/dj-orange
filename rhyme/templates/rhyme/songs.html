@@ -9,35 +9,40 @@
 {% endblock js %}
 
 {% block content %}
-    {% include "rhyme/partials/all_filters.html" %}
+    <div class="row">
+        <div class="col-sm-2 text-center">
+            <div class="btn-group" role="group" style="width: 200px;">
+                <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist">
+                    <option></option>
+                    {% for playlist in playlists %}
+                        <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <div class="btn-group" role="group" style="width: 200px;"><!-- TODO: re-layout -->
-        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist">
-            <option></option>
-            {% for playlist in playlists %}
-                <option value="{{ playlist.id }}">{{ playlist.name }}</option>
-            {% endfor %}
-        </select>
+            {% include "rhyme/partials/all_filters.html" %}
+        </div>
+        <div class="col-sm-10 text-center">
+            <div class="item-page" data-url="{% url "song_list" %}">
+                <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
+                    <thead>
+                        <th>&nbsp;</th>
+                        <th>Name</th>
+                        <th>Artist</th>
+                        <th>Albums</th>
+                        <th>Rating</th>
+                        <th>Energy</th>
+                        <th>Mood</th>
+                        <th>Tags</th>
+                    </thead>
+                    <tbody data-bind="foreach: items">
+                        {% include "rhyme/partials/song_row.html" %}
+                    </tbody>
+                </table>
+            </div>
+            {% include "rhyme/partials/loading.html" %}
+        </div>
     </div>
-
-    <div class="item-page" data-url="{% url "song_list" %}">
-        <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
-            <thead>
-                <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Artist</th>
-                <th>Albums</th>
-                <th>Rating</th>
-                <th>Energy</th>
-                <th>Mood</th>
-                <th>Tags</th>
-            </thead>
-            <tbody data-bind="foreach: items">
-                {% include "rhyme/partials/song_row.html" %}
-            </tbody>
-        </table>
-    </div>
-    {% include "rhyme/partials/loading.html" %}
 {% endblock content %}
 
 {% block modals %}{{ block.super }}

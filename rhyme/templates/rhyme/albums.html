@@ -9,13 +9,18 @@
 {% endblock js %}
 
 {% block content %}
-    {% include "rhyme/partials/all_filters.html" %}
-
-    <div class="item-page" data-url="{% url "album_list" %}">
-        <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
-            {% include "rhyme/partials/album.html" %}
+    <div class="row">
+        <div class="col-sm-2 text-center">
+            {% include "rhyme/partials/all_filters.html" %}
         </div>
-        {% include "rhyme/partials/loading.html" %}
+        <div class="col-sm-10 text-center">
+            <div class="item-page" data-url="{% url "album_list" %}">
+                <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
+                    {% include "rhyme/partials/album.html" %}
+                </div>
+                {% include "rhyme/partials/loading.html" %}
+            </div>
+        </div>
     </div>
 {% endblock content %}
 
