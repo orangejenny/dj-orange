@@ -100,7 +100,6 @@ def song_list(request):
             'energy': song.energy or '',
             'mood': song.mood or '',
             'starred': song.id in starred_ids if starred_ids else song.starred,
-            'year': song.year,
             'albums': [{'name': album.name, 'id': album.id} for album in song.albums],
             'tags': song.tags(),
             'disc_number': disc_number,

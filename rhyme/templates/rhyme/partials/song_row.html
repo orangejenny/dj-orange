@@ -14,7 +14,6 @@
             <li><a href="javascript: void(0)" data-bind="text: name, click: function() { $root.showModal(name, {album_id: id}) }"></a></li>
         </ul>
     </td>
-    <td data-bind="text: year"></td>
     <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
     <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
     <td><div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
