@@ -44,6 +44,7 @@ def index(request):
     context = {
         **_rhyme_context(),
         "has_export": True,
+        "model": "song",
         "playlists": [
             {"id": p.id, "name": p.name}
             for p in Playlist.objects.all()
@@ -165,6 +166,7 @@ def albums(request):
     template = loader.get_template('rhyme/albums.html')
     context = {
         **_rhyme_context(),
+        "model": "album",
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))

@@ -9,8 +9,8 @@
 {% endblock js %}
 
 {% block filters %}
-    <div class="btn-group" role="group" style="width: 200px;">
-        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist">
+    <div class="btn-group" role="group" style="width: 100%;">
+        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist" data-placeholder="No Active Playlist">
             <option></option>
             {% for playlist in playlists %}
                 <option value="{{ playlist.id }}">{{ playlist.name }}</option>
@@ -21,23 +21,21 @@
 {% endblock filters %}
 
 {% block content %}
-    <div class="item-page" data-url="{% url "song_list" %}">
-        <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
-            <thead>
-                <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Artist</th>
-                <th>Albums</th>
-                <th>Rating</th>
-                <th>Energy</th>
-                <th>Mood</th>
-                <th>Tags</th>
-            </thead>
-            <tbody data-bind="foreach: items">
-                {% include "rhyme/partials/song_row.html" %}
-            </tbody>
-        </table>
-    </div>
+    <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
+        <thead>
+            <th>&nbsp;</th>
+            <th>Name</th>
+            <th>Artist</th>
+            <th>Albums</th>
+            <th>Rating</th>
+            <th>Energy</th>
+            <th>Mood</th>
+            <th>Tags</th>
+        </thead>
+        <tbody class="item-page" data-url="{% url "song_list" %}" data-bind="foreach: items">
+            {% include "rhyme/partials/song_row.html" %}
+        </tbody>
+    </table>
 {% endblock content %}
 
 {% block modals %}{{ block.super }}

@@ -48,22 +48,25 @@ body > .loading {
 .post-nav {
     margin: @spacingWide;
 
-    #omni-filter {
-        display: inline-block;
+    .post-nav-left {
+        position: fixed;
+        top: @navHeight + @spacingWide + 24px;  // 24px for table header height
+        bottom: @spacingWide;
+        overflow-y: auto;
+        width: 16%;    // col-sm-2
 
-        input {
-            display: inline-block;
-            width: 150px;
+        > * {
+            margin-bottom: 5px;
         }
     }
 
-    // TODO: fix: infinite scroll no longer works
-    .xitem-page {
-        position: fixed;
-        top: @navHeight + @filterContainerHeight;
-        bottom: @spacingWide;
-        left: @spacingWide;
-        right: @spacingWide;
-        overflow-y: auto;
+    .post-nav-right {
+        // TODO: fix: infinite scroll no longer works
+        .item-page {
+            position: fixed;
+            top: @navHeight + @spacingWide + 24px;  // 24px for table header height
+            bottom: @spacingWide;
+            overflow-y: auto;
+        }
     }
 }

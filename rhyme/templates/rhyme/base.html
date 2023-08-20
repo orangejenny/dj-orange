@@ -65,11 +65,14 @@
     <div class="post-nav">
         <div class="row">
             <div class="col-sm-2">
+            <div class="post-nav-left">
                 {% block filters %}
-                    {% include "rhyme/partials/all_filters.html" %}
+                    <input class="form-control input-sm" data-bind="value: omniFilter, valueUpdate: 'keyup'" />
+                    {% include "rhyme/partials/filters.html" %}
                 {% endblock %}
             </div>
-            <div class="col-sm-10 text-center">
+            </div>
+            <div class="col-sm-10 text-center post-nav-right">
                 {% block content %}{% endblock %}
                 {% include "rhyme/partials/loading.html" %}
             </div>
