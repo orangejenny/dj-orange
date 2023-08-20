@@ -12,7 +12,7 @@
     {% include "rhyme/partials/all_filters.html" %}
 
     <div class="btn-group" role="group" style="width: 200px;"><!-- TODO: re-layout -->
-        <select class="form-control select2" id="active-playlist">
+        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist">
             <option></option>
             {% for playlist in playlists %}
                 <option value="{{ playlist.id }}">{{ playlist.name }}</option>

@@ -56,6 +56,7 @@ function rhymeModel (options) {
     self.count = ko.observable(0);
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
+    self.activePlaylistId = ko.observable('');
 
     self.modalName = ko.observable("");
     self.modalHeaders = ko.observableArray();
@@ -122,6 +123,10 @@ function rhymeModel (options) {
     self.omniFilter.subscribe(_.throttle(function (newValue) {
         self.refresh();
     }, {leading: false}));
+
+    self.activePlaylistId.subscribe(function (newValue) {
+        self.refresh();
+    });
 
     self.getFilterValue = function (e) {
         var $input = $(e.target).closest(".form-group").find("input, select");
