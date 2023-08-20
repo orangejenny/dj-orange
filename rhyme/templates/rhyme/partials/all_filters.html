@@ -1,8 +1,9 @@
-<div class="row">
-    <div class="col-sm-12 text-center">
-        {% include "rhyme/partials/infinite_scroll_item_count.html" %}
-        {% include "rhyme/partials/omni_filter.html" %}
-        {% include "rhyme/partials/filters.html" %}
-        {% include "rhyme/partials/read_only_filters.html" %}
-    </div>
+<span class="badge badge-light" data-bind="text: count"></span> {{ text }}
+
+<div id="omni-filter">
+    <input class="form-control" data-bind="value: omniFilter, valueUpdate: 'keyup'" />
 </div>
+
+{% include "rhyme/partials/filters.html" %}
+
+{% include "rhyme/partials/read_only_filters.html" %}
