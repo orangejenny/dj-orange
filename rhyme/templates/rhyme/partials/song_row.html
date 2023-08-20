@@ -2,6 +2,8 @@
     <td class="icon-cell is-starred" data-bind="reactStar: {
         id: id,
         value: starred,
+        onClasses: $parent.starOnClasses(),
+        offClasses: $parent.starOffClasses(),
     }">
     </td>
     <td data-bind="visible: track_number, text: track_number + '.'"></td>

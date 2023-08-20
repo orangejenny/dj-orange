@@ -56,7 +56,14 @@ function rhymeModel (options) {
     self.count = ko.observable(0);
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
+
     self.activePlaylistId = ko.observable('');
+    self.starOnClasses = ko.computed(function () {
+        return self.activePlaylistId() ? 'fa-check-square far' : 'fa-star fas';
+    });
+    self.starOffClasses = ko.computed(function () {
+        return self.activePlaylistId() ? 'fa-square far' : 'fa-star far';
+    });
 
     self.modalName = ko.observable("");
     self.modalHeaders = ko.observableArray();
