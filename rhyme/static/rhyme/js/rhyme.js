@@ -3,19 +3,29 @@ function pluralize(count, stem) {
 }
 
 function filterTypeModel (options) {
-    AssertArgs(options, ['lhs', 'allFilters']);
+    AssertArgs(options, ['lhs', 'root']);
 
     let self = {};
     self.lhs = options.lhs;
-    self.allFilters = options.allFilters;
+    self.root = options.root;
+
+    self.relevantFilters = ko.computed(function () {
+        return _.filter(self.root.filters(), function (f) {
+            return f.lhs === self.lhs;
+        });
+    });
 
     self.filterText = ko.computed(function () {
-        return _.map(_.filter(self.allFilters(), function (f) {
-            return f.lhs === self.lhs;
-        }), function (f) {
+        return _.map(self.relevantFilters(), function (f) {
             return f.readOnly();
         }).join(", ");
     });
+
+    self.removeFilters = function () {
+        _.each(self.relevantFilters(), function (f) {
+            self.root.removeFilter(f);
+        });
+    };
 
     return self;
 }
@@ -141,7 +151,7 @@ function rhymeModel (options) {
          if (!self.filterTypeModels[lhs]) {
             self.filterTypeModels[lhs] = new filterTypeModel({
                 lhs: lhs,
-                allFilters: self.filters,
+                root: self,
             });
         }
         return self.filterTypeModels[lhs];
