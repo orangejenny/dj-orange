@@ -1,5 +1,5 @@
 {% if not last %}
-    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon condensed=condensed %}
+    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon %}
 {% endif %}
 
 <div class="modal filter-modal" id="filter-modal-{{ name|slugify }}" tabindex="-1" role="dialog" aria-hidden="true" data-lhs="{{ lhs }}" data-bind="event: {'shown.bs.modal': focusFilter }">
@@ -35,5 +35,5 @@
 </div>
 
 {% if last %}
-    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon condensed=condensed %}
+    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon %}
 {% endif %}

@@ -19,19 +19,19 @@
                 <div data-bind="html: export_html"></div><br><br>
                 <div class="ratings">
                     <div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.max" icon="star" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.max" icon="fire" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.max" icon="heart" condensed=condensed %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.max" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.max" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.max" icon="heart" %}</div>
                     </div>
                     <div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.avg" icon="star" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.avg" icon="fire" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.avg" icon="heart" condensed=condensed %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.avg" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.avg" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.avg" icon="heart" %}</div>
                     </div>
                     <div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.min" icon="star" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.min" icon="fire" condensed=condensed %}</div>
-                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.min" icon="heart" condensed=condensed %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.rating.min" icon="star" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.energy.min" icon="fire" %}</div>
+                        <div class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="stats.mood.min" icon="heart" %}</div>
                     </div>
                     <br>
                     <div data-bind="html: completion_text"></div>
