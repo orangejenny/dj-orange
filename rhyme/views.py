@@ -73,6 +73,7 @@ def song_list(request):
         context.update({
             'cover_art_filename': album.cover_art_filename,
         })
+        starred_ids = None
     else:
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
@@ -84,6 +85,9 @@ def song_list(request):
         more = paginator.num_pages > page
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
+        active_playlist_id = request.GET.get('active_playlist_id') or None
+        active_playlist = Playlist.objects.get(id=active_playlist_id) if active_playlist_id else None
+        starred_ids = [s.id for s in active_playlist.songs] if active_playlist else None
 
     context.update({
         'count': count,
@@ -95,7 +99,7 @@ def song_list(request):
             'rating': song.rating or '',
             'energy': song.energy or '',
             'mood': song.mood or '',
-            'starred': song.starred,
+            'starred': song.id in starred_ids if starred_ids else song.starred,
             'year': song.year,
             'albums': [{'name': album.name, 'id': album.id} for album in song.albums],
             'tags': song.tags(),

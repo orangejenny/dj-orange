@@ -79,6 +79,7 @@ function rhymeModel (options) {
                 page: page,
                 omni_filter: self.omniFilter(),
                 conjunction: self.conjunction(),
+                active_playlist_id: self.activePlaylistId(),
             }, self.serializeFilters()),
             success: function(data) {
                 if (data.omni_filter !== self.omniFilter()) {
