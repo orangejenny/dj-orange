@@ -10,7 +10,7 @@
 
 {% block content %}
     <div class="item-page" data-url="{% url "album_list" %}">
-        <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
+        <div class="albums clearfix" data-bind="foreach: items">
             {% include "rhyme/partials/album.html" %}
         </div>
     </div>

@@ -61,10 +61,9 @@ body > .loading {
     }
 
     .post-nav-right {
-        // TODO: fix: infinite scroll no longer works
         .item-page {
             position: fixed;
-            top: @navHeight + @spacingWide + 24px;  // 24px for table header height
+            top: @navHeight + @spacingWide + 24px;  // 24px for table header height - needs for songs page, not too terrible on albums page
             bottom: @spacingWide;
             overflow-y: auto;
         }
