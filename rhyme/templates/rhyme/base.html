@@ -79,7 +79,9 @@
         </div>
     </div>
 
-    {% block modals %}{% endblock %}
+    {% block modals %}
+        {% include "rhyme/partials/modal_filters.html" %}
+    {% endblock %}
 
     <div id="rhyme-urls" class="hide">
         {% for name, url in RHYME_URLS.items %}
