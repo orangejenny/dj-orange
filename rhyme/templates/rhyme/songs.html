@@ -9,8 +9,8 @@
 {% endblock js %}
 
 {% block filters %}
-    <div class="btn-group" role="group" style="width: 100%;">
-        <select class="form-control select2" data-bind="value: activePlaylistName" id="active-playlist"
+    <div class="btn-group" role="group" id="active-playlist-container">
+        <select class="form-control select2" data-bind="value: activePlaylistName"
                 data-placeholder="No Active Playlist" data-allow-clear="1">
             <option></option>
             {% for playlist in playlists %}

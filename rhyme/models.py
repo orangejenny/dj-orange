@@ -275,10 +275,10 @@ class Playlist(models.Model):
     def songs(self):
         songs = self.natural_songs
 
-        song_ids_to_remove = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=False)
+        song_ids_to_remove = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=False).values_list("song_id", flat=True)
         songs = [s for s in songs if s.id not in song_ids_to_remove]
 
-        song_ids_to_add = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=True)
+        song_ids_to_add = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=True).values_list("song_id", flat=True)
         songs = songs + list(Song.objects.filter(id__in=song_ids_to_add))
 
         return songs
