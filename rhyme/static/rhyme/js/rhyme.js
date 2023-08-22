@@ -85,12 +85,12 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
 
-    self.activePlaylistId = ko.observable('');
+    self.activePlaylistName = ko.observable('');
     self.starOnClasses = ko.computed(function () {
-        return self.activePlaylistId() ? 'fa-check-square far' : 'fa-star fas';
+        return self.activePlaylistName() ? 'fa-check-square far' : 'fa-star fas';
     });
     self.starOffClasses = ko.computed(function () {
-        return self.activePlaylistId() ? 'fa-square far' : 'fa-star far';
+        return self.activePlaylistName() ? 'fa-square far' : 'fa-star far';
     });
 
     self.modalName = ko.observable("");
@@ -114,7 +114,7 @@ function rhymeModel (options) {
                 page: page,
                 omni_filter: self.omniFilter(),
                 conjunction: self.conjunction(),
-                active_playlist_id: self.activePlaylistId(),
+                active_playlist_name: self.activePlaylistName(),
             }, self.serializeFilters()),
             success: function(data) {
                 if (data.omni_filter !== self.omniFilter()) {
@@ -171,8 +171,15 @@ function rhymeModel (options) {
         self.refresh();
     }, {leading: false}));
 
-    self.activePlaylistId.subscribe(function (newValue) {
-        self.refresh();
+    self.activePlaylistName.subscribe(function (newValue) {
+        _.each(self.filters(), function (f) {
+            if (f.lhs === 'playlist') {
+                self.removeFilter(f);
+            }
+        });
+        if (newValue) {
+            self.addFilter(self.model, 'playlist', "*=", newValue);
+        }
     });
 
     self.getFilterValue = function (e) {

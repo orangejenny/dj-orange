@@ -86,8 +86,8 @@ def song_list(request):
         more = paginator.num_pages > page
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
-        active_playlist_id = request.GET.get('active_playlist_id') or None
-        active_playlist = Playlist.objects.get(id=active_playlist_id) if active_playlist_id else None
+        active_playlist_name = request.GET.get('active_playlist_name') or None
+        active_playlist = Playlist.objects.filter(name=active_playlist_name).first() if active_playlist_name else None
         starred_ids = [s.id for s in active_playlist.songs] if active_playlist else None
 
     context.update({
@@ -119,7 +119,7 @@ def song_update(request):
         song = Song.objects.get(id=post_data.get("id"))
         field = post_data.get("field")
         value = post_data.get("value")
-        playlist_id = post_data.get("playlist_id") or None
+        playlist_name = post_data.get("playlist_name") or None
     except JSONDecodeError:
         song = Song.objects.get(id=request.POST.get("id"))
         field = request.POST.get("field")
@@ -133,9 +133,9 @@ def song_update(request):
             song.tag_set.add(tag)
             if tag_created:
                 tag.save()
-    elif field == 'starred' and playlist_id is not None:
-        playlist = Playlist.objects.get(id=playlist_id)
-        playlist_song = PlaylistSong.objects.filter(playlist_id=playlist_id, song_id=song.id).first()
+    elif field == 'starred' and playlist_name is not None:
+        playlist = Playlist.objects.filter(name=playlist_name).first()
+        playlist_song = PlaylistSong.objects.filter(playlist_id=playlist.id, song_id=song.id)
         is_natural = song.id in [s.id for s in playlist.natural_songs]
 
         if value:
@@ -145,11 +145,11 @@ def song_update(request):
                     playlist_song.delete()
             else:
                 # add inclusion
-                PlaylistSong(playlist_id=playlist_id, song_id=song.id, inclusion=True).save()
+                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=True).save()
         else:
             if is_natural:
                 # add exclusion
-                PlaylistSong(playlist_id=playlist_id, song_id=song.id, inclusion=False).save()
+                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=False).save()
             else:
                 if playlist_song:
                     # delete presumable inclusion
