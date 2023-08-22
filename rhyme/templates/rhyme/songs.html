@@ -10,7 +10,8 @@
 
 {% block filters %}
     <div class="btn-group" role="group" style="width: 100%;">
-        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist" data-placeholder="No Active Playlist">
+        <select class="form-control select2" data-bind="value: activePlaylistId" id="active-playlist"
+                data-placeholder="No Active Playlist" data-allow-clear="1">
             <option></option>
             {% for playlist in playlists %}
                 <option value="{{ playlist.id }}">{{ playlist.name }}</option>
