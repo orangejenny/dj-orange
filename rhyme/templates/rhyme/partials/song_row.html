@@ -2,6 +2,7 @@
     <td class="icon-cell is-starred" data-bind="reactStar: {
         id: id,
         value: starred,
+        activePlaylistId: $root.activePlaylistId(),
         onClasses: $parent.starOnClasses(),
         offClasses: $parent.starOffClasses(),
     }">

@@ -4,6 +4,7 @@ export class Star extends React.Component {
         this.state = {
             id: this.props.id,
             value: this.props.value,
+            activePlaylistId: this.props.activePlaylistId,
             saving: false,
             error: false,
             onClasses: this.props.onClasses,
@@ -25,7 +26,7 @@ export class Star extends React.Component {
                 id: this.state.id,
                 field: 'starred',
                 value: this.state.value ? 0 : 1,
-                playlist_id: $("#active-playlist").val(),   // TODO: get playlist id from this.state
+                playlist_id: this.state.activePlaylistId,
             }),
         }).then((resp) => resp.json()).then(data => {
             this.setState({
