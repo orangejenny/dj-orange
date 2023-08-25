@@ -43,19 +43,6 @@ class Command(BaseCommand):
                 exclusions = playlist_songs.filter(inclusion=False)
                 print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
 
-    def get_processor(self):
-        model = input(f"Model ({' / '.join(self.models)}, q to quit)? ")
-        if model == "q":
-            return None
-        try:
-            return {
-                Processor.SONG: SongProcessor,
-                Processor.ALBUM: AlbumProcessor,
-                Processor.ARTIST: ArtistProcessor,
-            }[model]()
-        except KeyError:
-            return self.get_processor()
-
     def select_playlist(self):
         playlists = Playlist.objects.all().order_by("name")
         key = None
