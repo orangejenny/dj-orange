@@ -28,20 +28,20 @@ class Command(BaseCommand):
                 selected.delete()
                 selected = None
 
-        def print_details(self, playlist):
-            print(selected.name)
-            print(f"    {len(selected.songs)} song(s)")
-            if selected.song_filters:
-                print(f"        {selected.song_filters}")
-            if selected.album_filters:
-                print(f"        {selected.album_filters}")
-            if selected.omni_filter:
-                print(f"        [{selected.omni_filter}]")
-            playlist_songs = PlaylistSong.objects.filter(playlist_id=selected.id)
-            if playlist_songs.count():
-                inclusions = playlist_songs.filter(inclusion=True)
-                exclusions = playlist_songs.filter(inclusion=False)
-                print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
+    def print_details(self, playlist):
+        print(playlist.name)
+        print(f"    {len(playlist.songs)} song(s)")
+        if playlist.song_filters:
+            print(f"        {playlist.song_filters}")
+        if playlist.album_filters:
+            print(f"        {playlist.album_filters}")
+        if playlist.omni_filter:
+            print(f"        [{playlist.omni_filter}]")
+        playlist_songs = PlaylistSong.objects.filter(playlist_id=playlist.id)
+        if playlist_songs.count():
+            inclusions = playlist_songs.filter(inclusion=True)
+            exclusions = playlist_songs.filter(inclusion=False)
+            print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
 
     def select_playlist(self):
         playlists = Playlist.objects.all().order_by("name")
