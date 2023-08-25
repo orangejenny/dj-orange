@@ -17,23 +17,10 @@ class Command(BaseCommand):
         while key != "q":
             if selected is None:
                 selected = self.select_playlist()
-            key = input("What to do? (S)elect, E(x)pand, (R)ename, (D)elete, (Q)uit? ").lower()
+            self.print_details(selected)
+            key = input("What to do? (S)elect a different playlist, (R)ename, (D)elete, (Q)uit? ").lower()
             if key == "s":
                 selected = self.select_playlist()
-            elif key == "x":
-                print(selected.name)
-                print(f"    {len(selected.songs)} song(s)")
-                if selected.song_filters:
-                    print(f"        {selected.song_filters}")
-                if selected.album_filters:
-                    print(f"        {selected.album_filters}")
-                if selected.omni_filter:
-                    print(f"        [{selected.omni_filter}]")
-                playlist_songs = PlaylistSong.objects.filter(playlist_id=selected.id)
-                if playlist_songs.count():
-                    inclusions = playlist_songs.filter(inclusion=True)
-                    exclusions = playlist_songs.filter(inclusion=False)
-                    print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
             elif key == "r":
                 selected.name = input("New name? ")
                 selected.save()
@@ -41,18 +28,20 @@ class Command(BaseCommand):
                 selected.delete()
                 selected = None
 
-    def get_processor(self):
-        model = input(f"Model ({' / '.join(self.models)}, q to quit)? ")
-        if model == "q":
-            return None
-        try:
-            return {
-                Processor.SONG: SongProcessor,
-                Processor.ALBUM: AlbumProcessor,
-                Processor.ARTIST: ArtistProcessor,
-            }[model]()
-        except KeyError:
-            return self.get_processor()
+    def print_details(self, playlist):
+        print(playlist.name)
+        print(f"    {len(playlist.songs)} song(s)")
+        if playlist.song_filters:
+            print(f"        {playlist.song_filters}")
+        if playlist.album_filters:
+            print(f"        {playlist.album_filters}")
+        if playlist.omni_filter:
+            print(f"        [{playlist.omni_filter}]")
+        playlist_songs = PlaylistSong.objects.filter(playlist_id=playlist.id)
+        if playlist_songs.count():
+            inclusions = playlist_songs.filter(inclusion=True)
+            exclusions = playlist_songs.filter(inclusion=False)
+            print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
 
     def select_playlist(self):
         playlists = Playlist.objects.all().order_by("name")
