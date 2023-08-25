@@ -56,10 +56,21 @@ class Command(BaseCommand):
         for file in files:
             print(file)
 
-        if not files or input("\nGo ahead and scp (y/n)? ") not in ['y', 'Y']:
+        if not files:
             return []
 
-        return files
+        op = input("\nGo ahead and scp (y/n/(e)dit)? ")
+
+        if op in ['y', 'Y']:
+            return files
+
+        if op in ['e', 'E']:
+            for index, file in enumerate(files):
+                if input(f"Want to SCP {file} (y/n)? ") in ['Y', 'y']:
+                    return files[index:]
+
+        return []
+
 
     def get_repo(self):
         repo = Repo(os.getcwd())
