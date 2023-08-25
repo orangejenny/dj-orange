@@ -4,8 +4,11 @@ export class Star extends React.Component {
         this.state = {
             id: this.props.id,
             value: this.props.value,
+            activePlaylistName: this.props.activePlaylistName,
             saving: false,
             error: false,
+            onClasses: this.props.onClasses,
+            offClasses: this.props.offClasses,
         };
 
         this.toggleStar = this.toggleStar.bind(this);
@@ -23,6 +26,7 @@ export class Star extends React.Component {
                 id: this.state.id,
                 field: 'starred',
                 value: this.state.value ? 0 : 1,
+                playlist_name: this.state.activePlaylistName,
             }),
         }).then((resp) => resp.json()).then(data => {
             this.setState({
@@ -41,7 +45,7 @@ export class Star extends React.Component {
 
     render() {
         return (
-            <i className={`fa-star ${!this.state.value && !this.state.saving || this.state.error ? "far" : "fas"} ${this.state.saving ? "update-in-progress" : ""} ${this.state.error ? "text-danger" : ""}`}
+            <i className={`${!this.state.value && !this.state.saving || this.state.error ? this.state.offClasses : this.state.onClasses} ${this.state.saving ? "update-in-progress" : ""} ${this.state.error ? "text-danger" : ""}`}
                onClick={this.toggleStar}></i>
         );
     }

@@ -8,28 +8,25 @@
     <script src="{% static "rhyme/js/infinite_scroll_page.js" %}"></script>
 {% endblock js %}
 
-{% block content %}
-    {% include "rhyme/partials/all_filters.html" %}
-
-    <div class="item-page" data-url="{% url "song_list" %}">
-        <table class="song-table table table-striped table-condensed table-hover infinite-scroll-container">
-            <thead>
-                <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Artist</th>
-                <th>Albums</th>
-                <th>Year</th>
-                <th>Rating</th>
-                <th>Energy</th>
-                <th>Mood</th>
-                <th>Tags</th>
-            </thead>
-            <tbody data-bind="foreach: items">
-                {% include "rhyme/partials/song_row.html" %}
-            </tbody>
-        </table>
+{% block filters %}
+    <div class="btn-group" role="group" id="active-playlist-container">
+        <select class="form-control select2" data-bind="value: activePlaylistName"
+                data-placeholder="No Active Playlist" data-allow-clear="1">
+            <option></option>
+            {% for playlist in playlists %}
+                <option>{{ playlist.name }}</option>
+            {% endfor %}
+        </select>
     </div>
-    {% include "rhyme/partials/loading.html" %}
+    {{ block.super }}
+{% endblock filters %}
+
+{% block content %}
+    <table class="song-table table table-striped table-condensed table-hover">
+        <tbody class="item-page" data-url="{% url "song_list" %}" data-bind="foreach: items">
+            {% include "rhyme/partials/song_row.html" %}
+        </tbody>
+    </table>
 {% endblock content %}
 
 {% block modals %}{{ block.super }}

@@ -24,15 +24,8 @@
 {% endblock controls %}
 
 {% block content %}
-
-{% include "rhyme/partials/all_filters.html" %}
-
-{% include "rhyme/partials/loading.html" %}
-
-{% block visualization %}{% endblock %}
-
-<div id="tooltip" class="hide"></div>
-
+    {% block visualization %}{% endblock %}
+    <div id="tooltip" class="hide"></div>
 {% endblock content %}
 
 {% block modals %}{{ block.super }}

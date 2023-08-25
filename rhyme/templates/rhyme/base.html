@@ -23,6 +23,7 @@
 {% endblock js %}
 
 {% block body %}
+    {% include "rhyme/partials/loading.html" %}
     <div class="navbar-container">
         <nav class="navbar navbar-default">
             <a class='navbar-brand' href='#'>Rhyme</a>
@@ -58,21 +59,29 @@
                         Matrix
                     </a>
                 </li>
-                <li>
-                    <a href='{% url "playlist" %}'>
-                        <i class="fas fa-list"></i>
-                        Playlist
-                    </a>
-                </li>
             </ul>
         </nav>
     </div>
 
     <div class="post-nav">
-        {% block content %}{% endblock %}
+        <div class="row">
+            <div class="col-sm-2">
+            <div class="post-nav-left">
+                {% block filters %}
+                    <input class="form-control input-sm" data-bind="value: omniFilter, valueUpdate: 'keyup'" />
+                    {% include "rhyme/partials/filters.html" %}
+                {% endblock %}
+            </div>
+            </div>
+            <div class="col-sm-10 post-nav-right">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
     </div>
 
-    {% block modals %}{% endblock %}
+    {% block modals %}
+        {% include "rhyme/partials/modal_filters.html" %}
+    {% endblock %}
 
     <div id="rhyme-urls" class="hide">
         {% for name, url in RHYME_URLS.items %}

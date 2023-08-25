@@ -2,6 +2,34 @@ function pluralize(count, stem) {
     return +count === 1 ? stem : stem + "s";
 }
 
+function filterTypeModel (options) {
+    AssertArgs(options, ['lhs', 'root']);
+
+    let self = {};
+    self.lhs = options.lhs;
+    self.root = options.root;
+
+    self.relevantFilters = ko.computed(function () {
+        return _.filter(self.root.filters(), function (f) {
+            return f.lhs === self.lhs;
+        });
+    });
+
+    self.filterText = ko.computed(function () {
+        return _.map(self.relevantFilters(), function (f) {
+            return f.readOnly();
+        }).join(", ");
+    });
+
+    self.removeFilters = function () {
+        _.each(self.relevantFilters(), function (f) {
+            self.root.removeFilter(f);
+        });
+    };
+
+    return self;
+}
+
 function filterModel (options) {
     AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
@@ -24,7 +52,7 @@ function filterModel (options) {
             rhs = '"' + rhs + '"';
         }
 
-        return self.lhs + ' ' + op + ' ' + rhs;
+        return op + ' ' + rhs;
     };
 
     return self;
@@ -57,6 +85,14 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
 
+    self.activePlaylistName = ko.observable('');
+    self.starOnClasses = ko.computed(function () {
+        return self.activePlaylistName() ? 'fa-check-square far' : 'fa-star fas';
+    });
+    self.starOffClasses = ko.computed(function () {
+        return self.activePlaylistName() ? 'fa-square far' : 'fa-star far';
+    });
+
     self.modalName = ko.observable("");
     self.modalHeaders = ko.observableArray();
     self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
@@ -78,6 +114,7 @@ function rhymeModel (options) {
                 page: page,
                 omni_filter: self.omniFilter(),
                 conjunction: self.conjunction(),
+                active_playlist_name: self.activePlaylistName(),
             }, self.serializeFilters()),
             success: function(data) {
                 if (data.omni_filter !== self.omniFilter()) {
@@ -109,6 +146,17 @@ function rhymeModel (options) {
         }
     };
 
+    self.filterTypeModels = {};
+    self.getFilterTypeModel = function(lhs) {
+         if (!self.filterTypeModels[lhs]) {
+            self.filterTypeModels[lhs] = new filterTypeModel({
+                lhs: lhs,
+                root: self,
+            });
+        }
+        return self.filterTypeModels[lhs];
+    }
+
     self.addFilter = function (model, lhs, op, rhs) {
         self.filters.push(filterModel({
             model: model,
@@ -122,6 +170,17 @@ function rhymeModel (options) {
     self.omniFilter.subscribe(_.throttle(function (newValue) {
         self.refresh();
     }, {leading: false}));
+
+    self.activePlaylistName.subscribe(function (newValue) {
+        _.each(self.filters(), function (f) {
+            if (f.lhs === 'playlist') {
+                self.removeFilter(f);
+            }
+        });
+        if (newValue) {
+            self.addFilter(self.model, 'playlist', "*=", newValue);
+        }
+    });
 
     self.getFilterValue = function (e) {
         var $input = $(e.target).closest(".form-group").find("input, select");
@@ -275,6 +334,8 @@ $(function() {
             data = $element.data(),
             options = {
                 width: "100%",
+                placeholder: data.placeholder,
+                allowClear: data.allowClear,
             };
         if ($element.hasClass("in-modal")) {
             options.dropdownParent = $element.closest(".modal");

@@ -264,12 +264,37 @@ class Playlist(models.Model):
         return self.name
 
     @property
-    def songs(self):
+    def natural_songs(self):
         return Song.list(
             song_filters=self.song_filters,
             album_filters=self.album_filters,
             omni_filter=self.omni_filter,
         )
+
+    @property
+    def songs(self):
+        songs = self.natural_songs
+
+        song_ids_to_remove = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=False).values_list("song_id", flat=True)
+        songs = [s for s in songs if s.id not in song_ids_to_remove]
+
+        song_ids_to_add = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=True).values_list("song_id", flat=True)
+        songs = songs + list(Song.objects.filter(id__in=song_ids_to_add))
+
+        return songs
+
+
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    inclusion = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("playlist", "song")
+
+    def __str__(self):
+        verb = "includes" if self.inclusion else "excludes"
+        return "{} {} {}".format(str(self.playlist), verb, str(self.song))
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):

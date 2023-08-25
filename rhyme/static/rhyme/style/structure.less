@@ -1,11 +1,21 @@
 @import "variables.less";
 
 body > .loading {
+    @width: 400px;
+    @height: 75px;;
+
     position: fixed;
-    border-radius: 0;
-    > div {
-        position: fixed;
-    }
+    left: calc(50% - @width / 2);
+    top: 0;
+    z-index: 9999;  // :(
+
+    font-size: 200%;
+    border-radius: 0 0 8px 8px;
+    background-color: #cccccc;
+    opacity: 0.5;
+    padding: @spacingWide;
+    width: @width;
+    height: @height;
 }
 
 .navbar-container {
@@ -48,21 +58,24 @@ body > .loading {
 .post-nav {
     margin: @spacingWide;
 
-    #omni-filter {
-        display: inline-block;
+    .post-nav-left {
+        position: fixed;
+        top: @navHeight + @spacingWide;
+        bottom: @spacingWide;
+        overflow-y: auto;
+        width: 16%;    // col-sm-2
 
-        input {
-            display: inline-block;
-            width: 150px;
+        > * {
+            margin-bottom: 5px;
         }
     }
 
-    .item-page {
-        position: fixed;
-        top: @navHeight + @filterContainerHeight;
-        bottom: @spacingWide;
-        left: @spacingWide;
-        right: @spacingWide;
-        overflow-y: auto;
+    .post-nav-right {
+        .item-page {
+            position: fixed;
+            top: @navHeight + @spacingWide;
+            bottom: @spacingWide;
+            overflow-y: auto;
+        }
     }
 }
