@@ -17,13 +17,29 @@ class Command(BaseCommand):
         while key != "q":
             if selected is None:
                 selected = self.select_playlist()
-            key = input("What to do? (R)ename, (D)elete, (S)kip, (Q)uit? ").lower()
-            if key == "r":
+            key = input("What to do? (S)elect, E(x)pand, (R)ename, (D)elete, (Q)uit? ").lower()
+            if key == "s":
+                selected = self.select_playlist()
+            elif key == "x":
+                print(selected.name)
+                print(f"    {len(selected.songs)} song(s)")
+                if selected.song_filters:
+                    print(f"        {selected.song_filters}")
+                if selected.album_filters:
+                    print(f"        {selected.album_filters}")
+                if selected.omni_filter:
+                    print(f"        [{selected.omni_filter}]")
+                playlist_songs = PlaylistSong.objects.filter(playlist_id=selected.id)
+                if playlist_songs.count():
+                    inclusions = playlist_songs.filter(inclusion=True)
+                    exclusions = playlist_songs.filter(inclusion=False)
+                    print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
+            elif key == "r":
                 selected.name = input("New name? ")
                 selected.save()
             elif key == "d":
                 selected.delete()
-            selected = None
+                selected = None
 
     def get_processor(self):
         model = input(f"Model ({' / '.join(self.models)}, q to quit)? ")
@@ -44,18 +60,6 @@ class Command(BaseCommand):
         while key is None:
             for index, playlist in enumerate(playlists):
                 print(f"{index + 1}) {playlist.name}")
-                print(f"    {len(playlist.songs)} song(s)")
-                if playlist.song_filters:
-                    print(f"        {playlist.song_filters}")
-                if playlist.album_filters:
-                    print(f"        {playlist.album_filters}")
-                if playlist.omni_filter:
-                    print(f"        [{playlist.omni_filter}]")
-                playlist_songs = PlaylistSong.objects.filter(playlist_id=playlist.id)
-                if playlist_songs.count():
-                    inclusions = playlist_songs.filter(inclusion=True)
-                    exclusions = playlist_songs.filter(inclusion=False)
-                    print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
             key = input("Playlist? ")
             try:
                 key = int(key) - 1
