@@ -10,7 +10,6 @@
                 </h4>
             </div>
             <div class="modal-body">
-                {% include "rhyme/partials/loading.html" %}
                 <div data-bind="if: modalHeaders().length">
                     <div data-bind="foreach: modalHeaders()">
                         <h4 data-bind="text: $data"></h4>
