@@ -47,7 +47,7 @@ def index(request):
         "model": "song",
         "playlists": [
             {"id": p.id, "name": p.name}
-            for p in Playlist.objects.all()
+            for p in Playlist.objects.all().order_by("name")
         ],
     }
     return HttpResponse(template.render(context, request))
