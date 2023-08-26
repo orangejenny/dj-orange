@@ -86,7 +86,7 @@ def panel(request):
 
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
-    other_activities = sorted({a for a in set(all_activities) if a not in common_activities})
+    other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
 
     return JsonResponse({
         "all_activities": common_activities + other_activities,
