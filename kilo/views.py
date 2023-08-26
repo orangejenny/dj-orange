@@ -84,8 +84,7 @@ def panel(request):
     if activity:
         days = days.filter(workout__activity=activity).distinct()
 
-    all_activities = [w.activity for d in Day.objects.all() for w in d.workout_set.all()]
-    activity_counter = Counter(all_activities)
+    activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
     other_activities = sorted({a for a in set(all_activities) if a not in common_activities})
 
