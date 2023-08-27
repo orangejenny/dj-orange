@@ -336,6 +336,7 @@ $(function() {
                 width: "100%",
                 placeholder: data.placeholder,
                 allowClear: data.allowClear,
+                tags: data.tags,
             };
         if ($element.hasClass("in-modal")) {
             options.dropdownParent = $element.closest(".modal");
