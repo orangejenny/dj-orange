@@ -171,14 +171,21 @@ function rhymeModel (options) {
         self.refresh();
     }, {leading: false}));
 
+    let knownPlaylistNames = [];
+    $(document).ready(function () {
+        knownPlaylistNames = $("#active-playlist option:not(:first)").toArray().map((o) => o.innerText);
+    });
     self.activePlaylistName.subscribe(function (newValue) {
         _.each(self.filters(), function (f) {
             if (f.lhs === 'playlist') {
                 self.removeFilter(f);
             }
         });
-        if (newValue) {
+        if (newValue && knownPlaylistNames.find((p) => p === newValue)) {
             self.addFilter(self.model, 'playlist', "*=", newValue);
+        } else {
+            knownPlaylistNames.push(newValue);
+            self.refresh();
         }
     });
 
@@ -336,6 +343,7 @@ $(function() {
                 width: "100%",
                 placeholder: data.placeholder,
                 allowClear: data.allowClear,
+                tags: data.tags,
             };
         if ($element.hasClass("in-modal")) {
             options.dropdownParent = $element.closest(".modal");

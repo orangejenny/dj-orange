@@ -79,7 +79,7 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
         song_filters = request.GET.get('song_filters')
-        songs_per_page = request.GET.get('songs_per_page', 20)
+        songs_per_page = request.GET.get('songs_per_page', 100)
         songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
@@ -87,7 +87,13 @@ def song_list(request):
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
         active_playlist_name = request.GET.get('active_playlist_name') or None
-        active_playlist = Playlist.objects.filter(name=active_playlist_name).first() if active_playlist_name else None
+        active_playlist = None
+        if active_playlist_name:
+            active_playlist = Playlist.objects.filter(name=active_playlist_name).first()
+            if active_playlist is None:
+                active_playlist = Playlist.empty_playlist()
+                active_playlist.name = active_playlist_name
+                active_playlist.save()
         starred_ids = [s.id for s in active_playlist.songs] if active_playlist else None
 
     context.update({
@@ -100,7 +106,7 @@ def song_list(request):
             'rating': song.rating or '',
             'energy': song.energy or '',
             'mood': song.mood or '',
-            'starred': song.id in starred_ids if starred_ids else song.starred,
+            'starred': song.id in starred_ids if starred_ids is not None else song.starred,
             'albums': [{'name': album.name, 'id': album.id} for album in song.albums],
             'tags': song.tags(),
             'disc_number': disc_number,

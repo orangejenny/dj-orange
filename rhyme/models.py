@@ -263,6 +263,10 @@ class Playlist(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def empty_playlist(cls):
+        return Playlist(song_filters="rating=10")
+
     @property
     def natural_songs(self):
         return Song.list(

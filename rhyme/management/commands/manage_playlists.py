@@ -28,7 +28,9 @@ class Command(BaseCommand):
                 selected.delete()
                 selected = None
             elif key == "c":
-                selected = Playlist(name=input("New name? ")).save()
+                selected = Playlist.empty_playlist()
+                selected.name = input("New name? ")
+                selected.save()
 
     def print_details(self, playlist):
         print(playlist.name)
