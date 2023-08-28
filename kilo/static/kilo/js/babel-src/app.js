@@ -83,8 +83,8 @@ class App extends React.Component {
           ),
           templates: self.getTemplates(data.recent_days),
         });
-        if (!activity && data.graph_data) {
-          self.loadGraph(data.graph_data);
+        if (!activity && data.frequency_graph_data) {
+          self.loadGraph(data.frequency_graph_data);
         }
       }).catch((error) => {
         alert('Unexpected error:', error);
@@ -112,7 +112,7 @@ class App extends React.Component {
 
   loadGraph(data) {
     c3.generate({
-        bindto: '#graph',
+        bindto: '#frequency-graph',
         data: data,
         axis: {
             x: {
@@ -163,10 +163,13 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <br />
         <div className="row">
-          <div class="col-12">
-            {!this.state.activity && <div id="graph"></div>}
-            {this.state.activity && <div className="row">{this.state.stats}</div>}
-          </div>
+          {!this.state.activity && <div class="col-12">
+            <div id="frequency-graph"></div>
+            <div id="pace-graph"></div>
+          </div>}
+          {this.state.activity && <div class="col-12">
+            <div className="row">{this.state.stats}</div>
+          </div>}
         </div>
         <br /><br />
         <table className="table table-hover">
