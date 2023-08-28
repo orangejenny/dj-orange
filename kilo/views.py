@@ -111,15 +111,6 @@ def _get_stats(days, activity=None):
     last_month_days = days.filter(day__gte=today - timedelta(days=30))
     last_year_days = days.filter(day__gte=today - timedelta(days=365))
 
-    if not activity:
-        last_week_days = days.filter(day__gte=today - timedelta(days=7))
-        text = "days/week"
-        return [
-            {"name": "Past Week", "primary": last_week_days.count(), "secondary": text},
-            {"name": "Past Month", "primary": round(last_month_days.count() / 4.285, 1), "secondary": text},
-            {"name": "Past Year", "primary": round(last_year_days.count() / 52, 1), "secondary": text},
-        ]
-
     if activity == "erging":
         stats = [
             {"name": "Past Month", "primary": sum_erging(last_month_days), "secondary": "m erged"},

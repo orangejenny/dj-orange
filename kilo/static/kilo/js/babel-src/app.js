@@ -163,13 +163,9 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <br />
         <div className="row">
-          {!this.state.activity && <div class="col-5">
-            <div id="graph"></div>
-          </div>}
-          <div className={`${this.state.activity ? "col-12" : "col-7"}`}>
-            <div className="row">
-              {this.state.stats}
-            </div>
+          <div class="col-12">
+            {!this.state.activity && <div id="graph"></div>}
+            {this.state.activity && <div className="row">{this.state.stats}</div>}
           </div>
         </div>
         <br /><br />
