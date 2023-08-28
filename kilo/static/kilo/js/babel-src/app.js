@@ -83,9 +83,8 @@ class App extends React.Component {
           ),
           templates: self.getTemplates(data.recent_days),
         });
-        if (!activity && data.frequency_graph_data) {
-          self.loadGraph(data.frequency_graph_data);
-        }
+        self.loadFrequencyGraph(data.frequency_graph_data);
+        self.loadPaceGraph(data.pace_graph_data);
       }).catch((error) => {
         alert('Unexpected error:', error);
       });
@@ -110,9 +109,66 @@ class App extends React.Component {
     return templates;
   }
 
-  loadGraph(data) {
-    c3.generate({
+  getTime(seconds) {
+    return seconds;     // TODO: implement
+  }
+
+  loadFrequencyGraph(data) {
+    var self = this;
+    self.loadGraph(data, {
         bindto: '#frequency-graph',
+        tooltip: {
+            show: false,
+            grouped: false,
+            contents: function (points) {
+                var point = points[0],
+                    date = new Date(point.x).toLocaleDateString();
+                return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + self.getTime(point.value) + "</div>";
+            },
+        },
+        legend: {
+            show: true,
+        },
+        point: {
+            show: false,
+        },
+    }, {
+        max: 7,
+        tick: {
+            count: 8,
+        },
+    });
+  }
+
+  loadPaceGraph(data) {
+    var self = this;
+    self.loadGraph(data, {
+        bindto: '#pace-graph',
+        tooltip: {
+            show: true,
+            grouped: false,
+        },
+        legend: {
+            show: false,
+        },
+        point: {
+            show: true,
+        },
+    }, {
+        tick: {
+            format: function (seconds) {
+                return self.getTime(seconds);
+            },
+        },
+    });
+  }
+
+  loadGraph(data, options, axisYOptions) {
+    if (!data) {
+        return;
+    }
+
+    c3.generate(Object.assign(options, {
         data: data,
         axis: {
             x: {
@@ -123,37 +179,15 @@ class App extends React.Component {
                     rotate: 90,
                 },
             },
-            y: {
+            y: Object.assign(axisYOptions, {
                 min: 0,
-                max: this.state.activity ? undefined : 7,
-                tick: {
-                    count: this.state.activity ? undefined : 8,
-                    format: this.state.activity ? function (seconds) {
-                        return getTime(seconds);
-                    } : undefined,
-                },
                 padding: {
                     top: 0,
                     bottom: 0,
                 },
-            },
+            }),
         },
-        legend: {
-            show: !this.state.activity,
-        },
-        point: {
-            show: !!this.state.activity,
-        },
-        tooltip: {
-            show: !!this.state.activity,
-            grouped: false,
-            contents: this.state.activity ? function (points) {
-                var point = points[0],
-                    date = new Date(point.x).toLocaleDateString();
-                return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + getTime(point.value) + "</div>";
-            } : undefined,
-        },
-    });
+    }));
   }
 
   render() {
@@ -162,15 +196,13 @@ class App extends React.Component {
         <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        <div className="row">
-          {!this.state.activity && <div class="col-12">
-            <div id="frequency-graph"></div>
-            <div id="pace-graph"></div>
-          </div>}
-          {this.state.activity && <div class="col-12">
-            <div className="row">{this.state.stats}</div>
-          </div>}
-        </div>
+        {!this.state.activity && <div className="row">
+          <div class="col-6"><div id="frequency-graph"></div></div>
+          <div class="col-6"><div id="pace-graph"></div></div>
+        </div>}
+        {this.state.activity && <div class="col-12">
+          <div className="row">{this.state.stats}</div>
+        </div>}
         <br /><br />
         <table className="table table-hover">
           <tbody>{this.state.rows}</tbody>
