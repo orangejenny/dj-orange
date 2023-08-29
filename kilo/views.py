@@ -225,27 +225,26 @@ def _get_pace_graph_data(days):
     today = datetime.now().date()
     days = days.filter(day__gte=today - timedelta(days=30))
 
-    activity = "running"    # TODO: support both
+    series_map = {
+        # TODO: support intervals (average pace)
+        "2k": lambda w: w.activity == "erging" and w.km == 2,
+        "6k": lambda w: w.activity == "erging" and w.km == 6,
+        "short_run": lambda w: w.activity == "running" and w.km < 15,
+        "long_run": lambda w: w.activity == "running" and w.km > 15,
+    }
     data = {}
-    (short_label, long_label) = ("2k", "6k") if activity == "erging" else ("short", "long")     # TODO: add 500m, 1k
-    data["xs"] = {short_label: "x_short", long_label: "x_long"}
-    columns = {"x_short": [], short_label: [], "x_long": [], long_label: []}
-    boundary = 4 if activity == "erging" else 10
+    data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
+    columns = {f"y_{k}": [] for k in series_map.keys()}
+    columns.update({f"x_{k}": [] for k in series_map.keys()})
     for day in days:
         for workout in day.workout_set.all():
-            if workout.activity == activity:
-                (x, y) = (None, None)
-                if workout.km is None:
-                    continue
-                if workout.km <= boundary:
-                    x = "x_short"
-                    y = short_label
-                elif workout.km > boundary:
-                    x = "x_long"
-                    y = long_label
-                if x and y:
-                    columns[x].append(day.day.strftime("%Y-%m-%d"))
-                    columns[y].append(workout.seconds)
+            series_key = None
+            for key, test in series_map.items():
+                if test(workout):
+                    series_key = key
+            if series_key:
+                columns[f"x_{series_key}"].append(day.day.strftime("%Y-%m-%d"))
+                columns[f"y_{series_key}"].append(workout.seconds)
     data["types"] = {key: "spline" for key in columns.keys()}
     data["columns"] = [
         [label] + values
