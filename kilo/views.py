@@ -225,26 +225,38 @@ def _get_pace_graph_data(days):
     today = datetime.now().date()
     days = days.filter(day__gte=today - timedelta(days=30))
 
+    def interval_filter(wset, activity, distance_test):
+        if any([w.activity != activity for w in wset.all()]):
+            return False
+        return all([distance_test(w.km) for w in wset.all()])
+
+    def single_workout_filter(wset, activity, distance_test):
+        if wset.count() != 1:
+            return False
+        if wset.first().activity != activity:
+            return False
+        return distance_test(wset.first().km)
+
     series_map = {
-        # TODO: support intervals (average pace)
-        "2k": lambda w: w.activity == "erging" and w.km == 2,
-        "6k": lambda w: w.activity == "erging" and w.km == 6,
-        "short_run": lambda w: w.activity == "running" and w.km < 15,
-        "long_run": lambda w: w.activity == "running" and w.km > 15,
+        "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
+        "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
+        "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
+        "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
+        "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
+        "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
     }
     data = {}
     data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
     columns = {f"y_{k}": [] for k in series_map.keys()}
     columns.update({f"x_{k}": [] for k in series_map.keys()})
     for day in days:
-        for workout in day.workout_set.all():
-            series_key = None
-            for key, test in series_map.items():
-                if test(workout):
-                    series_key = key
-            if series_key:
-                columns[f"x_{series_key}"].append(day.day.strftime("%Y-%m-%d"))
-                columns[f"y_{series_key}"].append(workout.seconds)
+        series_key = None
+        for key, test in series_map.items():
+            if test(day.workout_set):
+                series_key = key
+        if series_key:
+            columns[f"x_{series_key}"].append(day.day.strftime("%Y-%m-%d"))
+            columns[f"y_{series_key}"].append(sum([w.seconds for w in day.workout_set.all()]))
     data["types"] = {key: "spline" for key in columns.keys()}
     data["columns"] = [
         [label] + values
