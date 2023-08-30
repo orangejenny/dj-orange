@@ -123,7 +123,12 @@ class App extends React.Component {
     let minutes = Math.floor(seconds / 60);
         seconds = seconds % 60;
 
-    if (minutes < 10) {
+    if (Math.floor(seconds * 10) !== seconds * 10) {
+        // Account for floating point math that screws up rounding
+        seconds = Math.floor(seconds * 10) / 10;
+    }
+
+    if (hours && minutes < 10) {
         minutes = "0" + minutes;
     }
     if (seconds < 10) {
