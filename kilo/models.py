@@ -13,6 +13,22 @@ class Day(models.Model):
     def primary_activity(self):
         return self.workout_set.last().activity if self.workout_set.count() else None
 
+    def average_pace_seconds(self):
+        first = self.workout_set.first()
+        if first is None:
+            return None
+
+        if self.workout_set.count() == 1:
+            return first.pace_seconds(first.distance, first.distance_unit, first.seconds)
+
+        workouts = self.workout_set.filter(distance=first.distance, distance_unit=first.distance_unit)
+        if workouts.count():
+            return Workout.pace_seconds(first.distance,
+                                        first.distance_unit,
+                                        sum([w.seconds for w in workouts]) / workouts.count())
+
+        return None
+
     def to_json(self):
         return {
             "id": self.id,
@@ -107,7 +123,8 @@ class Workout(models.Model):
     def time(self):
         return self._time(self.seconds)
 
-    def _time(self, seconds):
+    @classmethod
+    def _time(cls, seconds):
         if seconds is None:
             return None
 
@@ -119,28 +136,33 @@ class Workout(models.Model):
         seconds = round(remaining, 1) if int(seconds) != float(seconds) else int(remaining)
 
         hours = f"{hours}:" if hours else ""
-        minutes = f"{self._pad(minutes) if hours else minutes}:"
-        return f"{hours}{minutes}{self._pad(seconds)}"
+        minutes = f"{cls._pad(minutes) if hours else minutes}:"
+        return f"{hours}{minutes}{cls._pad(seconds)}"
 
-    def _pad(self, num):
+    @classmethod
+    def _pad(cls, num):
         return f"0{num}" if num < 10 else str(num)
+
+    @classmethod
+    def pace_seconds(cls, distance, distance_unit, seconds):
+        if not distance or not seconds:
+            return None
+
+        if distance_unit == Workout.MILES:
+            # Minutes per mile, to the second
+            return round(seconds / distance)
+        elif distance_unit == Workout.KILOMETERS:
+            # Minutes per 500m, to the tenth of a second
+            return round(seconds / distance / 2, 1)
+        elif distance_unit == Workout.METERS:
+            # Minutes per 500m, to the tenth of a second
+            return round(seconds / distance * 500, 1)
+
+        return None
 
     @property
     def pace(self):
-        if not self.distance or not self.seconds:
-            return None
-
-        if self.distance_unit == Workout.MILES:
-            # Minutes per mile, to the second
-            return self._time(round(self.seconds / self.distance))
-        elif self.distance_unit == Workout.KILOMETERS:
-            # Minutes per 500m, to the tenth of a second
-            return self._time(self.seconds / self.distance / 2)
-        elif self.distance_unit == Workout.METERS:
-            # Minutes per 500m, to the tenth of a second
-            return self._time(self.seconds / self.distance * 500)
-
-        return None
+        return self._time(self.pace_seconds(self.distance, self.distance_unit, self.seconds))
 
     def to_json(self):
         return {

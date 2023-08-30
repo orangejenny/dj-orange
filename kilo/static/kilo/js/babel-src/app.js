@@ -83,8 +83,11 @@ class App extends React.Component {
           ),
           templates: self.getTemplates(data.recent_days),
         });
-        if (!activity && data.graph_data) {
-          self.loadGraph(data.graph_data);
+        if (data.frequency_graph_data) {
+            self.loadFrequencyGraph(data.frequency_graph_data);
+        }
+        if (data.pace_graph_data) {
+            self.loadPaceGraph(data.pace_graph_data);
         }
       }).catch((error) => {
         alert('Unexpected error:', error);
@@ -110,9 +113,78 @@ class App extends React.Component {
     return templates;
   }
 
-  loadGraph(data) {
-    c3.generate({
-        bindto: '#graph',
+  getTime(seconds) {
+    let hours = 0;
+    if (seconds > 3600) {
+        hours = Math.floor(seconds / 3600);
+        seconds = seconds - hours * 3600;
+    }
+
+    let minutes = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+
+    if (Math.floor(seconds * 10) !== seconds * 10) {
+        // Account for floating point math that screws up rounding
+        seconds = Math.floor(seconds * 10) / 10;
+    }
+
+    if (hours && minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+
+    if (hours) {
+        return [hours, minutes, seconds].join(":")
+    }
+    return [minutes, seconds].join(":");
+  }
+
+  loadFrequencyGraph(data) {
+    let self = this,
+        options = self.graphOptions(data);
+
+    options.bindto = "#frequency-graph";
+    options.tooltip = {
+        show: false,
+        grouped: false,
+    };
+    options.legend = { show: true };
+    options.point = { show: false };
+    options.axis.y.max = 7;
+    options.axis.y.tick = { count: 8 };
+
+    c3.generate(options);
+  }
+
+  // TODO: make graph legible
+  loadPaceGraph(data) {
+    let self = this,
+        options = self.graphOptions(data);
+
+    options.bindto = "#pace-graph";
+    options.tooltip = {
+        show: true,
+        grouped: false,
+    };
+    options.legend = { show: false };
+    options.point = { show: true };
+    options.axis.y.tick = {
+        format: self.getTime,
+    };
+    options.axis.y2 = {
+        show: true,
+        tick: {
+            format: self.getTime,
+        },
+    };
+
+    c3.generate(options);
+  }
+
+  graphOptions(data) {
+    return {
         data: data,
         axis: {
             x: {
@@ -125,35 +197,13 @@ class App extends React.Component {
             },
             y: {
                 min: 0,
-                max: this.state.activity ? undefined : 7,
-                tick: {
-                    count: this.state.activity ? undefined : 8,
-                    format: this.state.activity ? function (seconds) {
-                        return getTime(seconds);
-                    } : undefined,
-                },
                 padding: {
                     top: 0,
                     bottom: 0,
                 },
             },
         },
-        legend: {
-            show: !this.state.activity,
-        },
-        point: {
-            show: !!this.state.activity,
-        },
-        tooltip: {
-            show: !!this.state.activity,
-            grouped: false,
-            contents: this.state.activity ? function (points) {
-                var point = points[0],
-                    date = new Date(point.x).toLocaleDateString();
-                return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + getTime(point.value) + "</div>";
-            } : undefined,
-        },
-    });
+    };
   }
 
   render() {
@@ -162,16 +212,13 @@ class App extends React.Component {
         <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        <div className="row">
-          {!this.state.activity && <div class="col-5">
-            <div id="graph"></div>
-          </div>}
-          <div className={`${this.state.activity ? "col-12" : "col-7"}`}>
-            <div className="row">
-              {this.state.stats}
-            </div>
-          </div>
-        </div>
+        {!this.state.activity && <div className="row">
+          <div class="col-6"><div id="frequency-graph"></div></div>
+          <div class="col-6"><div id="pace-graph"></div></div>
+        </div>}
+        {this.state.activity && <div class="col-12">
+          <div className="row">{this.state.stats}</div>
+        </div>}
         <br /><br />
         <table className="table table-hover">
           <tbody>{this.state.rows}</tbody>

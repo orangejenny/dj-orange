@@ -93,7 +93,8 @@ def panel(request):
         "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
         "recent_days": [_format_day(d) for d in days[:500]],
         "stats": _get_stats(days, activity),
-        "graph_data": _get_graph_data(days, activity),
+        "frequency_graph_data": _get_frequency_graph_data(days),
+        "pace_graph_data": _get_pace_graph_data(days),
     })
 
 
@@ -110,15 +111,6 @@ def _get_stats(days, activity=None):
     today = datetime.now().date()
     last_month_days = days.filter(day__gte=today - timedelta(days=30))
     last_year_days = days.filter(day__gte=today - timedelta(days=365))
-
-    if not activity:
-        last_week_days = days.filter(day__gte=today - timedelta(days=7))
-        text = "days/week"
-        return [
-            {"name": "Past Week", "primary": last_week_days.count(), "secondary": text},
-            {"name": "Past Month", "primary": round(last_month_days.count() / 4.285, 1), "secondary": text},
-            {"name": "Past Year", "primary": round(last_year_days.count() / 52, 1), "secondary": text},
-        ]
 
     if activity == "erging":
         stats = [
@@ -194,59 +186,89 @@ def _get_stats(days, activity=None):
     return []
 
 
-def _get_graph_data(days, activity=None):
-    today = datetime.now().date()
-    days = days.filter(day__gte=today - timedelta(days=30 if activity else 90))
-
+def _get_frequency_graph_data(days):
     if not days.count():
         return None
 
+    today = datetime.now().date()
+    days = days.filter(day__gte=today - timedelta(days=180))
+
     data = {}
-    if not activity:
-        data["x"] = "day"
-        all_activities = {w.activity for d in days for w in d.workout_set.all()}
-        day_series = []
-        series = defaultdict(list)
-        index = days.last().day
-        while index <= datetime.now().date():
-            day_series.append(index.strftime("%Y-%m-%d"))
-            next_index = index + timedelta(days=7)
-            activity_counts = defaultdict(lambda: 0)
-            for day in days.filter(day__gte=index, day__lt=next_index):
-                activity_counts[day.primary_activity()] += 1
-            for activity in all_activities:
-                series[activity].append(activity_counts[activity] or 0)
-            index = next_index
-        data["columns"] = [["day"] + day_series] + [
-            [activity] + counts
-            for activity, counts in series.items()
-        ]
-        data["types"] = {activity: "area-spline" for activity in all_activities}
-        data["groups"] = [list(all_activities)]
-    else:
-        (short_label, long_label) = ("2k", "6k") if activity == "erging" else ("short", "long")
-        data["xs"] = {short_label: "x_short", long_label: "x_long"}
-        columns = {"x_short": [], short_label: [], "x_long": [], long_label: []}
-        boundary = 4 if activity == "erging" else 10
-        for day in days:
-            for workout in day.workout_set.all():
-                if workout.activity == activity:
-                    (x, y) = (None, None)
-                    if workout.km is None:
-                        continue
-                    if workout.km <= boundary:
-                        x = "x_short"
-                        y = short_label
-                    elif workout.km > boundary:
-                        x = "x_long"
-                        y = long_label
-                    if x and y:
-                        columns[x].append(day.day.strftime("%Y-%m-%d"))
-                        columns[y].append(workout.seconds)
-        data["types"] = {key: "spline" for key in columns.keys()}
-        data["columns"] = [
-            [label] + values
-            for label, values in columns.items()
-        ]
+    data["x"] = "day"
+    all_activities = {w.activity for d in days for w in d.workout_set.all()}
+    day_series = []
+    series = defaultdict(list)
+    index = days.last().day
+    while index <= datetime.now().date():
+        day_series.append(index.strftime("%Y-%m-%d"))
+        next_index = index + timedelta(days=7)
+        activity_counts = defaultdict(lambda: 0)
+        for day in days.filter(day__gte=index, day__lt=next_index):
+            activity_counts[day.primary_activity()] += 1
+        for activity in all_activities:
+            series[activity].append(activity_counts[activity] or 0)
+        index = next_index
+    data["columns"] = [["day"] + day_series] + [
+        [activity] + counts
+        for activity, counts in series.items()
+    ]
+    data["types"] = {activity: "area-spline" for activity in all_activities}
+    data["groups"] = [list(all_activities)]
+
+    return data
+
+
+def _get_pace_graph_data(days):
+    if not days.count():
+        return None
+
+    today = datetime.now().date()
+    days = days.filter(day__gte=today - timedelta(days=30))
+
+    def interval_filter(wset, activity, distance_test):
+        if any([w.activity != activity for w in wset.all()]):
+            return False
+        return all([distance_test(w.km) for w in wset.all()])
+
+    def single_workout_filter(wset, activity, distance_test):
+        if wset.count() != 1:
+            return False
+        if wset.first().activity != activity:
+            return False
+        return distance_test(wset.first().km)
+
+    series_map = {
+        "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
+        "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
+        "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
+        "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
+        "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
+        "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
+    }
+    data = {}
+    data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
+    data["axes"] = {
+        "y_short_run": "y",
+        "y_long_run": "y",
+        "y_500m": "y2",
+        "y_1000m": "y2",
+        "y_2k": "y2",
+        "y_6k": "y2",
+    }
+    columns = {f"y_{k}": [] for k in series_map.keys()}
+    columns.update({f"x_{k}": [] for k in series_map.keys()})
+    for day in days:
+        series_key = None
+        for key, test in series_map.items():
+            if test(day.workout_set):
+                series_key = key
+        if series_key:
+            columns[f"x_{series_key}"].append(day.day.strftime("%Y-%m-%d"))
+            columns[f"y_{series_key}"].append(day.average_pace_seconds())
+    data["types"] = {key: "spline" for key in columns.keys()}
+    data["columns"] = [
+        [label] + values
+        for label, values in columns.items()
+    ]
 
     return data
