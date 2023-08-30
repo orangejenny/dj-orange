@@ -264,7 +264,7 @@ def _get_pace_graph_data(days):
                 series_key = key
         if series_key:
             columns[f"x_{series_key}"].append(day.day.strftime("%Y-%m-%d"))
-            columns[f"y_{series_key}"].append(sum([w.seconds for w in day.workout_set.all()]))
+            columns[f"y_{series_key}"].append(day.average_pace_seconds())
     data["types"] = {key: "spline" for key in columns.keys()}
     data["columns"] = [
         [label] + values
