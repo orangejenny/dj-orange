@@ -144,11 +144,6 @@ class App extends React.Component {
     options.tooltip = {
         show: false,
         grouped: false,
-        contents: function (points) {
-            var point = points[0],
-                date = new Date(point.x).toLocaleDateString();
-            return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + self.getTime(point.value) + "</div>";
-        },
     };
     options.legend = { show: true };
     options.point = { show: false };
