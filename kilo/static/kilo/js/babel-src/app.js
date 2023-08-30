@@ -83,8 +83,12 @@ class App extends React.Component {
           ),
           templates: self.getTemplates(data.recent_days),
         });
-        self.loadFrequencyGraph(data.frequency_graph_data);
-        self.loadPaceGraph(data.pace_graph_data);
+        if (data.frequency_graph_data) {
+            self.loadFrequencyGraph(data.frequency_graph_data);
+        }
+        if (data.pace_graph_data) {
+            self.loadPaceGraph(data.pace_graph_data);
+        }
       }).catch((error) => {
         alert('Unexpected error:', error);
       });
@@ -114,61 +118,51 @@ class App extends React.Component {
   }
 
   loadFrequencyGraph(data) {
-    var self = this;
-    self.loadGraph(data, {
-        bindto: '#frequency-graph',
-        tooltip: {
-            show: false,
-            grouped: false,
-            contents: function (points) {
-                var point = points[0],
-                    date = new Date(point.x).toLocaleDateString();
-                return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + self.getTime(point.value) + "</div>";
-            },
+    let self = this,
+        options = self.graphOptions(data);
+
+    options.bindto = "#frequency-graph";
+    options.tooltip = {
+        show: false,
+        grouped: false,
+        contents: function (points) {
+            var point = points[0],
+                date = new Date(point.x).toLocaleDateString();
+            return "<div style='background: #fff; padding: 5px; opacity: 0.9;'>" + date + " " + self.getTime(point.value) + "</div>";
         },
-        legend: {
-            show: true,
-        },
-        point: {
-            show: false,
-        },
-    }, {
-        max: 7,
-        tick: {
-            count: 8,
-        },
-    });
+    };
+    options.legend = { show: true };
+    options.point = { show: false };
+    options.axis.y.max = 7;
+    options.axis.y.tick = { count: 8 };
+
+    c3.generate(options);
   }
 
+  // TODO: make graph legible
   loadPaceGraph(data) {
-    var self = this;
-    self.loadGraph(data, {
-        bindto: '#pace-graph',
-        tooltip: {
-            show: true,
-            grouped: false,
+    let self = this,
+        options = self.graphOptions(data);
+
+    options.bindto = "#pace-graph";
+    options.tooltip = {
+        show: true,
+        grouped: false,
+    };
+    options.legend = { show: false };
+    options.point = { show: true };
+    options.axis.y.tick = {
+        format: function (seconds) {
+            return self.getTime(seconds);
         },
-        legend: {
-            show: false,
-        },
-        point: {
-            show: true,
-        },
-    }, {
-        tick: {
-            format: function (seconds) {
-                return self.getTime(seconds);
-            },
-        },
-    });
+    };
+    options.axis.y2 = { show: true };
+
+    c3.generate(options);
   }
 
-  loadGraph(data, options, axisYOptions) {
-    if (!data) {
-        return;
-    }
-
-    c3.generate(Object.assign(options, {
+  graphOptions(data) {
+    return {
         data: data,
         axis: {
             x: {
@@ -179,15 +173,15 @@ class App extends React.Component {
                     rotate: 90,
                 },
             },
-            y: Object.assign(axisYOptions, {
+            y: {
                 min: 0,
                 padding: {
                     top: 0,
                     bottom: 0,
                 },
-            }),
+            },
         },
-    }));
+    };
   }
 
   render() {

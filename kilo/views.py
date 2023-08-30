@@ -247,6 +247,14 @@ def _get_pace_graph_data(days):
     }
     data = {}
     data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
+    data["axes"] = {
+        "y_short_run": "y",
+        "y_long_run": "y",
+        "y_500m": "y2",
+        "y_1000m": "y2",
+        "y_2k": "y2",
+        "y_6k": "y2",
+    }
     columns = {f"y_{k}": [] for k in series_map.keys()}
     columns.update({f"x_{k}": [] for k in series_map.keys()})
     for day in days:
