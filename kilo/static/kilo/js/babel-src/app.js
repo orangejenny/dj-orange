@@ -114,7 +114,26 @@ class App extends React.Component {
   }
 
   getTime(seconds) {
-    return seconds;     // TODO: implement
+    let hours = 0;
+    if (seconds > 3600) {
+        hours = Math.floor(seconds / 3600);
+        seconds = seconds - hours * 3600;
+    }
+
+    let minutes = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+
+    if (hours) {
+        return [hours, minutes, seconds].join(":")
+    }
+    return [minutes, seconds].join(":");
   }
 
   loadFrequencyGraph(data) {
@@ -152,11 +171,14 @@ class App extends React.Component {
     options.legend = { show: false };
     options.point = { show: true };
     options.axis.y.tick = {
-        format: function (seconds) {
-            return self.getTime(seconds);
+        format: self.getTime,
+    };
+    options.axis.y2 = {
+        show: true,
+        tick: {
+            format: self.getTime,
         },
     };
-    options.axis.y2 = { show: true };
 
     c3.generate(options);
   }
