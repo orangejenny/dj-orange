@@ -1,14 +1,14 @@
 <div class="dropdown export-dropdown pull-right">
     <button class="btn btn-info btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
         <span class="fas fa-cloud-download-alt"></span>
-        Export <span data-bind="text: count"></span> {{ model }}s
+        Export <span data-bind="text: {{ count }}"></span> {{ model }}s
         <span class="caret"></span>
     </button>
 
     <ul class="dropdown-menu">
         {% for config in RHYME_EXPORT_CONFIGS %}
             <li>
-                <a href="#" data-bind="click: function () { exportPlaylist('{{ config.name }}', {{ params }}) }">
+                <a href="#" data-bind="click: function () { exportPlaylist('{{ config.name }}', '{{ model }}', {{ params }}) }">
                     <i class="fas {{ config.icon }}"></i>
                     {{ config.name|title }}
                 </a>

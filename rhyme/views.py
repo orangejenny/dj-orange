@@ -255,6 +255,9 @@ def album_export(request):
 @require_GET
 @login_required
 def song_export(request):
+    if request.GET.get('album_id'):
+        return album_export(request)
+
     filter_kwargs = {
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),

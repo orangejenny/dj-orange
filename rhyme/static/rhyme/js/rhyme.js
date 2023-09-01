@@ -97,6 +97,7 @@ function rhymeModel (options) {
     self.modalHeaders = ko.observableArray();
     self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
     self.songListParams = ko.observable();
+    self.songListCount = ko.observable(0);
 
     self.refresh = function(page) {
         if (!self.url) {
@@ -261,7 +262,6 @@ function rhymeModel (options) {
     self.exportPlaylist = function (config, additionalParams) {
         var params = {
             config: config,
-            model: self.model,
         };
         if (self.modalName()) {
             params = _.extend(params, {
@@ -280,6 +280,7 @@ function rhymeModel (options) {
         self.modalHeaders([]);
         self.modalSongs([]);
         self.songListParams({});
+        self.songListCount(0);
     };
 
     self.showModal = function (name, songListParams) {
@@ -298,6 +299,7 @@ function rhymeModel (options) {
             success: function (data) {
                 self.isLoading(false);
                 self.modalSongs(data.items);
+                self.songListCount(data.items.length);
                 self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();

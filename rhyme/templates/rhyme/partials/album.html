@@ -1,4 +1,4 @@
-<div class="album clearfix" data-bind="attr: {'data-id': id}, click: function() { $root.showModal(name, {album_id: id, filename: artist + ' - ' + name}, cover_art_filename) }">
+<div class="album clearfix" data-bind="attr: {'data-id': id}, click: function() { $root.showModal(name, {album_id: id}, cover_art_filename) }">
     <div class="cover-art"
          data-bind="
             css: {'missing': !cover_art_filename},

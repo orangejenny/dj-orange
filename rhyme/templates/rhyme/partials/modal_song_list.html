@@ -4,7 +4,7 @@
             <div class="modal-header">
                 <h4>
                     <div class="pull-right">
-                        {% include "rhyme/partials/export_action.html" with params="songListParams()" %}
+                        {% include "rhyme/partials/export_action.html" with count="songListCount" model="song" params="songListParams()" %}
                     </div>
                     <span class="modal-title" data-bind="text: modalName"></span>
                 </h4>
