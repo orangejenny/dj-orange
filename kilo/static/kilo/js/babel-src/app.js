@@ -152,6 +152,7 @@ class App extends React.Component {
     };
     options.legend = { show: true };
     options.point = { show: false };
+    options.axis.y.min = 0;
     options.axis.y.max = 7;
     options.axis.y.tick = { count: 8 };
 
@@ -196,7 +197,6 @@ class App extends React.Component {
                 },
             },
             y: {
-                min: 0,
                 padding: {
                     top: 0,
                     bottom: 0,
