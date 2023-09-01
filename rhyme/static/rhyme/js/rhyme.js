@@ -295,7 +295,9 @@ function rhymeModel (options) {
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
-            data: songListParams,
+            data: _.extend({
+                active_playlist_name: self.activePlaylistName(),
+            }, songListParams),
             success: function (data) {
                 self.isLoading(false);
                 self.modalSongs(data.items);
