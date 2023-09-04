@@ -30,7 +30,7 @@
             {% if has_export %}
                 <div class="controls">
                     {% block controls %}
-                        {% include "rhyme/partials/export_action.html" with params="{}" %}
+                        {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
                     {% endblock controls %}
                 </div>
             {% endif %}

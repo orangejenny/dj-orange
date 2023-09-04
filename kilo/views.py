@@ -223,7 +223,7 @@ def _get_pace_graph_data(days):
         return None
 
     today = datetime.now().date()
-    days = days.filter(day__gte=today - timedelta(days=30))
+    days = days.filter(day__gte=today - timedelta(days=90))
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):

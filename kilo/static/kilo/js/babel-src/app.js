@@ -170,13 +170,21 @@ class App extends React.Component {
     };
     options.legend = { show: false };
     options.point = { show: true };
+    options.axis.y.min = 0 * 60;
+    options.axis.y.max = 11 * 60;
     options.axis.y.tick = {
+        outer: false,
         format: self.getTime,
+        values: [7, 8, 9, 10].map(x => x * 60),
     };
     options.axis.y2 = {
         show: true,
+        min: 1.75 * 60,
+        max: 2.5 * 60,
         tick: {
+            outer: false,
             format: self.getTime,
+            values: [105, 110, 115, 120, 125, 130, 135],
         },
     };
 
@@ -191,6 +199,7 @@ class App extends React.Component {
                 type: 'timeseries',
                 tick: {
                     count: data.columns[0].length,
+                    fit: true,
                     format: '%b %d',
                     rotate: 90,
                 },
