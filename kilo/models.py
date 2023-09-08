@@ -25,7 +25,7 @@ class Day(models.Model):
         if workouts.count():
             return Workout.pace_seconds(first.distance,
                                         first.distance_unit,
-                                        sum([w.seconds for w in workouts]) / workouts.count())
+                                        sum([w.seconds for w in workouts if w.seconds]) / workouts.count())
 
         return None
 
