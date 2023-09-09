@@ -238,7 +238,7 @@ def album_export(request):
     if album_id:
         album = Album.objects.get(id=album_id)
         album.audit_export()
-        return _playlist_response(request, album.songs)
+        return _playlist_response(request, album.songs, song_filters=f"album_id*={album.id}")
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
@@ -246,10 +246,12 @@ def album_export(request):
         'omni_filter': request.GET.get('omni_filter'),
     }
     songs = []
-    for album in Album.list(**filter_kwargs):
+    albums = Album.list(**filter_kwargs)
+    for album in albums:
         songs += album.songs
         album.audit_export()
-    return _playlist_response(request, songs, **filter_kwargs)
+    song_filters = "album_id*=" + ",".join([str(a.id) for a in albums])
+    return _playlist_response(request, songs, song_filters=song_filters)
 
 
 @require_GET
@@ -387,7 +389,7 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             "count": count,
             "name": playlist_name,
         })
-    elif config_name == "rhyme":     # TODO: support album-based playlists (need model changes)
+    elif config_name == "rhyme":
         Playlist(name=playlist_name,
                  song_filters=song_filters,
                  album_filters=album_filters,

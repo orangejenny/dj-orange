@@ -107,6 +107,19 @@ class FilterMixin():
                     actions = [("id__in", song_ids, True)]
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == "album_id":
+                song_ids = set()
+                for value in rhs.split(","):
+                    try:
+                        album = Album.objects.get(id=value)
+                    except Album.DoesNotExist as e:
+                        raise Exception("Could not find album: {}".format(rhs))
+                    if op == '*=':
+                        song_ids = song_ids | {s.id for s in album.songs}
+                if op == '*=':  # any
+                    actions = [("id__in", song_ids, True)]
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
             else:
                 raise Exception("Unrecognized lhs {}".format(lhs))
 
