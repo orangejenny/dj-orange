@@ -259,9 +259,10 @@ function rhymeModel (options) {
         return self.conjunction() === "||";
     });
 
-    self.exportPlaylist = function (config, additionalParams) {
+    self.exportPlaylist = function (config, model, additionalParams) {
         var params = {
             config: config,
+            model: model,
         };
         if (self.modalName()) {
             params = _.extend(params, {
