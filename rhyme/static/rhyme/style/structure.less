@@ -27,9 +27,11 @@ body > .loading {
         .dropdown-toggle {
             cursor: pointer;
         }
-        .dropdown-menu .fas {
-            color: @grey;
-            margin-right: @spacingNarrow;
+        .dropdown-menu {
+            .far, .fas {
+                color: @grey;
+                margin-right: @spacingNarrow;
+            }
         }
         li.active > a > .fas {
             color: @white;
