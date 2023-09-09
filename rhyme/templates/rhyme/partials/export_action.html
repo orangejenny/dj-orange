@@ -6,6 +6,12 @@
     </button>
 
     <ul class="dropdown-menu">
+        <li>
+            <a href="#" data-bind="click: function () { exportPlaylist('rhyme', '{{ model }}', {{ params }}) }">
+                <i class="far fa-hdd"></i>
+                Rhyme
+            </a>
+        </li>
         {% for config in RHYME_EXPORT_CONFIGS %}
             <li>
                 <a href="#" data-bind="click: function () { exportPlaylist('{{ config.name }}', '{{ model }}', {{ params }}) }">

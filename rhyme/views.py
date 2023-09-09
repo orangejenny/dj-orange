@@ -387,6 +387,15 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             "count": count,
             "name": playlist_name,
         })
+    elif config_name == "rhyme":     # TODO: support album-based playlists (need model changes)
+        Playlist(name=playlist_name,
+                 song_filters=song_filters,
+                 album_filters=album_filters,
+                 omni_filter=omni_filter).save()
+        return JsonResponse({
+            "success": 1,
+            "name": playlist_name,
+        })
     else:
         try:
             config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
