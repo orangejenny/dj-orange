@@ -8,7 +8,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      panel: "recent",
+      panel: "frequency",
       loading: true,
       records: [],
       templates: [],
@@ -45,7 +45,7 @@ class App extends React.Component {
   }
 
   setPanel(e) {
-    var panel = "recent";
+    var panel = "frequency";
     if (e) {
       panel = e.target.dataset.panel;
     }

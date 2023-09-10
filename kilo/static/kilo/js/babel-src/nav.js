@@ -2,43 +2,35 @@ export class Nav extends React.Component {
     constructor (props) {
         super(props);
         this.state = { ...props };
+        this.state.links = [{
+            panel: "frequency",
+            label: "Kilo",
+        }, {
+            panel: "recent",
+            label: "Recent",
+        }, {
+            panel: "pace",
+            label: "Speed",
+        }, {
+            panel: "stats",
+            label: "Achievement",
+        }, {
+            panel: "history",
+            label: "History",
+        }];
     }
 
-    // TODO: extract single link
     render() {
         return (
           <nav className="navbar navbar-expand-lg navbar-light bg-light d-flex">
             <ul className="navbar-nav flex-grow-1">
-              <li className="nav-item">
-                <a className={`navbar-brand nav-link ${this.props.panel === "recent" ? 'active' : ''}`} href="#"
-                   data-panel="recent" onClick={this.props.setPanel}>
-                  Kilo
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className={`nav-link ${this.props.panel === "frequency" ? 'active' : ''}`} href="#"
-                   data-panel="frequency" onClick={this.props.setPanel}>
-                  Consistency
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className={`nav-link ${this.props.panel === "pace" ? 'active' : ''}`} href="#"
-                   data-panel="pace" onClick={this.props.setPanel}>
-                  Speed
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className={`nav-link ${this.props.panel === "history" ? 'active' : ''}`} href="#"
-                   data-panel="history" onClick={this.props.setPanel}>
-                  History
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className={`nav-link ${this.props.panel === "stats" ? 'active' : ''}`} href="#"
-                   data-panel="stats" onClick={this.props.setPanel}>
-                  Stats
-                </a>
-              </li>
+              {this.state.links.map((link, index) => (
+                <li key={index} className="nav-item">
+                  <a className={`nav-link ${this.props.panel === link.panel ? 'active' : ''}`} href="#"
+                     data-panel={link.panel} onClick={this.props.setPanel}>
+                     {link.label}
+                  </a>
+                </li>))}
             </ul>
             {!this.props.loading && <div className="me-2">
               <div className="dropdown dropstart">
