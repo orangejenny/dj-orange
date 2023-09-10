@@ -12,20 +12,8 @@ from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
-def days(request):
-    return _days(request)
-
-
-def days_erging(request):
-    return _days(request, "erging")
-
-
-def days_running(request):
-    return _days(request, "running")
-
-
 @login_required
-def _days(request, activity=None):
+def days(request):
     if request.method == "POST":
         post_data = json.loads(request.body.decode("utf-8"))['day']
 
