@@ -8,14 +8,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isRecent: true,
+      panel: "recent",
       loading: true,
       records: [],
       templates: [],
     };
 
     this.addDayRecord = this.addDayRecord.bind(this);
-    this.setIsRecent = this.setIsRecent.bind(this);
+    this.setPanel = this.setPanel.bind(this);
     this.getPanel = this.getPanel.bind(this);
   }
 
@@ -44,25 +44,25 @@ class App extends React.Component {
     });
   }
 
-  setIsRecent(e) {
-    var isRecent = true;
+  setPanel(e) {
+    var panel = "recent";
     if (e) {
-      isRecent = !!Number(e.target.dataset.isRecent);
+      panel = e.target.dataset.panel;
     }
-    this.getPanel(isRecent);
+    this.getPanel(panel);
   }
 
   componentDidMount() {
-    this.setIsRecent();
+    this.setPanel();
   }
 
-  getPanel(isRecent) {
+  getPanel(panel) {
       var self = this;
       self.setState({
         loading: true,
-        isRecent: isRecent,
+        panel: panel,
       });
-      fetch("/kilo/panel?is_recent=" + (isRecent || ""), {
+      fetch("/kilo/" + (panel || ""), {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ class App extends React.Component {
           all_distance_units: data.all_distance_units,
           loading: false,
           records: data.recent_days.map((day) =>
-            <DayRecord key={day.id} {...day} isRecent={isRecent}
+            <DayRecord key={day.id} {...day} panel={panel}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
           ),
           stats: data.stats.map((stat_set) =>
@@ -222,14 +222,14 @@ class App extends React.Component {
     // TODO: bring back .table and .table-hover styles for historical records
     return (
       <div>
-        <Nav setIsRecent={this.setIsRecent} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
+        <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        {this.state.isRecent && <div className="row">
+        {this.state.panel ==="recent" && <div className="row">
           <div class="col-6"><div id="frequency-graph"></div></div>
           <div class="col-6"><div id="pace-graph"></div></div>
         </div>}
-        {!this.state.isRecent && <div class="col-12">
+        {this.state.panel === "history" && <div class="col-12">
           <div className="row">{this.state.stats}</div>
         </div>}
         <br /><br />

@@ -1,8 +1,9 @@
 from django.urls import path
 
-from kilo.views import days, panel
+from kilo.views import days, history, recent
 
 urlpatterns = [
     path('', days, name='days'),
-    path('panel/', panel, name='panel'),
+    path('history/', history, name='history'),
+    path('recent/', recent, name='recent'),
 ]

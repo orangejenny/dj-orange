@@ -66,21 +66,29 @@ def days(request):
 
 @require_GET
 @login_required
-def panel(request):
-    is_recent = bool(request.GET.get('is_recent'))
-    if is_recent:
-        today = datetime.now().date()
-        days = []
-        for delta in range(0, 15):
-            day_index = today - timedelta(days=delta + 1)
-            try:
-                day = Day.objects.get(day=day_index)
-            except Day.DoesNotExist as e:
-                day = Day(day=day_index)
-            days.append(day)
-    else:
-        days = Day.get_recent_days(90)
+def recent(request):
+    today = datetime.now().date()
+    days = []
 
+    for delta in range(0, 15):
+        day_index = today - timedelta(days=delta + 1)
+        try:
+            day = Day.objects.get(day=day_index)
+        except Day.DoesNotExist as e:
+            day = Day(day=day_index)
+        days.append(day)
+
+    return _panel(days)
+
+
+@require_GET
+@login_required
+def history(request):
+    days = Day.get_recent_days(90)
+    return _panel(days)
+
+
+def _panel(days):
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
     other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
