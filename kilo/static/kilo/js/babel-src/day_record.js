@@ -1,6 +1,6 @@
 import { Workout } from "../workout.js";
 
-export class DayRow extends React.Component {
+export class DayRecord extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
