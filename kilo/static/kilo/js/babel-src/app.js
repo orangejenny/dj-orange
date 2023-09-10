@@ -77,15 +77,16 @@ class App extends React.Component {
           all_activities: data.all_activities,
           all_distance_units: data.all_distance_units,
           loading: false,
-          records: data.recent_days.map((day) =>
+          records: data.recent_days ? data.recent_days.map((day) =>
             <DayRecord key={day.id} {...day} panel={panel}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
-          ),
-          stats: data.stats.map((stat_set) =>
+          ) : null,
+          // TODO: rename, don't always expect stats attribute (same for other attributes)
+          stats: data.stats ? data.stats.map((stat_set) =>
             <div className="col" key={stat_set.title}>
               <Stat title={stat_set.title} stats={stat_set.stats} />
             </div>
-          ),
+          ) : null,
           templates: self.getTemplates(data.recent_days),
         });
         if (data.frequency_graph_data) {
@@ -98,6 +99,10 @@ class App extends React.Component {
   }
 
   getTemplates(days) {
+    if (!days || !days.length) {    // TODO: drop this eventually, ensure days is an array
+        return [];
+    }
+
     var index = 0,
         templates = [];
     while (index < days.length && templates.length < 8) {
@@ -225,15 +230,15 @@ class App extends React.Component {
         <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        {this.state.panel ==="recent" && <div className="row">
+        {this.state.panel === "recent" && <div className="row">
           <div class="col-6"><div id="frequency-graph"></div></div>
           <div class="col-6"><div id="pace-graph"></div></div>
         </div>}
-        {this.state.panel === "history" && <div class="col-12">
+        {this.state.panel === "stats" && <div class="col-12">
           <div className="row">{this.state.stats}</div>
         </div>}
         <br /><br />
-        <div>{this.state.records}</div>
+        {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records}</div>}
       </div>
     );
   }

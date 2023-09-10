@@ -97,7 +97,6 @@ def _days(days):
         "all_activities": common_activities + other_activities,
         "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
         "recent_days": [_format_day(d) for d in days],
-        "stats": _get_stats(),
         "frequency_graph_data": _get_frequency_graph_data(),
         "pace_graph_data": _get_pace_graph_data(),
     })
@@ -112,7 +111,9 @@ def _format_day(day):
     }
 
 
-def _get_stats():
+@require_GET
+@login_required
+def stats(request):
     last_year_days = Day.get_recent_days(365)
     last_month_days = Day.get_recent_days(30)
 
@@ -187,13 +188,15 @@ def _get_stats():
             "secondary": workout.secondary_stat(),
         })
 
-    return [{
-        "title": "Erging",
-        "stats": erging_stats,
-    }, {
-        "title": "Running",
-        "stats": running_stats,
-    }]
+    return JsonResponse({
+        "stats": [{
+            "title": "Erging",
+            "stats": erging_stats,
+        }, {
+            "title": "Running",
+            "stats": running_stats,
+        }],
+    })
 
 
 def _get_frequency_graph_data():

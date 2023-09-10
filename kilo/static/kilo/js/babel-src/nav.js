@@ -20,6 +20,12 @@ export class Nav extends React.Component {
                   History
                 </a>
               </li>
+              <li className="nav-item">
+                <a className={`nav-link ${this.state.panel === "stats" ? 'active' : ''}`} href="#"
+                   data-panel="stats" onClick={this.props.setPanel}>
+                  Stats
+                </a>
+              </li>
             </ul>
             {!this.props.loading && <div className="me-2">
               <div className="dropdown dropstart">
