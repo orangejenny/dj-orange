@@ -93,9 +93,9 @@ class FilterMixin():
             elif lhs == "playlist":
                 song_ids = set()
                 for value in rhs.split(","):
-                    playlist = Playlist.objects.filter(name=rhs).first()
+                    playlist = Playlist.objects.filter(name=value).first()
                     if playlist is None:
-                        raise Exception("Could not find playlist: {}".format(rhs))
+                        raise Exception("Could not find playlist: {}".format(value))
                     if op == '=':   # all
                         song_ids = song_ids & {s.id for s in playlist.songs}
                     else:           # any, none
@@ -113,7 +113,7 @@ class FilterMixin():
                     try:
                         album = Album.objects.get(id=value)
                     except Album.DoesNotExist as e:
-                        raise Exception("Could not find album: {}".format(rhs))
+                        raise Exception("Could not find album: {}".format(value))
                     if op == '*=':
                         song_ids = song_ids | {s.id for s in album.songs}
                 if op == '*=':  # any
