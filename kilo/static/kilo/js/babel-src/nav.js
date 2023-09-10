@@ -4,6 +4,7 @@ export class Nav extends React.Component {
         this.state = { ...props };
     }
 
+    // TODO: extract single link
     render() {
         return (
           <nav className="navbar navbar-expand-lg navbar-light bg-light d-flex">
@@ -12,6 +13,18 @@ export class Nav extends React.Component {
                 <a className={`navbar-brand nav-link ${this.state.panel === "recent" ? 'active' : ''}`} href="#"
                    data-panel="recent" onClick={this.props.setPanel}>
                   Kilo
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className={`nav-link ${this.state.panel === "frequency" ? 'active' : ''}`} href="#"
+                   data-panel="frequency" onClick={this.props.setPanel}>
+                  Consistency
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className={`nav-link ${this.state.panel === "pace" ? 'active' : ''}`} href="#"
+                   data-panel="pace" onClick={this.props.setPanel}>
+                  Speed
                 </a>
               </li>
               <li className="nav-item">

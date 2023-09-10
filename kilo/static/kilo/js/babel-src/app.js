@@ -89,11 +89,11 @@ class App extends React.Component {
           ) : null,
           templates: self.getTemplates(data.recent_days),
         });
-        if (data.frequency_graph_data) {
-            self.loadFrequencyGraph(data.frequency_graph_data);
+        if (panel === "frequency") {
+            self.loadFrequencyGraph(data);
         }
-        if (data.pace_graph_data) {
-            self.loadPaceGraph(data.pace_graph_data);
+        if (panel === "pace") {
+            self.loadPaceGraph(data);
         }
       });
   }
@@ -166,7 +166,6 @@ class App extends React.Component {
     c3.generate(options);
   }
 
-  // TODO: make graph legible
   loadPaceGraph(data) {
     let self = this,
         options = self.graphOptions(data);
@@ -230,14 +229,11 @@ class App extends React.Component {
         <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        {this.state.panel === "recent" && <div className="row">
-          <div class="col-6"><div id="frequency-graph"></div></div>
-          <div class="col-6"><div id="pace-graph"></div></div>
-        </div>}
+        {this.state.panel === "frequency" && <div id="frequency-graph"></div>}
+        {this.state.panel === "pace" && <div id="pace-graph"></div>}
         {this.state.panel === "stats" && <div class="col-12">
           <div className="row">{this.state.stats}</div>
         </div>}
-        <br /><br />
         {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records}</div>}
       </div>
     );
