@@ -13,7 +13,7 @@ from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
 @login_required
-def days(request):
+def base(request):
     if request.method == "POST":
         post_data = json.loads(request.body.decode("utf-8"))['day']
 
@@ -78,17 +78,17 @@ def recent(request):
             day = Day(day=day_index)
         days.append(day)
 
-    return _panel(days)
+    return _days(days)
 
 
 @require_GET
 @login_required
 def history(request):
     days = Day.get_recent_days(90)
-    return _panel(days)
+    return _days(days)
 
 
-def _panel(days):
+def _days(days):
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
     other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
