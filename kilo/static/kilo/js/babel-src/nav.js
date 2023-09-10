@@ -29,13 +29,13 @@ export class Nav extends React.Component {
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
                   {this.props.templates.map((template, index) => (<li key={index}>
-                    <a className="dropdown-item" onClick={() => this.props.addDayRow(template)}>
+                    <a className="dropdown-item" onClick={() => this.props.addDayRecord(template)}>
                       {template.activity} {template.distance} {template.distance_unit}
                     </a>
                   </li>))}
                   {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
                   <li>
-                    <a class="dropdown-item" href="#" onClick={this.props.addDayRow}>Blank Day</a>
+                    <a class="dropdown-item" href="#" onClick={this.props.addDayRecord}>Blank Day</a>
                   </li>
                 </ul>
               </div>

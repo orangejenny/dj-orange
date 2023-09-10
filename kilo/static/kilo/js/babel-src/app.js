@@ -1,4 +1,4 @@
-import { DayRow } from "./day_row.js";
+import { DayRecord } from "./day_record.js";
 import { Loading } from "./loading.js";
 import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
@@ -14,12 +14,12 @@ class App extends React.Component {
       templates: [],
     };
 
-    this.addDayRow = this.addDayRow.bind(this);
+    this.addDayRecord = this.addDayRecord.bind(this);
     this.setIsRecent = this.setIsRecent.bind(this);
     this.getPanel = this.getPanel.bind(this);
   }
 
-  addDayRow(template) {
+  addDayRecord(template) {
     var self = this,
       day = new Date();
     day = [
@@ -39,7 +39,7 @@ class App extends React.Component {
           all_distance_units: self.state.all_distance_units,
         };
       return {
-        rows: [<DayRow { ...options } />, ...this.state.rows],
+        rows: [<DayRecord { ...options } />, ...this.state.rows],
       };
     });
   }
@@ -73,7 +73,7 @@ class App extends React.Component {
           all_distance_units: data.all_distance_units,
           loading: false,
           rows: data.recent_days.map((day) =>
-            <DayRow key={day.id} {...day}
+            <DayRecord key={day.id} {...day}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
           ),
           stats: data.stats.map((stat) => 
@@ -218,7 +218,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setIsRecent={this.setIsRecent} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
+        <Nav setIsRecent={this.setIsRecent} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
         {this.state.isRecent && <div className="row">
