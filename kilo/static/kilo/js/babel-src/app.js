@@ -230,9 +230,7 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
-        {this.state.panel === "stats" && <div class="col-12">
-          <div className="row">{this.state.stats}</div>
-        </div>}
+        {this.state.panel === "stats" && <div className="row">{this.state.stats}</div>}
         {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records}</div>}
       </div>
     );
