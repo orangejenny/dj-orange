@@ -5,6 +5,7 @@ export class DayRecord extends React.Component {
     super(props);
     this.state = {
       id: props.id,
+      isRecent: props.isRecent,
       year: props.day.split("-")[0],
       month: props.day.split("-")[1],
       dayOfMonth: props.day.split("-")[2],
@@ -200,9 +201,12 @@ export class DayRecord extends React.Component {
       return null;
     }
 
+    // TODO: make different for isRecent vs not
     return (
-      <tr className="row">
-        <td className="col-3">
+      <div className="row">
+        <div className="col-3">
+        {this.state.isRecent && <span>i am recent </span>}
+        {!this.state.isRecent && <span>i am historic </span>}
           {this.state.editing && <div className="row g-1 align-items-center">
           <div className="col-3">
              {this.dayOfWeek()},
@@ -226,8 +230,8 @@ export class DayRecord extends React.Component {
           {!this.state.editing && <span>
             {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
           </span>}
-        </td>
-        <td className="col-4">
+        </div>
+        <div className="col-4">
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
@@ -281,14 +285,14 @@ export class DayRecord extends React.Component {
                <i className="fa fa-plus"></i> Add Workout
              </button>}
           </ul>
-        </td>
-        <td className="col-4">
+        </div>
+        <div className="col-4">
           {this.state.editing &&
           <textarea className="form-control" rows="3" name="notes" placeholder="How was today?"
                     value={this.state.notes} onChange={this.handleNotesChange} />}
           {!this.state.editing && this.state.notes}
-        </td>
-        <td className="col-1">
+        </div>
+        <div className="col-1">
           {this.state.editing && <div className="btn-group" role="group">
             <button type="button" className="pull-right btn btn-outline-success" onClick={this.saveDayEntry}>
               <i className={`fa ${this.state.saving ? "fa-spin fa-spinner" : "fa-check"}`}></i>
@@ -300,8 +304,8 @@ export class DayRecord extends React.Component {
           {!this.state.editing && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.showDayEntry}>
             Edit
           </button>}
-        </td>
-      </tr>
+        </div>
+      </div>
     );
   }
 }
