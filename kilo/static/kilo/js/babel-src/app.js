@@ -81,9 +81,9 @@ class App extends React.Component {
             <DayRecord key={day.id} {...day} isRecent={isRecent}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
           ),
-          stats: data.stats.map((stat) => 
-            <div className="col" key={stat.name}>
-              <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
+          stats: data.stats.map((stat_set) =>
+            <div className="col" key={stat_set.title}>
+              <Stat title={stat_set.title} stats={stat_set.stats} />
             </div>
           ),
           templates: self.getTemplates(data.recent_days),
