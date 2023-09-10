@@ -200,7 +200,7 @@ def stats(request):
 @require_GET
 @login_required
 def frequency(request):
-    days = Day.get_recent_days(180)
+    days = Day.get_recent_days(365)
 
     data = {}
     data["x"] = "day"
@@ -230,7 +230,7 @@ def frequency(request):
 @require_GET
 @login_required
 def pace(request):
-    days = Day.get_recent_days(90)
+    days = Day.get_recent_days(365)
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):
