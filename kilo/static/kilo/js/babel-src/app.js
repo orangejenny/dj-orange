@@ -94,8 +94,6 @@ class App extends React.Component {
         if (data.pace_graph_data) {
             self.loadPaceGraph(data.pace_graph_data);
         }
-      }).catch((error) => {
-        alert('Unexpected error:', error);
       });
   }
 
