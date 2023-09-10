@@ -9,21 +9,15 @@ export class Nav extends React.Component {
           <nav className="navbar navbar-expand-lg navbar-light bg-light d-flex">
             <ul className="navbar-nav flex-grow-1">
               <li className="nav-item">
-                <a className={`navbar-brand nav-link ${!this.state.activity ? 'active' : ''}`} href="#"
-                   onClick={this.props.setActivity}>
+                <a className={`navbar-brand nav-link ${this.state.isRecent ? 'active' : ''}`} href="#"
+                   data-is-recent="1" onClick={this.props.setIsRecent}>
                   Kilo
                 </a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${this.state.activity === "running" ? 'active' : ''}`} href="#"
-                   data-activity="running" onClick={this.props.setActivity}>
-                  Running
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className={`nav-link ${this.state.activity === "erging" ? 'active' : ''}`} href="#"
-                   data-activity="erging" onClick={this.props.setActivity}>
-                  Erging
+                <a className={`nav-link ${!this.state.isRecent ? 'active' : ''}`} href="#"
+                   data-is-recent="0" onClick={this.props.setIsRecent}>
+                  History
                 </a>
               </li>
             </ul>
