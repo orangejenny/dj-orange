@@ -8,14 +8,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activity: null,
+      isRecent: true,
       loading: true,
       rows: [],
       templates: [],
     };
 
     this.addDayRow = this.addDayRow.bind(this);
-    this.setActivity = this.setActivity.bind(this);
+    this.setIsRecent = this.setIsRecent.bind(this);
     this.getPanel = this.getPanel.bind(this);
   }
 
@@ -44,25 +44,25 @@ class App extends React.Component {
     });
   }
 
-  setActivity(e) {
-    var activity = null;
+  setIsRecent(e) {
+    var isRecent = true;
     if (e) {
-      activity = e.target.dataset.activity;
+      isRecent = !!Number(e.target.dataset.isRecent);
     }
-    this.getPanel(activity);
+    this.getPanel(isRecent);
   }
 
   componentDidMount() {
-    this.setActivity();
+    this.setIsRecent();
   }
 
-  getPanel(activity) {
+  getPanel(isRecent) {
       var self = this;
       self.setState({
         loading: true,
-        activity: activity,
+        isRecent: isRecent,
       });
-      fetch("/kilo/panel?activity=" + (activity || ""), {
+      fetch("/kilo/panel?is_recent=" + (isRecent || ""), {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -218,14 +218,14 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
+        <Nav setIsRecent={this.setIsRecent} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        {!this.state.activity && <div className="row">
+        {this.state.isRecent && <div className="row">
           <div class="col-6"><div id="frequency-graph"></div></div>
           <div class="col-6"><div id="pace-graph"></div></div>
         </div>}
-        {this.state.activity && <div class="col-12">
+        {!this.state.isRecent && <div class="col-12">
           <div className="row">{this.state.stats}</div>
         </div>}
         <br /><br />
