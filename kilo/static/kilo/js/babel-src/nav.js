@@ -10,31 +10,31 @@ export class Nav extends React.Component {
           <nav className="navbar navbar-expand-lg navbar-light bg-light d-flex">
             <ul className="navbar-nav flex-grow-1">
               <li className="nav-item">
-                <a className={`navbar-brand nav-link ${this.state.panel === "recent" ? 'active' : ''}`} href="#"
+                <a className={`navbar-brand nav-link ${this.props.panel === "recent" ? 'active' : ''}`} href="#"
                    data-panel="recent" onClick={this.props.setPanel}>
                   Kilo
                 </a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${this.state.panel === "frequency" ? 'active' : ''}`} href="#"
+                <a className={`nav-link ${this.props.panel === "frequency" ? 'active' : ''}`} href="#"
                    data-panel="frequency" onClick={this.props.setPanel}>
                   Consistency
                 </a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${this.state.panel === "pace" ? 'active' : ''}`} href="#"
+                <a className={`nav-link ${this.props.panel === "pace" ? 'active' : ''}`} href="#"
                    data-panel="pace" onClick={this.props.setPanel}>
                   Speed
                 </a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${this.state.panel === "history" ? 'active' : ''}`} href="#"
+                <a className={`nav-link ${this.props.panel === "history" ? 'active' : ''}`} href="#"
                    data-panel="history" onClick={this.props.setPanel}>
                   History
                 </a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${this.state.panel === "stats" ? 'active' : ''}`} href="#"
+                <a className={`nav-link ${this.props.panel === "stats" ? 'active' : ''}`} href="#"
                    data-panel="stats" onClick={this.props.setPanel}>
                   Stats
                 </a>

@@ -77,6 +77,7 @@ class App extends React.Component {
           all_activities: data.all_activities,
           all_distance_units: data.all_distance_units,
           loading: false,
+          panel: panel,
           records: data.recent_days ? data.recent_days.map((day) =>
             <DayRecord key={day.id} {...day} panel={panel}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
@@ -225,7 +226,7 @@ class App extends React.Component {
     // TODO: bring back .table and .table-hover styles for historical records
     return (
       <div>
-        <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
+        <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
