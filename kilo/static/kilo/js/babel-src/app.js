@@ -10,7 +10,7 @@ class App extends React.Component {
     this.state = {
       isRecent: true,
       loading: true,
-      rows: [],
+      records: [],
       templates: [],
     };
 
@@ -28,7 +28,7 @@ class App extends React.Component {
       (day.getDate() < 10 ? "0" : "") + day.getDate(),
     ].join("-");
     this.setState((state, props) => {
-      var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
+      var id = state.records.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
         options = {
           key: id,
           id: id,
@@ -39,7 +39,7 @@ class App extends React.Component {
           all_distance_units: self.state.all_distance_units,
         };
       return {
-        rows: [<DayRecord { ...options } />, ...this.state.rows],
+        records: [<DayRecord { ...options } />, ...this.state.records],
       };
     });
   }
@@ -72,8 +72,8 @@ class App extends React.Component {
           all_activities: data.all_activities,
           all_distance_units: data.all_distance_units,
           loading: false,
-          rows: data.recent_days.map((day) =>
-            <DayRecord key={day.id} {...day}
+          records: data.recent_days.map((day) =>
+            <DayRecord key={day.id} {...day} isRecent={isRecent}
                     all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
           ),
           stats: data.stats.map((stat) => 
@@ -216,6 +216,7 @@ class App extends React.Component {
   }
 
   render() {
+    // TODO: bring back .table and .table-hover styles for historical records
     return (
       <div>
         <Nav setIsRecent={this.setIsRecent} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
@@ -229,9 +230,7 @@ class App extends React.Component {
           <div className="row">{this.state.stats}</div>
         </div>}
         <br /><br />
-        <table className="table table-hover">
-          <tbody>{this.state.rows}</tbody>
-        </table>
+        <div>{this.state.records}</div>
       </div>
     );
   }
