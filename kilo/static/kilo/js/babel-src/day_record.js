@@ -201,12 +201,9 @@ export class DayRecord extends React.Component {
       return null;
     }
 
-    // TODO: make different for isRecent vs not
     return (
       <div className="row">
         <div className="col-3">
-        {this.state.isRecent && <span>i am recent </span>}
-        {!this.state.isRecent && <span>i am historic </span>}
           {this.state.editing && <div className="row g-1 align-items-center">
           <div className="col-3">
              {this.dayOfWeek()},

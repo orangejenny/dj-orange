@@ -68,6 +68,11 @@ class App extends React.Component {
           'Content-Type': 'application/json',
         },
       }).then((resp) => resp.json()).then(data => {
+        // Forcibly clear records so that blank recent days, which don't have keys, get removed
+        self.setState({
+            records: [],
+        });
+
         self.setState({
           all_activities: data.all_activities,
           all_distance_units: data.all_distance_units,

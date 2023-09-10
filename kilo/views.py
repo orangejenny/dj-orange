@@ -80,9 +80,16 @@ def _days(request, activity=None):
 @login_required
 def panel(request):
     is_recent = bool(request.GET.get('is_recent'))
-    today = datetime.now().date()
     if is_recent:
-        days = Day.get_recent_days(15)
+        today = datetime.now().date()
+        days = []
+        for delta in range(0, 15):
+            day_index = today - timedelta(days=delta + 1)
+            try:
+                day = Day.objects.get(day=day_index)
+            except Day.DoesNotExist as e:
+                day = Day(day=day_index)
+            days.append(day)
     else:
         days = Day.get_recent_days(90)
 
@@ -105,7 +112,7 @@ def _format_day(day):
         "id": day.id,
         "day": day.day,
         "notes": day.notes,
-        "workouts": [w.to_json() for w in day.workout_set.all()],
+        "workouts": [w.to_json() for w in day.workout_set.all()] if day.id else [],
     }
 
 
