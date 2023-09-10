@@ -153,7 +153,6 @@ class App extends React.Component {
     let self = this,
         options = self.graphOptions(data);
 
-    options.bindto = "#frequency-graph";
     options.tooltip = {
         show: false,
         grouped: false,
@@ -170,7 +169,6 @@ class App extends React.Component {
     let self = this,
         options = self.graphOptions(data);
 
-    options.bindto = "#pace-graph";
     options.tooltip = {
         show: true,
         grouped: false,
@@ -200,6 +198,7 @@ class App extends React.Component {
 
   graphOptions(data) {
     return {
+        bindto: "#graph",
         data: data,
         axis: {
             x: {
@@ -229,8 +228,7 @@ class App extends React.Component {
         <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} />
         <Loading show={this.state.loading} />
         <br />
-        {this.state.panel === "frequency" && <div id="frequency-graph"></div>}
-        {this.state.panel === "pace" && <div id="pace-graph"></div>}
+        {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
         {this.state.panel === "stats" && <div class="col-12">
           <div className="row">{this.state.stats}</div>
         </div>}
