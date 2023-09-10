@@ -81,9 +81,10 @@ def _days(request, activity=None):
 def panel(request):
     is_recent = bool(request.GET.get('is_recent'))
     today = datetime.now().date()
-    days = Day.objects.filter(day__gte=today - timedelta(days=90))
     if is_recent:
-        days = days.filter(day__gte=today - timedelta(days=15))
+        days = Day.get_recent_days(15)
+    else:
+        days = Day.get_recent_days(90)
 
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
@@ -109,9 +110,8 @@ def _format_day(day):
 
 
 def _get_stats():
-    today = datetime.now().date()
-    last_year_days = Day.objects.filter(day__gte=today - timedelta(days=365))
-    last_month_days = last_year_days.filter(day__gte=today - timedelta(days=30))
+    last_year_days = Day.get_recent_days(365)
+    last_month_days = Day.get_recent_days(30)
     stats = []
 
     # Erging
@@ -189,8 +189,7 @@ def _get_stats():
 
 
 def _get_frequency_graph_data():
-    today = datetime.now().date()
-    days = Day.objects.filter(day__gte=today - timedelta(days=180)) # TODO: add a convenience method to Day
+    days = Day.get_recent_days(180)
 
     data = {}
     data["x"] = "day"
@@ -218,8 +217,7 @@ def _get_frequency_graph_data():
 
 
 def _get_pace_graph_data():
-    today = datetime.now().date()
-    days = Day.objects.filter(day__gte=today - timedelta(days=90))
+    days = Day.get_recent_days(90)
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):

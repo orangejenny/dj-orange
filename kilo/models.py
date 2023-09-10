@@ -1,5 +1,7 @@
 import math
 
+from datetime import datetime, timedelta
+
 from django.db import models
 
 
@@ -9,6 +11,11 @@ class Day(models.Model):
 
     class Meta:
         ordering = ["-day"]
+
+    @classmethod
+    def get_recent_days(cls, days):
+        today = datetime.now().date()
+        return Day.objects.filter(day__gte=today - timedelta(days=days))
 
     def primary_activity(self):
         return self.workout_set.last().activity if self.workout_set.count() else None
