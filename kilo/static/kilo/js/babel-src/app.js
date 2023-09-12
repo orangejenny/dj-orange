@@ -78,16 +78,9 @@ class App extends React.Component {
           all_distance_units: data.all_distance_units,
           loading: false,
           panel: panel,
-          records: data.recent_days ? data.recent_days.map((day) =>
-            <DayRecord key={day.id} {...day} panel={panel}
-                    all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
-          ) : null,
+          records: data.recent_days || [],
           // TODO: rename, don't always expect stats attribute (same for other attributes)
-          stats: data.stats ? data.stats.map((stat_set) =>
-            <div className="col" key={stat_set.title}>
-              <Stat title={stat_set.title} stats={stat_set.stats} />
-            </div>
-          ) : null,
+          stats: data.stats || [],
           templates: self.getTemplates(data.recent_days),
         });
         if (panel === "frequency") {
@@ -230,8 +223,15 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
-        {this.state.panel === "stats" && <div className="row">{this.state.stats}</div>}
-        {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records}</div>}
+        {this.state.panel === "stats" && <div className="row">{this.state.stats.map((stat_set) =>
+          <div className="col" key={stat_set.title}>
+            <Stat title={stat_set.title} stats={stat_set.stats} />
+          </div>
+        )}</div>}
+        {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records.map((day) =>
+          <DayRecord key={day.id} {...day} panel={this.state.panel}
+                  all_activities={this.state.all_activities} all_distance_units={this.state.all_distance_units} />
+        )}</div>}
       </div>
     );
   }
