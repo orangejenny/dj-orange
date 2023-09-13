@@ -87,6 +87,13 @@ class Command(BaseCommand):
             playlist_name = input("Name? ")
             create_plex_playlist(playlist_name, Song.objects.filter(id__in=lake.keys()))
 
+        if input("\nExport to Rhyme (y/n)? ").lower() == "y":
+            playlist = Playlist.empty_playlist()
+            playlist.name = input("Name? ")
+            playlist.save()
+            for song_id in lake.keys():
+                PlaylistSong(playlist_id=playlist.id, song_id=song_id, inclusion=True).save()
+
     def album_ids(self, song):
         return Track.objects.filter(song=song).values_list("album_id", flat=True)
 
