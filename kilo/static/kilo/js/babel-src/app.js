@@ -11,37 +11,10 @@ class App extends React.Component {
       panel: "frequency",
       loading: true,
       records: [],
-      templates: [],
     };
 
-    this.addDayRecord = this.addDayRecord.bind(this);
     this.setPanel = this.setPanel.bind(this);
     this.getPanel = this.getPanel.bind(this);
-  }
-
-  addDayRecord(template) {
-    var self = this,
-      day = new Date();
-    day = [
-      day.getFullYear(),
-      (day.getMonth() < 9 ? "0" : "") + (day.getMonth() + 1),
-      (day.getDate() < 10 ? "0" : "") + day.getDate(),
-    ].join("-");
-    this.setState((state, props) => {
-      var id = state.records.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
-        options = {
-          key: id,
-          id: id,
-          day: day,
-          workouts: template ? [Workout(template)] : [],
-          editing: true,
-          all_activities: self.state.all_activities,
-          all_distance_units: self.state.all_distance_units,
-        };
-      return {
-        records: [<DayRecord { ...options } />, ...this.state.records],
-      };
-    });
   }
 
   setPanel(e) {
@@ -73,16 +46,19 @@ class App extends React.Component {
             records: [],
         });
 
-        self.setState({
-          all_activities: data.all_activities,
-          all_distance_units: data.all_distance_units,
-          loading: false,
-          panel: panel,
-          records: data.recent_days || [],
-          // TODO: rename, don't always expect stats attribute (same for other attributes)
-          stats: data.stats || [],
-          templates: self.getTemplates(data.recent_days),
-        });
+        var newState = {
+            loading: false,
+            panel: panel,
+            records: data.recent_days || [],
+            stats: data.stats || [],
+        };
+        if (data.all_activities) {
+            newState.all_activities = data.all_activities;
+        }
+        if (data.all_distance_units) {
+            newState.all_distance_units = data.all_distance_units;
+        }
+        self.setState(newState);
         if (panel === "frequency") {
             self.loadFrequencyGraph(data);
         }
@@ -90,29 +66,6 @@ class App extends React.Component {
             self.loadPaceGraph(data);
         }
       });
-  }
-
-  getTemplates(days) {
-    if (!days || !days.length) {    // TODO: drop this eventually, ensure days is an array
-        return [];
-    }
-
-    var index = 0,
-        templates = [];
-    while (index < days.length && templates.length < 8) {
-        var indexDay = days[index];
-        index++;
-        if (!indexDay.workouts.length) {
-            continue;
-        }
-        var template = { ...indexDay.workouts[0] };
-        if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
-            delete template.id;
-            delete template.seconds;
-            templates.push(template);
-        }
-    }
-    return templates;
   }
 
   getTime(seconds) {
@@ -218,7 +171,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} panel={this.state.panel} />
+        <Nav setPanel={this.setPanel} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
