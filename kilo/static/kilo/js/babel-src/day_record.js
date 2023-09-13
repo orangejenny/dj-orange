@@ -202,8 +202,8 @@ export class DayRecord extends React.Component {
     }
 
     return (
-      <div className="row">
-        <div className="col-3">
+      <tr className="row">
+        <td className="col-3">
           {this.state.editing && <div className="row g-1 align-items-center">
           <div className="col-3">
              {this.dayOfWeek()},
@@ -227,8 +227,8 @@ export class DayRecord extends React.Component {
           {!this.state.editing && <span>
             {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
           </span>}
-        </div>
-        <div className="col-4">
+        </td>
+        <td className="col-4">
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
@@ -282,14 +282,14 @@ export class DayRecord extends React.Component {
                <i className="fa fa-plus"></i> Add Workout
              </button>}
           </ul>
-        </div>
-        <div className="col-4">
+        </td>
+        <td className="col-4">
           {this.state.editing &&
           <textarea className="form-control" rows="3" name="notes" placeholder="How was today?"
                     value={this.state.notes} onChange={this.handleNotesChange} />}
           {!this.state.editing && this.state.notes}
-        </div>
-        <div className="col-1">
+        </td>
+        <td className="col-1">
           {this.state.editing && <div className="btn-group" role="group">
             <button type="button" className="pull-right btn btn-outline-success" onClick={this.saveDayEntry}>
               <i className={`fa ${this.state.saving ? "fa-spin fa-spinner" : "fa-check"}`}></i>
@@ -301,8 +301,8 @@ export class DayRecord extends React.Component {
           {!this.state.editing && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.showDayEntry}>
             Edit
           </button>}
-        </div>
-      </div>
+        </td>
+      </tr>
     );
   }
 }

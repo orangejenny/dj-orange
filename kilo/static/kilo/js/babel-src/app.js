@@ -216,7 +216,6 @@ class App extends React.Component {
   }
 
   render() {
-    // TODO: bring back .table and .table-hover styles for historical records
     return (
       <div>
         <Nav setPanel={this.setPanel} addDayRecord={this.addDayRecord} templates={this.state.templates} loading={this.state.loading} panel={this.state.panel} />
@@ -228,10 +227,14 @@ class App extends React.Component {
             <Stat title={stat_set.title} stats={stat_set.stats} />
           </div>
         )}</div>}
-        {(this.state.panel === "recent" || this.state.panel === "history") && <div>{this.state.records.map((day) =>
-          <DayRecord key={day.id} {...day} panel={this.state.panel}
-                  all_activities={this.state.all_activities} all_distance_units={this.state.all_distance_units} />
-        )}</div>}
+        {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
+          <tbody>
+            {this.state.records.map((day) =>
+              <DayRecord key={day.id} {...day} panel={this.state.panel}
+                         all_activities={this.state.all_activities} all_distance_units={this.state.all_distance_units} />
+            )}
+          </tbody>
+        </table>}
       </div>
     );
   }
