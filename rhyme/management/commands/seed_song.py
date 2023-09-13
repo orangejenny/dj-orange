@@ -13,8 +13,11 @@ class Command(BaseCommand):
         seed = self.get_seed()
         print(f"Seed: {seed}")
 
-        # Limits for rating, mood, energy
-        ocean = Song.objects.filter(Q(rating__gte=3) | Q(rating__isnull=True))
+        # Basic limits
+        ocean = Song.objects.filter(Q(rating__gte=3) | Q(starred=True))
+        ocean = ocean.exclude(tag__name="christmas")
+        ocean = ocean.exclude(artist__genre="soundtrack", rating__lte=3)
+
         print(f"Start with {ocean.count()} songs")
         if seed.mood is not None:
             ocean = ocean.filter(mood__in={seed.mood, seed.mood + 1, seed.mood - 1})
@@ -83,16 +86,16 @@ class Command(BaseCommand):
         for song_id in lake:
             print(Song.objects.get(id=song_id))
 
-        if input("\nExport to Plex (y/n)? ").lower() == "y":
-            playlist_name = input("Name? ")
-            create_plex_playlist(playlist_name, Song.objects.filter(id__in=lake.keys()))
-
-        if input("\nExport to Rhyme (y/n)? ").lower() == "y":
+        command = input("\nExport to (r)hyme, (p)lex? ").lower()
+        if command == "r":
             playlist = Playlist.empty_playlist()
             playlist.name = input("Name? ")
             playlist.save()
             for song_id in lake.keys():
                 PlaylistSong(playlist_id=playlist.id, song_id=song_id, inclusion=True).save()
+        elif command == "p":
+            playlist_name = input("Name? ")
+            create_plex_playlist(playlist_name, Song.objects.filter(id__in=lake.keys()))
 
     def album_ids(self, song):
         return Track.objects.filter(song=song).values_list("album_id", flat=True)
