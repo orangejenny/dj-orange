@@ -19,6 +19,7 @@ export class DayRecord extends React.Component {
     this.dayOfWeek = this.dayOfWeek.bind(this);
     this.monthText = this.monthText.bind(this);
 
+    this.activityIcon = this.activityIcon.bind(this);
     this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
     this.handleActivityChange = this.handleActivityChange.bind(this);
     this.handleDistanceChange = this.handleDistanceChange.bind(this);
@@ -63,6 +64,24 @@ export class DayRecord extends React.Component {
       value = el.dataset.id;
     }
     return value ? parseInt(value) : value;
+  }
+
+  activityIcon(activity) {
+    return {
+        "erging": "fas fa-gears",
+        "sculling": "fas fa-water",
+        "running": "fas fa-running",
+        "stairs": "fas fa-stairs",
+        "circuits": "fas fa-heart-pulse",
+        "crossfit": "fas fa-child-reaching",
+        "biking": "fas fa-person-biking",
+        "swimming": "fas fa-person-swimming",
+        "squats": "fas fa-dumbbell",
+        "cleans": "fas fa-dumbbell",
+        "overhead press": "fas fa-dumbbell",
+        "bench press": "fas fa-dumbbell",
+        "barbell rows": "fas fa-dumbbell",
+    }[activity] || "fas fa-circle-question";
   }
 
   handleWorkoutChange(attr, id, value) {
@@ -206,7 +225,7 @@ export class DayRecord extends React.Component {
 
     return (
       <tr className="row">
-        <td className="col-3">
+        <td className="col-2">
           {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
           <input type="hidden" name="year" value={this.state.year} />
           <input type="hidden" name="month" value={this.state.month} />
@@ -216,6 +235,8 @@ export class DayRecord extends React.Component {
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
+                 {this.activityIcon(workout.activity) && <i class={this.activityIcon(workout.activity)}></i>}
+                 &nbsp;
                  {workout.activity} {workout.summary()}
                </span>}
                {this.state.editing && <div className="row g-1 mb-1 align-items-center">
@@ -267,7 +288,7 @@ export class DayRecord extends React.Component {
              </button>}
           </ul>
         </td>
-        <td className="col-4">
+        <td className="col-5">
           {this.state.editing &&
           <textarea className="form-control" rows="3" name="notes" placeholder="How was today?"
                     value={this.state.notes} onChange={this.handleNotesChange} />}
