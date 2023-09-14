@@ -51,6 +51,7 @@ class App extends React.Component {
             panel: panel,
             records: data.recent_days || [],
             stats: data.stats || [],
+            templates: self.getTemplates(data.recent_days || []),
         };
         if (data.all_activities) {
             newState.all_activities = data.all_activities;
@@ -94,6 +95,25 @@ class App extends React.Component {
         return [hours, minutes, seconds].join(":")
     }
     return [minutes, seconds].join(":");
+  }
+
+  getTemplates(days) {
+     var index = 0,
+         templates = [];
+     while (index < days.length && templates.length < 8) {
+         var indexDay = days[index];
+         index++;
+         if (!indexDay.workouts.length) {
+             continue;
+         }
+         var template = { ...indexDay.workouts[0] };
+         if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
+             delete template.id;
+             delete template.seconds;
+             templates.push(template);
+         }
+     }
+     return templates;
   }
 
   loadFrequencyGraph(data) {
@@ -183,7 +203,7 @@ class App extends React.Component {
         {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
           <tbody>
             {this.state.records.map((day) =>
-              <DayRecord key={day.id} {...day} panel={this.state.panel}
+              <DayRecord key={day.id} {...day} panel={this.state.panel} templates={this.state.templates}
                          all_activities={this.state.all_activities} all_distance_units={this.state.all_distance_units} />
             )}
           </tbody>

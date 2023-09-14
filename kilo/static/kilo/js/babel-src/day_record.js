@@ -31,7 +31,8 @@ export class DayRecord extends React.Component {
     this.removeWorkout = this.removeWorkout.bind(this);
 
     this.saveDayEntry = this.saveDayEntry.bind(this);
-    this.showDayEntry = this.showDayEntry.bind(this);
+    this.editDayEntry = this.editDayEntry.bind(this);
+    this.editExistingDayEntry = this.editExistingDayEntry.bind(this);
     this.clearDayEntry = this.clearDayEntry.bind(this);
 
     this.handleNotesChange = this.handleNotesChange.bind(this);
@@ -161,9 +162,13 @@ export class DayRecord extends React.Component {
     });
   }
 
-  showDayEntry () {
+  editExistingDayEntry () {
+    return this.editDayEntry();
+  }
+
+  editDayEntry (template) {
     this.setState(function (state, props) {
-      return {
+      let newState = {
         originalDay: {
           day: [state.year, state.month, state.dayOfMonth].join("-"),
           notes: state.notes,
@@ -171,6 +176,10 @@ export class DayRecord extends React.Component {
         },
         editing: true,
       };
+      if (template) {
+        newState.workouts = [Workout(template)];
+      }
+      return newState;
     });
   }
 
@@ -273,7 +282,26 @@ export class DayRecord extends React.Component {
               <i className="fa fa-times"></i>
             </button>
           </div>}
-          {!this.state.editing && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.showDayEntry}>
+          {!this.state.editing && !this.state.id && <div className="me-2">
+             <div className="dropdown dropstart">
+               <button className="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 Add
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
+                 {this.props.templates.map((template, index) => (<li key={index}>
+                   <a className="dropdown-item" onClick={() => this.editDayEntry(template)}>
+                     {template.activity} {template.distance} {template.distance_unit}
+                   </a>
+                 </li>))}
+                 {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
+                 <li>
+                   <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
+                 </li>
+               </ul>
+             </div>
+           </div>}
+          {!this.state.editing && this.state.id && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.editExistingDayEntry}>
             Edit
           </button>}
         </td>
