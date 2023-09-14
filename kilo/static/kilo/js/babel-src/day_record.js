@@ -18,9 +18,6 @@ export class DayRecord extends React.Component {
     this.day = this.day.bind(this);
     this.dayOfWeek = this.dayOfWeek.bind(this);
     this.monthText = this.monthText.bind(this);
-    this.handleMonthChange = this.handleMonthChange.bind(this);
-    this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
-    this.handleYearChange = this.handleYearChange.bind(this);
 
     this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
     this.handleActivityChange = this.handleActivityChange.bind(this);
@@ -40,9 +37,6 @@ export class DayRecord extends React.Component {
     this.handleNotesChange = this.handleNotesChange.bind(this);
   }
 
-  handleYearChange(e) { this.setState({year: e.target.value}) }
-  handleMonthChange(e) { this.setState({month: e.target.value}) }
-  handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
   handleNotesChange(e) { this.setState({notes: e.target.value}) }
 
   getSeconds(time) {
@@ -204,29 +198,10 @@ export class DayRecord extends React.Component {
     return (
       <tr className="row">
         <td className="col-3">
-          {this.state.editing && <div className="row g-1 align-items-center">
-          <div className="col-3">
-             {this.dayOfWeek()},
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Month</label>
-             <input type="text" className="form-control" name="month"
-                    value={this.state.month} onChange={this.handleMonthChange} />
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Day</label>
-             <input type="text" className="form-control" name="day_of_month"
-                    value={this.state.dayOfMonth} onChange={this.handleDayOfMonthChange} />
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Year</label>
-             <input type="text" className="form-control" name="year"
-                    value={this.state.year} onChange={this.handleYearChange} />
-          </div>
-          </div>}
-          {!this.state.editing && <span>
-            {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
-          </span>}
+          {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
+          <input type="hidden" name="year" value={this.state.year} />
+          <input type="hidden" name="month" value={this.state.month} />
+          <input type="hidden" name="day_of_month" value={this.state.dayOfMonth} />
         </td>
         <td className="col-4">
           <ul className="list-unstyled">
