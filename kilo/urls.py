@@ -1,10 +1,12 @@
 from django.urls import path
 
-from kilo.views import days, days_erging, days_running, panel
+from kilo.views import base, frequency, history, pace, recent, stats
 
 urlpatterns = [
-    path('', days, name='days'),
-    path('erging/', days_erging, name='days_erging'),
-    path('running/', days_running, name='days_running'),
-    path('panel/', panel, name='panel'),
+    path('', base, name='base'),
+    path('frequency/', frequency, name='frequency'),
+    path('history/', history, name='history'),
+    path('pace/', pace, name='pace'),
+    path('recent/', recent, name='recent'),
+    path('stats/', stats, name='stats'),
 ]

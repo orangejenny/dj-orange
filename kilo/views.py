@@ -12,20 +12,8 @@ from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 
-def days(request):
-    return _days(request)
-
-
-def days_erging(request):
-    return _days(request, "erging")
-
-
-def days_running(request):
-    return _days(request, "running")
-
-
 @login_required
-def _days(request, activity=None):
+def base(request):
     if request.method == "POST":
         post_data = json.loads(request.body.decode("utf-8"))['day']
 
@@ -78,12 +66,29 @@ def _days(request, activity=None):
 
 @require_GET
 @login_required
-def panel(request):
-    activity = request.GET.get('activity')
-    days = Day.objects.all()
-    if activity:
-        days = days.filter(workout__activity=activity).distinct()
+def recent(request):
+    today = datetime.now().date()
+    days = []
 
+    for delta in range(0, 15):
+        day_index = today - timedelta(days=delta + 1)
+        try:
+            day = Day.objects.get(day=day_index)
+        except Day.DoesNotExist as e:
+            day = Day(day=day_index)
+        days.append(day)
+
+    return _days(days)
+
+
+@require_GET
+@login_required
+def history(request):
+    days = Day.get_recent_days(90)
+    return _days(days)
+
+
+def _days(days):
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
     other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
@@ -91,10 +96,7 @@ def panel(request):
     return JsonResponse({
         "all_activities": common_activities + other_activities,
         "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "recent_days": [_format_day(d) for d in days[:500]],
-        "stats": _get_stats(days, activity),
-        "frequency_graph_data": _get_frequency_graph_data(days),
-        "pace_graph_data": _get_pace_graph_data(days),
+        "recent_days": [_format_day(d) for d in days],
     })
 
 
@@ -103,95 +105,102 @@ def _format_day(day):
         "id": day.id,
         "day": day.day,
         "notes": day.notes,
-        "workouts": [w.to_json() for w in day.workout_set.all()],
+        "workouts": [w.to_json() for w in day.workout_set.all()] if day.id else [],
     }
 
 
-def _get_stats(days, activity=None):
-    today = datetime.now().date()
-    last_month_days = days.filter(day__gte=today - timedelta(days=30))
-    last_year_days = days.filter(day__gte=today - timedelta(days=365))
+@require_GET
+@login_required
+def stats(request):
+    last_year_days = Day.get_recent_days(365)
+    last_month_days = Day.get_recent_days(30)
 
-    if activity == "erging":
-        stats = [
-            {"name": "Past Month", "primary": sum_erging(last_month_days), "secondary": "m erged"},
-        ]
-        workout = best_erg(last_month_days, km=2)
-        if workout:
-            stats.append({
-                "name": "Past Month's Best 2k",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_erg(last_year_days, km=2)
-        if workout:
-            stats.append({
-                "name": "Past Year's Best 2k",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_erg(last_month_days, km=6)
-        if workout:
-            stats.append({
-                "name": "Past Month's Best 6k",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_erg(last_year_days, km=6)
-        if workout:
-            stats.append({
-                "name": "Past Year's Best 6k",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        return stats
+    erging_stats = []
+    erging_stats.append({
+        "name": "Past Month",
+        "primary": sum_erging(last_month_days),
+        "secondary": "total m erged"}
+    )
+    workout = best_erg(last_month_days, km=2)
+    if workout:
+        erging_stats.append({
+            "name": "Past Month's Best 2k",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_erg(last_month_days, km=6)
+    if workout:
+        erging_stats.append({
+            "name": "Past Month's Best 6k",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_erg(last_year_days, km=2)
+    if workout:
+        erging_stats.append({
+            "name": "Past Year's Best 2k",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_erg(last_year_days, km=6)
+    if workout:
+        erging_stats.append({
+            "name": "Past Year's Best 6k",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
 
-    if activity == "running":
-        stats = [{
-            "name": "Past Month",
-            "primary": sum_running(last_month_days),
-            "secondary": "miles run",
-        }]
-        boundary = 7
-        workout = best_run(last_month_days, upper_mi=boundary)
-        if workout:
-            stats.append({
-                "name": "Past Month's Best Short Run",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_run(last_year_days, upper_mi=boundary)
-        if workout:
-            stats.append({
-                "name": "Past Year's Best Short Run",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_run(last_month_days, lower_mi=boundary)
-        if workout:
-            stats.append({
-                "name": "Past Month's Best Long Run",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        workout = best_run(last_year_days, lower_mi=boundary)
-        if workout:
-            stats.append({
-                "name": "Past Year's Best Long Run",
-                "primary": workout.primary_stat(),
-                "secondary": workout.secondary_stat(),
-            })
-        return stats
+    running_stats = []
+    running_stats.append({
+        "name": "Past Month",
+        "primary": sum_running(last_month_days),
+        "secondary": "total miles run",
+    })
+    boundary = 7
+    workout = best_run(last_month_days, upper_mi=boundary)
+    if workout:
+        running_stats.append({
+            "name": "Past Month's Best Short Run",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_run(last_month_days, lower_mi=boundary)
+    if workout:
+        running_stats.append({
+            "name": "Past Month's Best Long Run",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_run(last_year_days, upper_mi=boundary)
+    if workout:
+        running_stats.append({
+            "name": "Past Year's Best Short Run",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
+    workout = best_run(last_year_days, lower_mi=boundary)
+    if workout:
+        running_stats.append({
+            "name": "Past Year's Best Long Run",
+            "primary": workout.primary_stat(),
+            "secondary": workout.secondary_stat(),
+        })
 
-    return []
+    return JsonResponse({
+        "stats": [{
+            "title": "Erging",
+            "stats": erging_stats,
+        }, {
+            "title": "Running",
+            "stats": running_stats,
+        }],
+    })
 
 
-def _get_frequency_graph_data(days):
-    if not days.count():
-        return None
-
-    today = datetime.now().date()
-    days = days.filter(day__gte=today - timedelta(days=180))
+@require_GET
+@login_required
+def frequency(request):
+    days = Day.get_recent_days(365)
 
     data = {}
     data["x"] = "day"
@@ -215,15 +224,13 @@ def _get_frequency_graph_data(days):
     data["types"] = {activity: "area-spline" for activity in all_activities}
     data["groups"] = [list(all_activities)]
 
-    return data
+    return JsonResponse(data)
 
 
-def _get_pace_graph_data(days):
-    if not days.count():
-        return None
-
-    today = datetime.now().date()
-    days = days.filter(day__gte=today - timedelta(days=90))
+@require_GET
+@login_required
+def pace(request):
+    days = Day.get_recent_days(365)
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):
@@ -271,4 +278,4 @@ def _get_pace_graph_data(days):
         for label, values in columns.items()
     ]
 
-    return data
+    return JsonResponse(data)

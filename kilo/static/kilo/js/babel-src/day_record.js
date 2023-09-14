@@ -1,10 +1,11 @@
 import { Workout } from "../workout.js";
 
-export class DayRow extends React.Component {
+export class DayRecord extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       id: props.id,
+      isRecent: props.isRecent,
       year: props.day.split("-")[0],
       month: props.day.split("-")[1],
       dayOfMonth: props.day.split("-")[2],
@@ -17,9 +18,6 @@ export class DayRow extends React.Component {
     this.day = this.day.bind(this);
     this.dayOfWeek = this.dayOfWeek.bind(this);
     this.monthText = this.monthText.bind(this);
-    this.handleMonthChange = this.handleMonthChange.bind(this);
-    this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
-    this.handleYearChange = this.handleYearChange.bind(this);
 
     this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
     this.handleActivityChange = this.handleActivityChange.bind(this);
@@ -33,15 +31,13 @@ export class DayRow extends React.Component {
     this.removeWorkout = this.removeWorkout.bind(this);
 
     this.saveDayEntry = this.saveDayEntry.bind(this);
-    this.showDayEntry = this.showDayEntry.bind(this);
+    this.editDayEntry = this.editDayEntry.bind(this);
+    this.editExistingDayEntry = this.editExistingDayEntry.bind(this);
     this.clearDayEntry = this.clearDayEntry.bind(this);
 
     this.handleNotesChange = this.handleNotesChange.bind(this);
   }
 
-  handleYearChange(e) { this.setState({year: e.target.value}) }
-  handleMonthChange(e) { this.setState({month: e.target.value}) }
-  handleDayOfMonthChange(e) { this.setState({dayOfMonth: e.target.value}) }
   handleNotesChange(e) { this.setState({notes: e.target.value}) }
 
   getSeconds(time) {
@@ -166,9 +162,13 @@ export class DayRow extends React.Component {
     });
   }
 
-  showDayEntry () {
+  editExistingDayEntry () {
+    return this.editDayEntry();
+  }
+
+  editDayEntry (template) {
     this.setState(function (state, props) {
-      return {
+      let newState = {
         originalDay: {
           day: [state.year, state.month, state.dayOfMonth].join("-"),
           notes: state.notes,
@@ -176,6 +176,10 @@ export class DayRow extends React.Component {
         },
         editing: true,
       };
+      if (template) {
+        newState.workouts = [Workout(template)];
+      }
+      return newState;
     });
   }
 
@@ -203,29 +207,10 @@ export class DayRow extends React.Component {
     return (
       <tr className="row">
         <td className="col-3">
-          {this.state.editing && <div className="row g-1 align-items-center">
-          <div className="col-3">
-             {this.dayOfWeek()},
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Month</label>
-             <input type="text" className="form-control" name="month"
-                    value={this.state.month} onChange={this.handleMonthChange} />
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Day</label>
-             <input type="text" className="form-control" name="day_of_month"
-                    value={this.state.dayOfMonth} onChange={this.handleDayOfMonthChange} />
-          </div>
-          <div className="col-3">
-             <label className="visually-hidden">Year</label>
-             <input type="text" className="form-control" name="year"
-                    value={this.state.year} onChange={this.handleYearChange} />
-          </div>
-          </div>}
-          {!this.state.editing && <span>
-            {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
-          </span>}
+          {this.dayOfWeek()}, {this.monthText()} {this.state.dayOfMonth}, {this.state.year}
+          <input type="hidden" name="year" value={this.state.year} />
+          <input type="hidden" name="month" value={this.state.month} />
+          <input type="hidden" name="day_of_month" value={this.state.dayOfMonth} />
         </td>
         <td className="col-4">
           <ul className="list-unstyled">
@@ -297,7 +282,26 @@ export class DayRow extends React.Component {
               <i className="fa fa-times"></i>
             </button>
           </div>}
-          {!this.state.editing && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.showDayEntry}>
+          {!this.state.editing && !this.state.id && <div className="me-2">
+             <div className="dropdown dropstart">
+               <button className="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 Add
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
+                 {this.props.templates.map((template, index) => (<li key={index}>
+                   <a className="dropdown-item" onClick={() => this.editDayEntry(template)}>
+                     {template.activity} {template.distance} {template.distance_unit}
+                   </a>
+                 </li>))}
+                 {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
+                 <li>
+                   <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
+                 </li>
+               </ul>
+             </div>
+           </div>}
+          {!this.state.editing && this.state.id && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.editExistingDayEntry}>
             Edit
           </button>}
         </td>

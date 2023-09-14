@@ -1,4 +1,4 @@
-import { DayRow } from "./day_row.js";
+import { DayRecord } from "./day_record.js";
 import { Loading } from "./loading.js";
 import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
@@ -8,109 +8,65 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activity: null,
+      panel: "frequency",
       loading: true,
-      rows: [],
-      templates: [],
+      records: [],
     };
 
-    this.addDayRow = this.addDayRow.bind(this);
-    this.setActivity = this.setActivity.bind(this);
+    this.setPanel = this.setPanel.bind(this);
     this.getPanel = this.getPanel.bind(this);
   }
 
-  addDayRow(template) {
-    var self = this,
-      day = new Date();
-    day = [
-      day.getFullYear(),
-      (day.getMonth() < 9 ? "0" : "") + (day.getMonth() + 1),
-      (day.getDate() < 10 ? "0" : "") + day.getDate(),
-    ].join("-");
-    this.setState((state, props) => {
-      var id = state.rows.reduce((accumulator, row) => ( Math.min(accumulator, row.props.id) ), 0) - 1,
-        options = {
-          key: id,
-          id: id,
-          day: day,
-          workouts: template ? [Workout(template)] : [],
-          editing: true,
-          all_activities: self.state.all_activities,
-          all_distance_units: self.state.all_distance_units,
-        };
-      return {
-        rows: [<DayRow { ...options } />, ...this.state.rows],
-      };
-    });
-  }
-
-  setActivity(e) {
-    var activity = null;
+  setPanel(e) {
+    var panel = "frequency";
     if (e) {
-      activity = e.target.dataset.activity;
+      panel = e.target.dataset.panel;
     }
-    this.getPanel(activity);
+    this.getPanel(panel);
   }
 
   componentDidMount() {
-    this.setActivity();
+    this.setPanel();
   }
 
-  getPanel(activity) {
+  getPanel(panel) {
       var self = this;
       self.setState({
         loading: true,
-        activity: activity,
+        panel: panel,
       });
-      fetch("/kilo/panel?activity=" + (activity || ""), {
+      fetch("/kilo/" + (panel || ""), {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
         },
       }).then((resp) => resp.json()).then(data => {
+        // Forcibly clear records so that blank recent days, which don't have keys, get removed
         self.setState({
-          all_activities: data.all_activities,
-          all_distance_units: data.all_distance_units,
-          loading: false,
-          rows: data.recent_days.map((day) =>
-            <DayRow key={day.id} {...day}
-                    all_activities={data.all_activities} all_distance_units={data.all_distance_units} />
-          ),
-          stats: data.stats.map((stat) => 
-            <div className="col" key={stat.name}>
-              <Stat name={stat.name} primary={stat.primary} secondary={stat.secondary} />
-            </div>
-          ),
-          templates: self.getTemplates(data.recent_days),
+            records: [],
         });
-        if (data.frequency_graph_data) {
-            self.loadFrequencyGraph(data.frequency_graph_data);
-        }
-        if (data.pace_graph_data) {
-            self.loadPaceGraph(data.pace_graph_data);
-        }
-      }).catch((error) => {
-        alert('Unexpected error:', error);
-      });
-  }
 
-  getTemplates(days) {
-    var index = 0,
-        templates = [];
-    while (index < days.length && templates.length < 8) {
-        var indexDay = days[index];
-        index++;
-        if (!indexDay.workouts.length) {
-            continue;
+        var newState = {
+            loading: false,
+            panel: panel,
+            records: data.recent_days || [],
+            stats: data.stats || [],
+            templates: self.getTemplates(data.recent_days || []),
+        };
+        if (data.all_activities) {
+            newState.all_activities = data.all_activities;
         }
-        var template = { ...indexDay.workouts[0] };
-        if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
-            delete template.id;
-            delete template.seconds;
-            templates.push(template);
+        if (data.all_distance_units) {
+            newState.all_distance_units = data.all_distance_units;
         }
-    }
-    return templates;
+        self.setState(newState);
+        if (panel === "frequency") {
+            self.loadFrequencyGraph(data);
+        }
+        if (panel === "pace") {
+            self.loadPaceGraph(data);
+        }
+      });
   }
 
   getTime(seconds) {
@@ -141,11 +97,29 @@ class App extends React.Component {
     return [minutes, seconds].join(":");
   }
 
+  getTemplates(days) {
+     var index = 0,
+         templates = [];
+     while (index < days.length && templates.length < 8) {
+         var indexDay = days[index];
+         index++;
+         if (!indexDay.workouts.length) {
+             continue;
+         }
+         var template = { ...indexDay.workouts[0] };
+         if (!templates.find(t => t.activity === template.activity && t.distance === template.distance)) {
+             delete template.id;
+             delete template.seconds;
+             templates.push(template);
+         }
+     }
+     return templates;
+  }
+
   loadFrequencyGraph(data) {
     let self = this,
         options = self.graphOptions(data);
 
-    options.bindto = "#frequency-graph";
     options.tooltip = {
         show: false,
         grouped: false,
@@ -158,12 +132,10 @@ class App extends React.Component {
     c3.generate(options);
   }
 
-  // TODO: make graph legible
   loadPaceGraph(data) {
     let self = this,
         options = self.graphOptions(data);
 
-    options.bindto = "#pace-graph";
     options.tooltip = {
         show: true,
         grouped: false,
@@ -193,6 +165,7 @@ class App extends React.Component {
 
   graphOptions(data) {
     return {
+        bindto: "#graph",
         data: data,
         axis: {
             x: {
@@ -218,20 +191,23 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setActivity={this.setActivity} addDayRow={this.addDayRow} templates={this.state.templates} loading={this.state.loading} />
+        <Nav setPanel={this.setPanel} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
-        {!this.state.activity && <div className="row">
-          <div class="col-6"><div id="frequency-graph"></div></div>
-          <div class="col-6"><div id="pace-graph"></div></div>
-        </div>}
-        {this.state.activity && <div class="col-12">
-          <div className="row">{this.state.stats}</div>
-        </div>}
-        <br /><br />
-        <table className="table table-hover">
-          <tbody>{this.state.rows}</tbody>
-        </table>
+        {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
+        {this.state.panel === "stats" && <div className="row">{this.state.stats.map((stat_set) =>
+          <div className="col" key={stat_set.title}>
+            <Stat title={stat_set.title} stats={stat_set.stats} />
+          </div>
+        )}</div>}
+        {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
+          <tbody>
+            {this.state.records.map((day) =>
+              <DayRecord key={day.id} {...day} panel={this.state.panel} templates={this.state.templates}
+                         all_activities={this.state.all_activities} all_distance_units={this.state.all_distance_units} />
+            )}
+          </tbody>
+        </table>}
       </div>
     );
   }
