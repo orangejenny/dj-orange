@@ -261,6 +261,7 @@ def song_export(request):
         return album_export(request)
 
     filter_kwargs = {
+        'album_filters': request.GET.get('album_filters'),
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),
     }
