@@ -4,6 +4,7 @@
 *.m3u
 *.pyc
 *.sqlite3
+.DS_Store
 
 localsettings.py
 __pycache__/
