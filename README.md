@@ -49,7 +49,7 @@ Additional commands support:
 
 Kilo tracks workouts. It's pretty basic. The front end is React.
 
-Kilo replaces [a previous workouts app](https://github.com/orangejenny/miles/blob/master/README.md) based on D3 and [an even older one](https://github.com/orangejenny/workouts/blob/master/README.md) from way back when I was into Rails.
+Kilo replaces [a previous workouts app](https://github.com/orangejenny/miles/) based on D3 and [an even older one](https://github.com/orangejenny/workouts/) from way back when I was into Rails.
 
 * Create and update workouts
 * View personal records
