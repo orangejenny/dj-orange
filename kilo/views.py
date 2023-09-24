@@ -71,7 +71,7 @@ def recent(request):
     days = []
 
     for delta in range(0, 15):
-        day_index = today - timedelta(days=delta + 1)
+        day_index = today - timedelta(days=delta)
         try:
             day = Day.objects.get(day=day_index)
         except Day.DoesNotExist as e:
