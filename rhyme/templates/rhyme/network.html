@@ -7,20 +7,20 @@
 {% endblock js %}
 
 {% block visualization %}
-<div class="well pull-right" id="network-controls">
+<div class="card float-end" id="network-controls">
+  <div class="card-body d-grid gap-2">
     <select class="select2" name="category">
         <option value="">(All Categories)</option>
         {% for category in categories %}
             <option>{{ category }}</option>
         {% endfor %}
     </select>
-    <br /><br />
     <input class="form-control" type="text" name="strength" value="{{ strength }}" />
-    <br />
     <button class="btn btn-primary" data-bind="click: refresh">
         <i class="fab fa-pagelines"></i>
         Generate
     </button>
+  </div>
 </div>
 
 <div class="chart-container">
