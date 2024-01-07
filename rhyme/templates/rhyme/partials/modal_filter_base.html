@@ -12,13 +12,13 @@
                 {% if not disallow_null %}
                     <div class="row">
                         <div class="col-sm-6">
-                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', false) }" data-dismiss="modal">
+                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', false) }" data-bs-dismiss="modal">
                                 <i class="fas fa-question-circle"></i>
                                 is null
                             </button>
                         </div>
                         <div class="col-sm-6">
-                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', true) }" data-dismiss="modal">
+                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', true) }" data-bs-dismiss="modal">
                                 <i class="fas fa-check-circle"></i>
                                 is not null
                             </button>
