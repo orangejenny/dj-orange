@@ -22,16 +22,17 @@
 
 {% block body %}
     {% include "rhyme/partials/loading.html" %}
-    <div class="navbar-container">
-        <nav class="navbar navbar-default">
-            <a class='navbar-brand' href='#'>Rhyme</a>
-            {% if has_export %}
-                <div class="controls">
-                    {% block controls %}
-                        {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
-                    {% endblock controls %}
-                </div>
-            {% endif %}
+    <!-- TODO: navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class='navbar-brand' href='#'>Rhyme</a>
+        {% if has_export %}
+            <div class="controls">
+                {% block controls %}
+                    {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
+                {% endblock controls %}
+            </div>
+        {% endif %}
+        <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li>
                     <a href='{% url "index" %}'>
@@ -58,8 +59,8 @@
                     </a>
                 </li>
             </ul>
-        </nav>
-    </div>
+        </div>
+    </nav>
 
     <div class="post-nav">
         <div class="row">

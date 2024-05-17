@@ -291,7 +291,8 @@ function rhymeModel (options) {
 
         var $modal = $("#song-list");
         self.isLoading(true);
-        $modal.modal();
+        const modal = new bootstrap.Modal($modal.get(0));
+        modal.show();
         songListParams.songs_per_page = 100;
         $.ajax({
             method: 'GET',
