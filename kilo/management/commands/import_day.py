@@ -35,6 +35,9 @@ class Command(BaseCommand):
 
         workouts = []
         while input("Add workout (y/n)? ").lower() == "y":
+            seconds = None
+            distance = None
+            distance_unit = None
             sets = None
             reps = None
             weight = None
