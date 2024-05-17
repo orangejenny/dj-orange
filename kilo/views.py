@@ -68,17 +68,16 @@ def base(request):
 @login_required
 def recent(request):
     today = datetime.now().date()
-    days = []
+    all_days = []
 
     for delta in range(0, 15):
         day_index = today - timedelta(days=delta)
-        try:
-            day = Day.objects.get(day=day_index)
-        except Day.DoesNotExist as e:
-            day = Day(day=day_index)
-        days.append(day)
+        days = Day.objects.filter(day=day_index)
+        if not days:
+            days = [Day(day=day_index)]
+        all_days.extend([d for d in days])
 
-    return _days(days)
+    return _days(all_days)
 
 
 @require_GET
