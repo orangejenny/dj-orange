@@ -26,12 +26,11 @@ class Command(BaseCommand):
             playlists = Playlist.objects.all()
 
         print(f"Found {playlists.count()} playlists")
-        for playlist in playlists:
+        for index, playlist in enumerate(playlists):
+            print(f"({index} of {len(playlists)}) Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
             self.refresh_playlist(playlist, force=options.get('force', False), quiet=options.get('quiet', False))
 
     def refresh_playlist(self, playlist, force=False, quiet=False):
-        print(f"Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
-
         rhyme_keys = {song.plex_key for song in playlist.songs if song.plex_key}
 
         if not force and len(rhyme_keys) == playlist.plex_count:
