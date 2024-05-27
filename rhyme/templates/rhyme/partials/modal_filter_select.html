@@ -1,34 +1,28 @@
 {% extends 'rhyme/partials/modal_filter_base.html' %}
 
 {% block body %}
-    <div class="d-grid gap-2">
-        <select class="lhs form-control select2 in-modal" multiple data-url="{{ url }}">
-            {% for option in options %}
-                <option>{{ option }}</option>
-            {% endfor %}
-        </select>
-        <div class="{% if include_all %}col-4{% else %}col-6{% endif %}">
-            <button class="btn btn-outline-secondary btn-block"
-                    data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '*=', getFilterValue(e)) }"
-                    data-bs-dismiss="modal">
-                Any
-            </button>
-        </div>
+    <select class="lhs form-control select2 in-modal" multiple data-url="{{ url }}">
+        {% for option in options %}
+            <option>{{ option }}</option>
+        {% endfor %}
+    </select>
+    <div class="d-flex mt-2 gap-2">
+        <button class="btn btn-outline-secondary flex-fill"
+                data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '*=', getFilterValue(e)) }"
+                data-bs-dismiss="modal">
+            Any
+        </button>
         {% if include_all %}
-            <div class="{% if include_all %}col-4{% else %}col-6{% endif %}">
-                <button class="btn btn-outline-secondary btn-block"
-                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
-                        data-bs-dismiss="modal">
-                    All
-                </button>
-            </div>
-        {% endif %}
-        <div class="{% if include_all %}col-4{% else %}col-6{% endif %}">
-            <button class="btn btn-outline-secondary btn-block"
-                    data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '!=', getFilterValue(e)) }"
+            <button class="btn btn-outline-secondary flex-fill"
+                    data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
                     data-bs-dismiss="modal">
-                None
+                All
             </button>
-        </div>
+        {% endif %}
+        <button class="btn btn-outline-secondary flex-fill"
+                data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '!=', getFilterValue(e)) }"
+                data-bs-dismiss="modal">
+            None
+        </button>
     </div>
 {% endblock %}

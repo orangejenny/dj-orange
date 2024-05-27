@@ -1,42 +1,26 @@
 {% extends 'rhyme/partials/modal_filter_base.html' %}
 
 {% block body %}
-    <div class="form-group">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="input-group">
-                    <div class="input-group-addon">
-                        at least
-                    </div>
-                    <input class="form-control rhs" />
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <button class="btn btn-info btn-block"
-                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '>=', getFilterValue(e)) }"
-                        data-bs-dismiss="modal">
-                    Onward
-                </button>
-            </div>
+    <div class="input-group mb-2">
+        <div class="input-group-text">
+            at least
         </div>
+        <input class="form-control rhs" />
+        <button class="btn btn-outline-secondary"
+                data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '>=', getFilterValue(e)) }"
+                data-bs-dismiss="modal">
+            Onward
+        </button>
     </div>
-    <div class="form-group">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="input-group">
-                    <div class="input-group-addon">
-                        at most
-                    </div>
-                    <input class="form-control rhs" />
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <button class="btn btn-info btn-block"
-                        data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '<=', getFilterValue(e)) }"
-                        data-bs-dismiss="modal">
-                    Onward
-                </button>
-            </div>
+    <div class="input-group mb-2">
+        <div class="input-group-text">
+            at most
         </div>
+        <input class="form-control rhs" />
+        <button class="btn btn-outline-secondary"
+                data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '<=', getFilterValue(e)) }"
+                data-bs-dismiss="modal">
+            Onward
+        </button>
     </div>
 {% endblock %}
