@@ -296,10 +296,10 @@ export class DayRecord extends React.Component {
         </td>
         <td className="col-1">
           {this.state.editing && <div className="btn-group" role="group">
-            <button type="button" className="pull-right btn btn-outline-success" onClick={this.saveDayEntry}>
+            <button type="button" className="float-end btn btn-outline-success" onClick={this.saveDayEntry}>
               <i className={`fa ${this.state.saving ? "fa-spin fa-spinner" : "fa-check"}`}></i>
             </button>
-            <button type="button" className="pull-right btn btn-outline-danger" onClick={this.clearDayEntry}>
+            <button type="button" className="float-end btn btn-outline-danger" onClick={this.clearDayEntry}>
               <i className="fa fa-times"></i>
             </button>
           </div>}
@@ -322,7 +322,7 @@ export class DayRecord extends React.Component {
                </ul>
              </div>
            </div>}
-          {!this.state.editing && this.state.id && <button type="button" className="pull-right btn btn-outline-secondary" onClick={this.editExistingDayEntry}>
+          {!this.state.editing && this.state.id && <button type="button" className="float-end btn btn-outline-secondary" onClick={this.editExistingDayEntry}>
             Edit
           </button>}
         </td>
