@@ -47,8 +47,8 @@ def add_plex_ids(library, songs, plex_key=None, song_in=False):
             ancestor = library.fetchItem(plex_key) if plex_key else library.get(song.artist.name)
             if song_in:
                 results = [t for t in ancestor.tracks() if song.name in t.title]
-                if len(results) > 1:
-                    raise Exception
+                if len(results) != 1:
+                    continue
                 result = results[0]
             else:
                 result = ancestor.get(song.name)
