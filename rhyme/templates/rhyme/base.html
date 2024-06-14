@@ -22,43 +22,44 @@
 
 {% block body %}
     {% include "rhyme/partials/loading.html" %}
-    <!-- TODO: navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class='navbar-brand' href='#'>Rhyme</a>
-        {% if has_export %}
-            <div class="controls">
-                {% block controls %}
-                    {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
-                {% endblock controls %}
+        <div class="container-fluid">
+            <a class='navbar-brand' href='#'>Rhyme</a>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "index" %}'>
+                            <i class="fas fa-music"></i>
+                            Songs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "albums" %}'>
+                            <i class="fas fa-compact-disc"></i>
+                            Albums
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "network" %}'>
+                            <i class="fas fa-globe-asia"></i>
+                            Network
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "matrix" %}'>
+                            <i class="fas fa-table"></i>
+                            Matrix
+                        </a>
+                    </li>
+                </ul>
             </div>
-        {% endif %}
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href='{% url "index" %}'>
-                        <i class="fas fa-music"></i>
-                        Songs
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "albums" %}'>
-                        <i class="fas fa-compact-disc"></i>
-                        Albums
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "network" %}'>
-                        <i class="fas fa-globe-asia"></i>
-                        Network
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "matrix" %}'>
-                        <i class="fas fa-table"></i>
-                        Matrix
-                    </a>
-                </li>
-            </ul>
+            {% if has_export %}
+                <div class="controls">
+                    {% block controls %}
+                        {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
+                    {% endblock controls %}
+                </div>
+            {% endif %}
         </div>
     </nav>
 
