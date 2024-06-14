@@ -2,12 +2,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>
-                    <div class="float-end">
-                        {% include "rhyme/partials/export_action.html" with count="songListCount" model="song" params="songListParams()" %}
-                    </div>
-                    <span class="modal-title" data-bind="text: modalName"></span>
-                </h4>
+                <h4 class="modal-title" data-bind="text: modalName"></h4>
+                {% include "rhyme/partials/export_action.html" with count="songListCount" model="song" params="songListParams()" %}
             </div>
             <div class="modal-body">
                 <div data-bind="if: modalHeaders().length">
