@@ -1,20 +1,19 @@
-<div class="dropdown export-dropdown pull-right">
-    <button class="btn btn-info btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+<div class="dropdown export-dropdown">
+    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="export-dropdown-toggle">
         <span class="fas fa-cloud-download-alt"></span>
         Export <span data-bind="text: {{ count }}"></span> {{ model }}s
-        <span class="caret"></span>
     </button>
 
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu" aria-labelledby="export-dropdown-toggle">
         <li>
-            <a href="#" data-bind="click: function () { exportPlaylist('rhyme', '{{ model }}', {{ params }}) }">
+            <a class="dropdown-item" href="#" data-bind="click: function () { exportPlaylist('rhyme', '{{ model }}', {{ params }}) }">
                 <i class="far fa-hdd"></i>
                 Rhyme
             </a>
         </li>
         {% for config in RHYME_EXPORT_CONFIGS %}
             <li>
-                <a href="#" data-bind="click: function () { exportPlaylist('{{ config.name }}', '{{ model }}', {{ params }}) }">
+                <a class="dropdown-item" href="#" data-bind="click: function () { exportPlaylist('{{ config.name }}', '{{ model }}', {{ params }}) }">
                     <i class="fas {{ config.icon }}"></i>
                     {{ config.name|title }}
                 </a>

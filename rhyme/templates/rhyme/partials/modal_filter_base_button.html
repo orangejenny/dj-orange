@@ -1,12 +1,12 @@
 <div class="filter-type" data-bind="with: getFilterTypeModel('{{ lhs }}')">
     <div class="btn-group" role="group">
-        <button class="btn btn-xs btn-default" data-toggle="modal" data-target="#filter-modal-{{ name|slugify }}" data-bind="css: {'active': filterText}">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filter-modal-{{ name|slugify }}" data-bind="css: {'active': filterText}">
             <i class="fas fa-{{ icon|default:"plus" }}"></i>
             {{ name }}
             <span data-bind="text: filterText"></span>
         </button>
         <!-- ko if: filterText -->
-            <button class="btn btn-xs btn-default active" data-bind="click: removeFilters">
+            <button class="btn btn-sm btn-outline-secondary active" data-bind="click: removeFilters">
                 <i class="far fa-times"></i>
             </button>
         <!-- /ko -->
