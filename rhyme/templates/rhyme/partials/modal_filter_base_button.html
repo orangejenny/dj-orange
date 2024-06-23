@@ -1,9 +1,9 @@
-<div class="filter-type" data-bind="with: getFilterTypeModel('{{ lhs }}')">
+<div class="filter-type d-inline-block d-md-block" data-bind="with: getFilterTypeModel('{{ lhs }}')">
     <div class="btn-group" role="group">
         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filter-modal-{{ name|slugify }}" data-bind="css: {'active': filterText}">
             <i class="fas fa-{{ icon|default:"plus" }}"></i>
-            {{ name }}
-            <span data-bind="text: filterText"></span>
+            <span class="d-none d-md-inline">{{ name }}</span>
+            <span class="d-none d-md-inline" data-bind="text: filterText"></span>
         </button>
         <!-- ko if: filterText -->
             <button class="btn btn-sm btn-outline-secondary active" data-bind="click: removeFilters">
