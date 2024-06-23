@@ -8,15 +8,29 @@
     }">
     </td>
     <td data-bind="visible: track_number, text: track_number + '.'"></td>
-    <td class="col-sm-2" data-bind="text: name"></td>
-    <td data-bind="text: artist"></td>
-    <td>
+    <td class="col-sm-2">
+        <!-- ko text: name --><!-- /ko -->
+        <div class="d-block d-md-none" data-bind="text: artist"></div>
+        <ul class="d-block d-md-none list-unstyled" data-bind="foreach: albums">
+            <li><a href="javascript: void(0)" data-bind="text: name, click: function() { $root.showModal(name, {album_id: id}) }"></a></li>
+        </ul>
+    </td>
+    <td class="d-none d-md-table-cell" data-bind="text: artist"></td>
+    <td class="d-none d-md-table-cell">
         <ul class="list-unstyled" data-bind="foreach: albums">
             <li><a href="javascript: void(0)" data-bind="text: name, click: function() { $root.showModal(name, {album_id: id}) }"></a></li>
         </ul>
     </td>
-    <td><div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div></td>
-    <td><div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div></td>
-    <td><div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div></td>
+    <td class="text-center">
+        <div contenteditable='true' data-field='rating' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="rating" icon="star" %}</div>
+        <div contenteditable='true' data-field='energy' class="rating d-block d-md-none">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div>
+        <div contenteditable='true' data-field='mood' class="rating d-block d-md-none">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div>
+    </td>
+    <td class="text-center d-none d-md-table-cell">
+        <div contenteditable='true' data-field='energy' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="energy" icon="fire" %}</div>
+    </td>
+    <td class="text-center d-none d-md-table-cell">
+        <div contenteditable='true' data-field='mood' class="rating">{% include "rhyme/partials/rating.html" with rating_attribute="mood" icon="heart" %}</div>
+     </td>
     <td contenteditable='true' data-field='tags' class='tags' data-bind="text: tags.join(' ')"></td>
 </tr>
