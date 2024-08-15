@@ -18,9 +18,12 @@ class Command(BaseCommand):
             if selected is None:
                 selected = self.select_playlist()
             self.print_details(selected)
-            key = input("What to do? (S)elect a different playlist, (R)ename, (D)elete, (C)reate, (Q)uit? ").lower()
+            key = input("What to do? (S)elect a different playlist, (L)ist, (R)ename, (D)elete, (C)reate, (Q)uit? ").lower()
             if key == "s":
                 selected = self.select_playlist()
+            elif key == "l":
+                for index, song in enumerate(selected.songs):
+                    print(f"{index + 1}) {song}")
             elif key == "r":
                 selected.name = input("New name? ")
                 selected.save()
