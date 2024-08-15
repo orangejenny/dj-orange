@@ -1,16 +1,16 @@
-from django.core.management.base import BaseCommand
 from django.db.models import Q
 
-from rhyme.models import *
+from rhyme.management.commands.rhyme_command import Command as RhymeCommand
+from rhyme.models import Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 from datetime import datetime
 import random
 
 
-class Command(BaseCommand):
+class Command(RhymeCommand):
     def handle(self, *args, **options):
-        seed = self.get_seed()
+        seed = self.get_song()
         print(f"Seed: {seed}")
 
         # Basic limits
@@ -117,23 +117,3 @@ class Command(BaseCommand):
 
     def common_tags(self, tags, song):
         return set(tags) & set(song.tags())
-
-    def get_seed(self):
-        seed = None
-        while seed is None:
-            name = input("Song name? ")
-            songs = Song.objects.filter(name__icontains=name)
-            if songs.count() > 7:
-                artist = input("Artist? ")
-                songs = songs.filter(artist__name__icontains=artist)
-            if songs.count() == 1:
-                seed = songs.first()
-            elif songs.count() > 1:
-                for i, song in enumerate(songs):
-                    print(f"{i + 1}) {song}")
-                ordinal = input("Which song? ")
-                try:
-                    seed = songs[int(ordinal) - 1]
-                except (ValueError, IndexError):
-                    pass
-        return seed

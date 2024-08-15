@@ -1,12 +1,11 @@
 from collections import Counter, defaultdict
 from functools import partial
 
-from django.core.management.base import BaseCommand
-
+from rhyme.management.commands.rhyme_command import Command as RhymeCommand
 from rhyme.models import Playlist, PlaylistSong
 
 
-class Command(BaseCommand):
+class Command(RhymeCommand):
     @property
     def help(self):
         return "Command-line playlist management"
@@ -18,9 +17,12 @@ class Command(BaseCommand):
             if selected is None:
                 selected = self.select_playlist()
             self.print_details(selected)
-            key = input("What to do? (S)elect a different playlist, (R)ename, (D)elete, (C)reate, (Q)uit? ").lower()
+            key = input("What to do? (S)elect a different playlist, (L)ist, (R)ename, (D)elete, (C)reate, (Q)uit? ").lower()
             if key == "s":
                 selected = self.select_playlist()
+            elif key == "l":
+                for index, song in enumerate(selected.songs):
+                    print(f"{index + 1}) {song}")
             elif key == "r":
                 selected.name = input("New name? ")
                 selected.save()
@@ -51,8 +53,7 @@ class Command(BaseCommand):
         playlists = Playlist.objects.all().order_by("name")
         key = None
         while key is None:
-            for index, playlist in enumerate(playlists):
-                print(f"{index + 1}) {playlist.name}")
+            self.print_numbered_list(playlists)
             key = input("Playlist? ")
             try:
                 key = int(key) - 1
