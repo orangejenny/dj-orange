@@ -25,3 +25,7 @@ class Command(BaseCommand):
                 except (ValueError, IndexError):
                     pass
         return seed
+
+    def print_numbered_list(self, things):
+        for index, thing in enumerate(things):
+            print(f"{index + 1}) {thing}")

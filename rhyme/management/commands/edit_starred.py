@@ -18,8 +18,7 @@ class Command(RhymeCommand):
         while key != "q":
             key = input("What to do? (L)ist, (S)tar, (U)nstar? ").lower()
             if key == "l":
-                for song in Song.objects.filter(starred=True).order_by('-id'):
-                   print(song)
+                self.print_numbered_list(Song.objects.filter(starred=True).order_by('-id'))
             elif key in ("s", "u"):
                 song = self.get_song()
                 new_starred = key == "s"
