@@ -9,6 +9,18 @@ class Day(models.Model):
     day = models.DateField(unique_for_date=True)
     notes = models.CharField(max_length=1024, null=True)
 
+    PRIMARY_ACTIVITIES = [
+        "erging",
+        "sculling",
+        "running",
+        "stairs",
+        "circuits",
+        "crossfit",
+        "biking",
+        "swimming",
+        "lifting",
+    ]
+
     class Meta:
         ordering = ["-day"]
 
@@ -24,7 +36,17 @@ class Day(models.Model):
         return Day.objects.filter(day__gte=today - timedelta(days=days))
 
     def primary_activity(self):
-        return self.workout_set.last().activity if self.workout_set.count() else None
+        if self.workout_set.count() == 0:
+            return None
+
+        workout = self.workout_set.last()
+        if workout.activity in self.PRIMARY_ACTIVITIES:
+            return workout.activity
+
+        if workout.reps and workout.weight:
+            return "lifting"
+
+        return workout.activity
 
     def average_pace_seconds(self):
         first = self.workout_set.first()
