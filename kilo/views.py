@@ -203,7 +203,7 @@ def frequency(request):
 
     data = {}
     data["x"] = "day"
-    all_activities = {w.activity for d in days for w in d.workout_set.all()}
+    all_activities = {d.primary_activity for d in days if d.primary_activity}
     day_series = []
     series = defaultdict(list)
     index = days.last().day
@@ -212,7 +212,7 @@ def frequency(request):
         next_index = index + timedelta(days=7)
         activity_counts = defaultdict(lambda: 0)
         for day in days.filter(day__gte=index, day__lt=next_index):
-            activity_counts[day.primary_activity()] += 1
+            activity_counts[day.primary_activity] += 1
         for activity in all_activities:
             series[activity].append(activity_counts[activity] or 0)
         index = next_index
