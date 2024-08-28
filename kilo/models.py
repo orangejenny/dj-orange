@@ -27,7 +27,7 @@ class Day(models.Model):
     def __str__(self):
         value = datetime.strftime(self.day, "%Y-%m-%d")
         if self.workout_set.count():
-            value = value + f" ({self.primary_activity()})"
+            value = value + f" ({self.primary_activity})"
         return value
 
     @classmethod
@@ -35,6 +35,7 @@ class Day(models.Model):
         today = datetime.now().date()
         return Day.objects.filter(day__gte=today - timedelta(days=days))
 
+    @property
     def primary_activity(self):
         if self.workout_set.count() == 0:
             return None
