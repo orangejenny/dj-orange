@@ -66,8 +66,8 @@ export class DayRecord extends React.Component {
     return value ? parseInt(value) : value;
   }
 
-  activityIcon(activity) {
-    return {
+  activityIcon(workout) {
+    let activity = {
         "erging": "fas fa-gears",
         "sculling": "fas fa-water",
         "running": "fas fa-running",
@@ -76,12 +76,22 @@ export class DayRecord extends React.Component {
         "crossfit": "fas fa-child-reaching",
         "biking": "fas fa-person-biking",
         "swimming": "fas fa-person-swimming",
-        "squats": "fas fa-dumbbell",
+        "lifting": "fas fa-dumbbell",
         "cleans": "fas fa-dumbbell",
         "overhead press": "fas fa-dumbbell",
         "bench press": "fas fa-dumbbell",
         "barbell rows": "fas fa-dumbbell",
-    }[activity] || "fas fa-circle-question";
+    }[workout.activity];
+
+    if (activity) {
+        return activity;
+    }
+
+    if (workout.reps && workout.weight) {
+        return "fas fa-dumbbell";
+    }
+
+    return "fas fa-circle-question";
   }
 
   handleWorkoutChange(attr, id, value) {
@@ -235,7 +245,7 @@ export class DayRecord extends React.Component {
           <ul className="list-unstyled">
             {this.state.workouts.map((workout) => <li key={workout.id} data-id={workout.id}>
                {!this.state.editing && <span>
-                 {this.activityIcon(workout.activity) && <i class={this.activityIcon(workout.activity)}></i>}
+                 {this.activityIcon(workout) && <i class={this.activityIcon(workout)}></i>}
                  &nbsp;
                  {workout.activity} {workout.summary()}
                </span>}

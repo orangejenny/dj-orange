@@ -276,6 +276,17 @@ class Playlist(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def all_filters(self):
+        values = []
+        if self.omni_filter:
+            values.append(f"[{self.omni_filter}]")
+        if self.song_filters:
+            values.append(self.song_filters)
+        if self.album_filters:
+            values.append(self.album_filters)
+        return "; ".join(values)
+
     @classmethod
     def empty_playlist(cls):
         return Playlist(song_filters="rating=10")

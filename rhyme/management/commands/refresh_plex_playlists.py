@@ -41,6 +41,7 @@ class Command(BaseCommand):
             plex_playlist = self.server.playlist(playlist.name)
         except NotFound:
             print(f"Could not find \"{playlist.name}\" on plex.")
+            print(f"\"{playlist.name}\" has {len(playlist.songs)} songs and these filters: {playlist.all_filters}")
             command = "i" if quiet else None
             while command not in ['d', 'c', 'r', 'i']:
                 command = input(f"Ignore (i), create on plex (c), delete from rhyme (d), or rename in rhyme (r)? ")

@@ -9,8 +9,26 @@ class Day(models.Model):
     day = models.DateField(unique_for_date=True)
     notes = models.CharField(max_length=1024, null=True)
 
+    PRIMARY_ACTIVITIES = [
+        "erging",
+        "sculling",
+        "running",
+        "stairs",
+        "circuits",
+        "crossfit",
+        "biking",
+        "swimming",
+        "lifting",
+    ]
+
     class Meta:
         ordering = ["-day"]
+
+    def __str__(self):
+        value = datetime.strftime(self.day, "%Y-%m-%d")
+        if self.workout_set.count():
+            value = value + f" ({self.primary_activity()})"
+        return value
 
     @classmethod
     def get_recent_days(cls, days):
@@ -18,7 +36,17 @@ class Day(models.Model):
         return Day.objects.filter(day__gte=today - timedelta(days=days))
 
     def primary_activity(self):
-        return self.workout_set.last().activity if self.workout_set.count() else None
+        if self.workout_set.count() == 0:
+            return None
+
+        workout = self.workout_set.last()
+        if workout.activity in self.PRIMARY_ACTIVITIES:
+            return workout.activity
+
+        if workout.reps and workout.weight:
+            return "lifting"
+
+        return workout.activity
 
     def average_pace_seconds(self):
         first = self.workout_set.first()
@@ -67,6 +95,9 @@ class Workout(models.Model):
     weight = models.SmallIntegerField(null=True)
     ordering = models.SmallIntegerField(default=1)
     day = models.ForeignKey(Day, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.activity
 
     def __init__(self, *args, **kwargs):
         units = set(kwargs.keys()) & {u[0] for u in self.DISTANCE_UNITS}
