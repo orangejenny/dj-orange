@@ -93,7 +93,7 @@ class Workout(models.Model):
     distance_unit = models.CharField(null=True, max_length=3, choices=DISTANCE_UNITS, default=MILES)
     sets = models.SmallIntegerField(null=True)
     reps = models.SmallIntegerField(null=True)
-    weight = models.SmallIntegerField(null=True)
+    weight = models.FloatField(null=True)
     ordering = models.SmallIntegerField(default=1)
     day = models.ForeignKey(Day, on_delete=models.CASCADE)
 
