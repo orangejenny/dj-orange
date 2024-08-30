@@ -322,7 +322,7 @@ export class DayRecord extends React.Component {
                <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
                  {this.props.templates.map((template, index) => (<li key={index}>
                    <a className="dropdown-item" onClick={() => this.editDayEntry(template)}>
-                     {template.activity} {template.distance} {template.distance_unit}
+                     {template.activity} {template.distance} {template.distance ? template.distance_unit : ""} {template.sets ? `${template.sets} x ${template.reps}` : ""}
                    </a>
                  </li>))}
                  {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
