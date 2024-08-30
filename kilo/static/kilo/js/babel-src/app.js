@@ -100,7 +100,7 @@ class App extends React.Component {
   getTemplates(days) {
      var index = 0,
          templates = [];
-     while (index < days.length && templates.length < 8) {
+     while (index < days.length && templates.length < 11) {
          var indexDay = days[index];
          index++;
          if (!indexDay.workouts.length) {

@@ -65,7 +65,7 @@ class Command(BaseCommand):
             elif input("Does this have reps/sets (y/n)? ") == "y":
                 sets = int(input("Sets? "))
                 reps = int(input("Reps? "))
-                weight = int(input("Weight? "))
+                weight = float(input("Weight? "))
 
             workouts.append(Workout(
                 activity=activity,

@@ -277,7 +277,7 @@ export class DayRecord extends React.Component {
                  </div>
                  <div className="col-2">{workout.pace()}</div>
                </div>}
-              {this.state.editing && workout.activity === "lifting" && <div className="row g-1 mb-1">
+              {this.state.editing && <div className="row g-1 mb-1">
                   <div className="col-3"></div>
                   <div className="col-2">
                     <input type="text" className="form-control" name="sets" placeholder="sets"
@@ -313,26 +313,24 @@ export class DayRecord extends React.Component {
               <i className="fa fa-times"></i>
             </button>
           </div>}
-          {!this.state.editing && !this.state.id && <div className="me-2">
-             <div className="dropdown dropstart">
-               <button className="btn btn-outline-secondary dropdown-toggle" id="add-workout-dropdown-btn" type="button"
-                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                 Add
-               </button>
-               <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
-                 {this.props.templates.map((template, index) => (<li key={index}>
-                   <a className="dropdown-item" onClick={() => this.editDayEntry(template)}>
-                     {template.activity} {template.distance} {template.distance_unit}
-                   </a>
-                 </li>))}
-                 {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
-                 <li>
-                   <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
-                 </li>
-               </ul>
-             </div>
+          {!this.state.editing && !this.state.id && <div className="dropdown dropstart">
+             <button className="btn btn-outline-secondary dropdown-toggle col-12" id="add-workout-dropdown-btn" type="button"
+                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Add
+             </button>
+             <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
+               {this.props.templates.map((template, index) => (<li key={index}>
+                 <a className="dropdown-item" onClick={() => this.editDayEntry(template)}>
+                   {template.activity} {template.distance} {template.distance ? template.distance_unit : ""} {template.sets ? `${template.sets} x ${template.reps}` : ""}
+                 </a>
+               </li>))}
+               {!!this.props.templates.length && <div role="separator" className="dropdown-divider"></div>}
+               <li>
+                 <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
+               </li>
+             </ul>
            </div>}
-          {!this.state.editing && this.state.id && <button type="button" className="float-end btn btn-outline-secondary" onClick={this.editExistingDayEntry}>
+          {!this.state.editing && this.state.id && <button type="button" className="btn btn-outline-secondary col-12" onClick={this.editExistingDayEntry}>
             Edit
           </button>}
         </td>
