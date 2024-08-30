@@ -277,7 +277,7 @@ export class DayRecord extends React.Component {
                  </div>
                  <div className="col-2">{workout.pace()}</div>
                </div>}
-              {this.state.editing && workout.activity === "lifting" && <div className="row g-1 mb-1">
+              {this.state.editing && <div className="row g-1 mb-1">
                   <div className="col-3"></div>
                   <div className="col-2">
                     <input type="text" className="form-control" name="sets" placeholder="sets"
