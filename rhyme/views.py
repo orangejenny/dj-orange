@@ -120,16 +120,10 @@ def song_list(request):
 @require_POST
 @login_required
 def song_update(request):
-    try:
-        post_data = json.loads(request.body.decode("utf-8"))
-        song = Song.objects.get(id=post_data.get("id"))
-        field = post_data.get("field")
-        value = post_data.get("value")
-        playlist_name = post_data.get("playlist_name") or None
-    except JSONDecodeError:
-        song = Song.objects.get(id=request.POST.get("id"))
-        field = request.POST.get("field")
-        value = request.POST.get("value")
+    song = Song.objects.get(id=request.POST.get("id"))
+    field = request.POST.get("field")
+    value = request.POST.get("value")
+    playlist_name = request.POST.get("playlist_name")
 
     if field == 'tags':
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
