@@ -20,14 +20,7 @@ class Command(BaseCommand):
         parser.add_argument('day', help="YYYY-MM-DD")
 
     def handle(self, *args, **options):
-        day = options['day']
-        day_is_valid = False
-        while not day_is_valid:
-            try:
-                day = datetime.strptime(day, "%Y-%m-%d").date()
-                day_is_valid = True
-            except ValueError:
-                day = input(f"Bad date {day}, try again (YYYY-MM-DD): ")
+        day = self.validate_day(options['day'])
 
         notes = input("Notes? ")
         new_day = Day(day=day, notes=notes)
@@ -89,3 +82,13 @@ class Command(BaseCommand):
             print(f"Created {new_day.day} with {len(workouts)} workout(s): " + ", ".join([w.activity for w in workouts]))
         else:
             new_day.delete()
+
+    def validate_day(self, day):
+        day_is_valid = False
+        while not day_is_valid:
+            try:
+                day = datetime.strptime(day, "%Y-%m-%d").date()
+                day_is_valid = True
+            except ValueError:
+                day = input(f"Bad date {day}, try again (YYYY-MM-DD): ")
+        return day
