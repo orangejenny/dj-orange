@@ -20,7 +20,8 @@ class Command(BaseCommand):
         except IndexError:
             raise ExportConfigNotFoundException(f"Could not find {config_name}, options are: {[c['name'] for c in settings.RHYME_EXPORT_CONFIGS]}")
 
-        attrs = ["rating", "energy", "mood"]
+        attrs = ["energy", "mood"]
+        rating = options.get("rating")
         start_values = {}
         end_values = {}
         ranges = {}
@@ -40,7 +41,7 @@ class Command(BaseCommand):
         songs = set()
         stop = False
         while not stop and accumulated_time < total_time:
-            kwargs = {}
+            kwargs = {"rating__gte": rating} if rating else {}
             for attr in attrs:
                 if attr not in start_values:
                     continue
