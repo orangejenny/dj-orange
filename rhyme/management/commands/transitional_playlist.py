@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from rhyme.exceptions import ExportConfigNotFoundException
 from rhyme.models import Song
-from rhyme.views import filenames
 
 
 class Command(BaseCommand):
@@ -14,6 +15,11 @@ class Command(BaseCommand):
         parser.add_argument('--mood', help=self.rating_help)
 
     def handle(self, *args, **options):
+        try:
+            config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == options.get("config")][0]
+        except IndexError:
+            raise ExportConfigNotFoundException(f"Could not find {config_name}, options are: {[c['name'] for c in settings.RHYME_EXPORT_CONFIGS]}")
+
         attrs = ["rating", "energy", "mood"]
         start_values = {}
         end_values = {}
@@ -52,5 +58,5 @@ class Command(BaseCommand):
                 stop = True
 
         print(f"Found {len(songs)} songs:")
-        for filename in filenames(options.get("config"), songs):
+        for filename in [config["prefix"] + s.filename for s in songs]:
             print(filename)
