@@ -13,6 +13,7 @@ class Command(BaseCommand):
         parser.add_argument('--rating', help=self.rating_help)
         parser.add_argument('--energy', help=self.rating_help)
         parser.add_argument('--mood', help=self.rating_help)
+        parser.add_argument('--time', help="Approximate minutes long playlist should be", default=60, type=int)
 
     def handle(self, *args, **options):
         try:
@@ -36,7 +37,7 @@ class Command(BaseCommand):
                     end_values[attr] = int(arg)
                 ranges[attr] = end_values[attr] - start_values[attr]
 
-        total_time = 60 * 60
+        total_time = options.get("time") * 60
         accumulated_time = 0
         songs = set()
         stop = False
