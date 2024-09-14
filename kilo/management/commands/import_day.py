@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('day', help="YYYY-MM-DD")
+        parser.add_argument('--copy', help="YYYY-MM-DD")
 
     def handle(self, *args, **options):
         day = self.validate_day(options['day'])
@@ -26,11 +27,16 @@ class Command(BaseCommand):
         new_day = Day(day=day, notes=notes)
         new_day.save()
 
-        workouts = self.input_workouts(new_day)
+        if (options['copy']):
+            source_day = self.validate_day(options['copy'])
+            workouts = self.copy_workouts(source_day)
+        else:
+            workouts = self.input_workouts(new_day)
 
-        if input("Save (y/n)? ").lower() == "y":
+        if input(f"Save {len(workouts)} workouts (y/n)? ").lower() == "y":
             with transaction.atomic():
                 for workout in workouts:
+                    workout.day = new_day
                     workout.save()
 
             print(f"Created {new_day.day} with {len(workouts)} workout(s): " + ", ".join([w.activity for w in workouts]))
@@ -93,7 +99,25 @@ class Command(BaseCommand):
                 sets=sets,
                 reps=reps,
                 weight=weight,
-                day=day,
             ))
 
         return workouts
+
+    def copy_workouts(self, source_day):
+        try:
+            source_day = Day.objects.get(day=source_day)
+        except Day.DoesNotExist:
+            return []
+
+        return [
+            Workout(
+                activity=w.activity,
+                seconds=w.seconds,
+                distance=w.distance,
+                distance_unit=w.distance_unit,
+                sets=w.sets,
+                reps=w.reps,
+                weight=w.weight,
+            )
+            for w in source_day.workout_set.all()
+        ]
