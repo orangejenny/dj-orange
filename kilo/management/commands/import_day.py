@@ -26,6 +26,28 @@ class Command(BaseCommand):
         new_day = Day(day=day, notes=notes)
         new_day.save()
 
+        workouts = self.input_workouts(new_day)
+
+        if input("Save (y/n)? ").lower() == "y":
+            with transaction.atomic():
+                for workout in workouts:
+                    workout.save()
+
+            print(f"Created {new_day.day} with {len(workouts)} workout(s): " + ", ".join([w.activity for w in workouts]))
+        else:
+            new_day.delete()
+
+    def validate_day(self, day):
+        day_is_valid = False
+        while not day_is_valid:
+            try:
+                day = datetime.strptime(day, "%Y-%m-%d").date()
+                day_is_valid = True
+            except ValueError:
+                day = input(f"Bad date {day}, try again (YYYY-MM-DD): ")
+        return day
+
+    def input_workouts(self, day):
         workouts = []
         while input("Add workout (y/n)? ").lower() == "y":
             seconds = None
@@ -71,24 +93,7 @@ class Command(BaseCommand):
                 sets=sets,
                 reps=reps,
                 weight=weight,
-                day=new_day,
+                day=day,
             ))
 
-        if input("Save (y/n)? ").lower() == "y":
-            with transaction.atomic():
-                for workout in workouts:
-                    workout.save()
-
-            print(f"Created {new_day.day} with {len(workouts)} workout(s): " + ", ".join([w.activity for w in workouts]))
-        else:
-            new_day.delete()
-
-    def validate_day(self, day):
-        day_is_valid = False
-        while not day_is_valid:
-            try:
-                day = datetime.strptime(day, "%Y-%m-%d").date()
-                day_is_valid = True
-            except ValueError:
-                day = input(f"Bad date {day}, try again (YYYY-MM-DD): ")
-        return day
+        return workouts
