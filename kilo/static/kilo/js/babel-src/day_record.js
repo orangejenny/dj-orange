@@ -78,9 +78,13 @@ export class DayRecord extends React.Component {
         "swimming": "fas fa-person-swimming",
         "lifting": "fas fa-dumbbell",
         "cleans": "fas fa-dumbbell",
+        "deadlifts": "fas fa-dumbbell",
         "overhead press": "fas fa-dumbbell",
         "bench press": "fas fa-dumbbell",
         "barbell rows": "fas fa-dumbbell",
+        "single leg deadlifts": "fas fa-balance-scale",
+        "lunges": "fas fa-balance-scale",
+        "calf raises": "fas fa-balance-scale",
     }[workout.activity];
 
     if (activity) {
