@@ -1,6 +1,6 @@
 <tr data-bind="attr: {'data-song-id': id }">
-    <td class="icon-cell is-starred">
-        <i data-bind="css: {'fas': starred, 'far': !starred}" class='fa-star'></i>
+    <td class="icon-cell is-starred" data-bind="css: {'table-danger': hasError}">
+        <i data-bind="css: {'update-in-progress': updateInProgress}, attr: {'class': starClass}, click: toggleStar"></i>
     </td>
     <td data-bind="visible: track_number, text: track_number + '.'"></td>
     <td class="col-sm-2" data-bind="text: name"></td>

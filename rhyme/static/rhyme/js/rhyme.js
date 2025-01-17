@@ -67,6 +67,43 @@ function AlbumModel(options) {
 function SongModel(options) {
     var self = _.extend({}, options);
     self.albums = _.map(options.albums, AlbumModel);
+
+    self.starred = ko.observable(self.starred);
+    self.updateInProgress = ko.observable(false);
+    self.hasError = ko.observable(false);
+
+    self.starOnClasses = self.activePlaylistName ? 'fa-check-square far' : 'fa-star fas';
+    self.starOffClasses = self.activePlaylistName ? 'fa-square far' : 'fa-star far';
+    self.starClass = ko.computed(function () {
+        return self.starred() ? self.starOnClasses : self.starOffClasses;
+    });
+
+    self.toggleStar = function () {
+        // Update markup
+        self.starred(!self.starred());
+
+        // Update server data
+        self.updateInProgress(true);
+        $.ajax({
+            method: 'POST',
+            url: reverse('song_update'),
+            data: {
+                csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
+                id: self.id,
+                field: 'starred',
+                value: self.starred() ? 1 : 0,
+                playlist_name: this.activePlaylistName,
+            },
+            success: function (data) {
+                self.updateInProgress(false);
+            },
+            error: function () {
+                self.updateInProgress(false);
+                self.hasError(true);
+            },
+        });
+    }
+
     return self;
 }
 
@@ -126,7 +163,15 @@ function rhymeModel (options) {
                 self.count(data.count);
 
                 if (page === 1) {
-                    self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
+                    self.items(_.map(data.items, function (item) {
+                        if (self.model == 'album') {
+                            return AlbumModel(item);
+                        } else {
+                            return SongModel(_.extend(item, {
+                                activePlaylistName: self.activePlaylistName(),
+                            }));
+                        }
+                    }));
                 } else {
                     self.items(self.items().concat(data.items));
                 }
