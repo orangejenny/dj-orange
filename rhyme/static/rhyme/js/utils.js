@@ -56,9 +56,9 @@ function ExportPlaylist(data) {
 
     var url = reverse(data.model === "album" ? 'album_export' : 'song_export') + '?' + params.join('&');
     if (["plex", "rhyme"].find((x) => x === data.config)) {
-        $.get(url, function (data) {
-            alert("Playlist exported. " + JSON.stringify(data));
-        });
+        $.ajax({url: url, dataType: "json", function (data) {
+            alert("Playlist exported: " + data.name);
+        }});
     } else {
         document.location = url;
     }
