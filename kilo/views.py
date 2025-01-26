@@ -222,8 +222,18 @@ def frequency(request):
     ]
     data["types"] = {activity: "area-spline" for activity in all_activities}
     data["groups"] = [list(all_activities)]
-
-    return JsonResponse(data)
+    options = _get_graph_options(data)
+    options.update({
+        "legend": {"show": True},
+        "point": {"show": False},
+        "tooltip": {
+            "show": False,
+            "grouped": False,
+        },
+    })
+    options["axis"]["y"]["max"] = 7
+    options["axis"]["y"]["tick"] = {"count": 8}
+    return JsonResponse(options)
 
 
 @require_GET

@@ -8,7 +8,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      panel: "frequency",
+      panel: "recent",
       loading: true,
       records: [],
     };
@@ -18,7 +18,7 @@ class App extends React.Component {
   }
 
   setPanel(e) {
-    var panel = "frequency";
+    var panel = "recent";
     if (e) {
       panel = e.target.dataset.panel;
     }
@@ -59,9 +59,6 @@ class App extends React.Component {
             newState.all_distance_units = data.all_distance_units;
         }
         self.setState(newState);
-        if (panel === "frequency") {
-            self.loadFrequencyGraph(data);
-        }
       });
   }
 
@@ -112,54 +109,12 @@ class App extends React.Component {
      return templates;
   }
 
-  loadFrequencyGraph(data) {
-    let self = this,
-        options = self.graphOptions(data);
-
-    options.tooltip = {
-        show: false,
-        grouped: false,
-    };
-    options.legend = { show: true };
-    options.point = { show: false };
-    options.axis.y.max = 7;
-    options.axis.y.tick = { count: 8 };
-
-    c3.generate(options);
-  }
-
-  graphOptions(data) {
-    return {
-        bindto: "#graph",
-        data: data,
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    count: data.columns[0].length,
-                    fit: true,
-                    format: '%b %d',
-                    rotate: 90,
-                },
-            },
-            y: {
-                min: 0,
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                },
-            },
-        },
-    };
-  }
-
   render() {
     return (
       <div>
         <Nav setPanel={this.setPanel} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
-        {(this.state.panel === "frequency") && <div id="graph"></div>}
         {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
           <tbody>
             {this.state.records.map((day) =>
