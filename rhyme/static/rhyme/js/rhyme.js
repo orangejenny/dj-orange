@@ -162,18 +162,19 @@ function rhymeModel (options) {
                 self.isLoading(false);
                 self.count(data.count);
 
+                var wrappedItems = _.map(data.items, function (item) {
+                    if (self.model == 'album') {
+                        return AlbumModel(item);
+                    } else {
+                        return SongModel(_.extend(item, {
+                            activePlaylistName: self.activePlaylistName(),
+                        }));
+                    }
+                });
                 if (page === 1) {
-                    self.items(_.map(data.items, function (item) {
-                        if (self.model == 'album') {
-                            return AlbumModel(item);
-                        } else {
-                            return SongModel(_.extend(item, {
-                                activePlaylistName: self.activePlaylistName(),
-                            }));
-                        }
-                    }));
+                    self.items(wrappedItems);
                 } else {
-                    self.items(self.items().concat(data.items));
+                    self.items(self.items().concat(wrappedItems));
                 }
                 if (data.more) {
                     self.allowScroll(true);
@@ -347,7 +348,7 @@ function rhymeModel (options) {
             }, songListParams),
             success: function (data) {
                 self.isLoading(false);
-                self.modalSongs(data.items);
+                self.modalSongs(_.map(data.items, SongModel));
                 self.songListCount(data.items.length);
                 self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
