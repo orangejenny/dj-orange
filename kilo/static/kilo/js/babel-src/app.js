@@ -62,9 +62,6 @@ class App extends React.Component {
         if (panel === "frequency") {
             self.loadFrequencyGraph(data);
         }
-        if (panel === "pace") {
-            self.loadPaceGraph(data);
-        }
       });
   }
 
@@ -131,37 +128,6 @@ class App extends React.Component {
     c3.generate(options);
   }
 
-  loadPaceGraph(data) {
-    let self = this,
-        options = self.graphOptions(data);
-
-    options.tooltip = {
-        show: true,
-        grouped: false,
-    };
-    options.legend = { show: false };
-    options.point = { show: true };
-    options.axis.y.min = 0 * 60;
-    options.axis.y.max = 11 * 60;
-    options.axis.y.tick = {
-        outer: false,
-        format: self.getTime,
-        values: [7, 8, 9, 10].map(x => x * 60),
-    };
-    options.axis.y2 = {
-        show: true,
-        min: 1.75 * 60,
-        max: 2.5 * 60,
-        tick: {
-            outer: false,
-            format: self.getTime,
-            values: [105, 110, 115, 120, 125, 130, 135],
-        },
-    };
-
-    c3.generate(options);
-  }
-
   graphOptions(data) {
     return {
         bindto: "#graph",
@@ -193,7 +159,7 @@ class App extends React.Component {
         <Nav setPanel={this.setPanel} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
-        {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
+        {(this.state.panel === "frequency") && <div id="graph"></div>}
         {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
           <tbody>
             {this.state.records.map((day) =>

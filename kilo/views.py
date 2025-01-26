@@ -276,5 +276,55 @@ def pace(request):
         [label] + values
         for label, values in columns.items()
     ]
+    options = _get_graph_options(data)
+    options.update({
+        "legend": {"show": False},
+        "point": {"show": True},
+        "tooltip": {
+            "show": True,
+            "grouped": False,
+        },
+    })
+    options["axis"]["y"]["min"] = 0 * 60
+    options["axis"]["y"]["max"] = 11 * 60
+    options["axis"]["y"]["tick"] = {
+        "outer": False,
+        #"format": self.getTime,    # TODO
+        "values": [x * 60 for x in [7, 8, 9, 10]],
+    }
+    options["axis"]["y2"] = {
+        "show": True,
+        "min": 1.75 * 60,
+        "max": 2.5 * 60,
+        "tick": {
+            "outer": False,
+            #"format": self.getTime,    # TODO
+            "values": [105, 110, 115, 120, 125, 130, 135],
+        },
+    }
+    return JsonResponse(options)
 
-    return JsonResponse(data)
+
+def _get_graph_options(data):
+    return {
+        "bindto": "#panel",
+        "data": data,
+        "axis": {
+            "x": {
+                "type": "timeseries",
+                "tick": {
+                    "count": len(data["columns"][0]),
+                    "fit": True,
+                    "format": "%b %d",
+                    "rotate": 90,
+                },
+            },
+            "y": {
+                "min": 0,
+                "padding": {
+                    "top": 0,
+                    "bottom": 0,
+                },
+            },
+        },
+    }

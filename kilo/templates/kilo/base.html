@@ -39,7 +39,8 @@
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "pace" %}"
-             hx-target="#panel"
+             hx-target="#graph-options"
+             hx-on:htmx:after-request="c3.generate(JSON.parse(document.getElementById('graph-options').innerHTML))"
           >Speed</a>
         </li>
         <li class="nav-item">
@@ -58,6 +59,7 @@
     </nav>
     <br />
     <div id="panel"></div>
+    <div id="graph-options" style="display: none;"></div>
   </div>
   <div class="container-fluid" id="app"></div>
 {% endblock body %}
