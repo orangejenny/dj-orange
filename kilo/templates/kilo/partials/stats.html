@@ -1,0 +1,22 @@
+<div class="row">
+  {% for activity in stats %}
+    <div class="col">
+      <div class="card">
+        <div class="card-header text-center">{{ activity.title }}</div>
+        <div class="card-body">
+          <table class="table table-striped">
+          <tbody>
+            {% for stat in activity.stats %}
+              <tr>
+                <td>{{ stat.name }}</td>
+                <td>{{ stat.primary }}</td>
+                <td>{{ stat.secondary }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

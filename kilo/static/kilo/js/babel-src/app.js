@@ -50,7 +50,6 @@ class App extends React.Component {
             loading: false,
             panel: panel,
             records: data.recent_days || [],
-            stats: data.stats || [],
             templates: self.getTemplates(data.recent_days || []),
         };
         if (data.all_activities) {
@@ -195,11 +194,6 @@ class App extends React.Component {
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "frequency" || this.state.panel === "pace") && <div id="graph"></div>}
-        {this.state.panel === "stats" && <div className="row">{this.state.stats.map((stat_set) =>
-          <div className="col" key={stat_set.title}>
-            <Stat title={stat_set.title} stats={stat_set.stats} />
-          </div>
-        )}</div>}
         {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
           <tbody>
             {this.state.records.map((day) =>

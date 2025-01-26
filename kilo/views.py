@@ -185,7 +185,7 @@ def stats(request):
             "secondary": workout.secondary_stat(),
         })
 
-    return JsonResponse({
+    return render(request, "kilo/partials/stats.html", {
         "stats": [{
             "title": "Erging",
             "stats": erging_stats,

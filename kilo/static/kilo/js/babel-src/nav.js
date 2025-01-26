@@ -12,9 +12,6 @@ export class Nav extends React.Component {
             panel: "pace",
             label: "Speed",
         }, {
-            panel: "stats",
-            label: "Achievement",
-        }, {
             panel: "history",
             label: "History",
         }];
