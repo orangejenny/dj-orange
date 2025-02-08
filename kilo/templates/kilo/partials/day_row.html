@@ -18,7 +18,7 @@
                    <div class="col-3">
                      <select class="form-control" name="activity" value="{{ workout.activity }}">
                        {% for activity in all_activities %}
-                         <option>{{ activity }}</option>
+                         <option{% if workout.activity == activity %} selected{% endif %}>{{ activity }}</option>
                        {% endfor %}
                      </select>
                    </div>
@@ -28,7 +28,7 @@
                    <div class="col-2">
                      <select class="form-control" name="distance_unit" value="{{ workout.distance_unit }}">
                        {% for unit in all_distance_units %}
-                         <option>{{ unit }}</option>
+                         <option{% if workout.distance_unit == unit %} selected{% endif %}>{{ unit }}</option>
                        {% endfor %}
                      </select>
                    </div>

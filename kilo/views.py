@@ -1,6 +1,6 @@
 import json
 
-from collections import defaultdict, Counter
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
@@ -88,14 +88,11 @@ def history(request):
 
 
 def _days(request, days):
-    activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
-    common_activities = [a[0] for a in activity_counter.most_common(3)]
-    other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
 
     return render(request, "kilo/partials/days_table.html", {
         "days": [_format_day(d) for d in days],
-        "all_activities": common_activities + other_activities,
-        "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
 

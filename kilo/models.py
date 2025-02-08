@@ -1,5 +1,6 @@
 import math
 
+from collections import Counter
 from datetime import datetime, timedelta
 
 from django.db import models
@@ -78,11 +79,7 @@ class Workout(models.Model):
     MILES = 'mi'
     METERS = 'm'
     KILOMETERS = 'km'
-    DISTANCE_UNITS = [
-        (MILES, MILES),
-        (KILOMETERS, KILOMETERS),
-        (METERS, METERS),
-    ]
+    DISTANCE_UNITS = [MILES, KILOMETERS, METERS]
 
     class Meta:
         ordering = ["ordering"]
@@ -90,7 +87,7 @@ class Workout(models.Model):
     activity = models.CharField(max_length=32)
     seconds = models.FloatField(null=True)
     distance = models.FloatField(null=True)
-    distance_unit = models.CharField(null=True, max_length=3, choices=DISTANCE_UNITS, default=MILES)
+    distance_unit = models.CharField(null=True, max_length=3, choices=[(u, u) for u in DISTANCE_UNITS], default=MILES)
     sets = models.SmallIntegerField(null=True)
     reps = models.SmallIntegerField(null=True)
     weight = models.FloatField(null=True)
@@ -101,7 +98,7 @@ class Workout(models.Model):
         return self.activity
 
     def __init__(self, *args, **kwargs):
-        units = set(kwargs.keys()) & {u[0] for u in self.DISTANCE_UNITS}
+        units = set(kwargs.keys()) & set(self.DISTANCE_UNITS)
         if len(units) > 1:
             raise ValueError("May only provide one distance, provided: " + ", ".join(units))
         if len(units) == 1:
@@ -109,6 +106,13 @@ class Workout(models.Model):
             kwargs['distance'] = kwargs.pop(unit)
             kwargs['distance_unit'] = unit
         super().__init__(*args, **kwargs)
+
+    @classmethod
+    def activity_options(cls):
+        activity_counter = Counter(cls.objects.all().values_list("activity", flat=True))
+        common_activities = [a[0] for a in activity_counter.most_common(3)]
+        other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
+        return common_activities + other_activities
 
     @property
     def m(self):
