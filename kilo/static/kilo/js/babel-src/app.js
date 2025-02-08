@@ -1,6 +1,5 @@
 import { DayRecord } from "./day_record.js";
 import { Loading } from "./loading.js";
-import { Nav } from "./nav.js";
 import { Stat } from "./stat.js";
 import { Workout } from "../workout.js";
 
@@ -112,7 +111,6 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Nav setPanel={this.setPanel} loading={this.state.loading} panel={this.state.panel} />
         <Loading show={this.state.loading} />
         <br />
         {(this.state.panel === "recent" || this.state.panel === "history") && <table class="table table-striped">
