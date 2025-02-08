@@ -16,7 +16,7 @@
                    <i class="{{ workout.activity_icon }}"></i>
                    &nbsp;
                    {{workout.activity}} {{ workout.summary }}
-                 </span>}
+                 </span>
                  <div class="row g-1 mb-1 align-items-center">
                    <div class="col-3">
                      <select class="form-control" name="activity" value="{{ workout.activity }}">
@@ -26,7 +26,7 @@
                      </select>
                    </div>
                    <div class="col-2">
-                     <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance }}" />
+                     <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
                    </div>
                    <div class="col-2">
                      <select class="form-control" name="distance_unit" value="{{ workout.distance_unit }}">
@@ -36,7 +36,7 @@
                      </select>
                    </div>
                    <div class="col-2">
-                     <input type="text" class="form-control" placeholder="time" value="{{ workout.time }}" />
+                     <input type="text" class="form-control" placeholder="time" value="{{ workout.time|default:"" }}" />
                    </div>
                    <div class="col-1">
                      <button type="button" class="btn btn-outline-secondary btn-sm">
@@ -49,27 +49,28 @@
                     <div class="col-3"></div>
                     <div class="col-2">
                       <input type="text" class="form-control" name="sets" placeholder="sets"
-                             value="{{ workout.sets }}" />
+                             value="{{ workout.sets|default:"" }}" />
                     </div>
                     <div class="col-2">
                       <input type="text" class="form-control" name="reps" placeholder="reps"
-                             value="{{ workout.reps }}" />
+                             value="{{ workout.reps|default:"" }}" />
                     </div>
                     <div class="col-2">
                       <input type="text" class="form-control" name="weight" placeholder="weight"
-                             value="{{ workout.weight }}" />
+                             value="{{ workout.weight|default:"" }}" />
                     </div>
                  </div>
                </li>
              {% endfor %}
+             <!-- TODO: add workout -->
              <button type="button" class="btn btn-outline-secondary btn-sm">
                <i class="fa fa-plus"></i> Add Workout
              </button>
           </ul>
         </td>
         <td class="col-5">
-          <textarea class="form-control" rows="3" name="notes" placeholder="How was today?" value="{{ day.notes }}"></textarea>
-          {{ day.notes }}
+          <textarea class="form-control" rows="3" name="notes" placeholder="How was today?">{{ day.notes|default:"" }}</textarea>
+          {{ day.notes|default:"" }}
         </td>
         <td class="col-1">
           <!-- TODO: templates -->
