@@ -230,10 +230,41 @@ class Workout(models.Model):
 
         return text.strip()
 
+    @property
+    def activity_icon(self):
+        single_icons = {
+            "erging": "fas fa-gears",
+            "sculling": "fas fa-water",
+            "running": "fas fa-running",
+            "stairs": "fas fa-stairs",
+            "circuits": "fas fa-heart-pulse",
+            "crossfit": "fas fa-child-reaching",
+            "biking": "fas fa-person-biking",
+            "swimming": "fas fa-person-swimming",
+            "lifting": "fas fa-dumbbell",
+            "cleans": "fas fa-dumbbell",
+            "deadlifts": "fas fa-dumbbell",
+            "overhead press": "fas fa-dumbbell",
+            "bench press": "fas fa-dumbbell",
+            "barbell rows": "fas fa-dumbbell",
+            "single leg deadlifts": "fas fa-balance-scale",
+            "lunges": "fas fa-balance-scale",
+            "calf raises": "fas fa-balance-scale",
+        }
+
+        if self.activity in single_icons:
+            return single_icons[self.activity]
+
+        if self.reps and self.weight:
+            return "fas fa-dumbbell"
+
+        return "fas fa-circle-question"
+
     def to_json(self):
         return {
             "id": self.id,
             "activity": self.activity,
+            "activity_icon": self.activity_icon,
             "seconds": self.seconds,
             "distance": self.distance,
             "distance_unit": self.distance_unit,

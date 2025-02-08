@@ -13,7 +13,7 @@
             {% for workout in day.workouts %}
               <li data-id="{{ workout.id }}">
                  <span>
-                   {this.activityIcon(workout) <i class="{this.activityIcon(workout)}"></i><!-- TODO: activity icon -->
+                   <i class="{{ workout.activity_icon }}"></i>
                    &nbsp;
                    {{workout.activity}} {{ workout.summary }}
                  </span>}

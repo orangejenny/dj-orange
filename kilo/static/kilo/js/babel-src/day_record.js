@@ -1,5 +1,3 @@
-import { Workout } from "../workout.js";
-
 export class DayRecord extends React.Component {
   constructor(props) {
     super(props);
@@ -19,7 +17,6 @@ export class DayRecord extends React.Component {
     this.dayOfWeek = this.dayOfWeek.bind(this);
     this.monthText = this.monthText.bind(this);
 
-    this.activityIcon = this.activityIcon.bind(this);
     this.handleWorkoutChange = this.handleWorkoutChange.bind(this);
     this.handleActivityChange = this.handleActivityChange.bind(this);
     this.handleDistanceChange = this.handleDistanceChange.bind(this);
@@ -64,38 +61,6 @@ export class DayRecord extends React.Component {
       value = el.dataset.id;
     }
     return value ? parseInt(value) : value;
-  }
-
-  activityIcon(workout) {
-    let activity = {
-        "erging": "fas fa-gears",
-        "sculling": "fas fa-water",
-        "running": "fas fa-running",
-        "stairs": "fas fa-stairs",
-        "circuits": "fas fa-heart-pulse",
-        "crossfit": "fas fa-child-reaching",
-        "biking": "fas fa-person-biking",
-        "swimming": "fas fa-person-swimming",
-        "lifting": "fas fa-dumbbell",
-        "cleans": "fas fa-dumbbell",
-        "deadlifts": "fas fa-dumbbell",
-        "overhead press": "fas fa-dumbbell",
-        "bench press": "fas fa-dumbbell",
-        "barbell rows": "fas fa-dumbbell",
-        "single leg deadlifts": "fas fa-balance-scale",
-        "lunges": "fas fa-balance-scale",
-        "calf raises": "fas fa-balance-scale",
-    }[workout.activity];
-
-    if (activity) {
-        return activity;
-    }
-
-    if (workout.reps && workout.weight) {
-        return "fas fa-dumbbell";
-    }
-
-    return "fas fa-circle-question";
   }
 
   handleWorkoutChange(attr, id, value) {
