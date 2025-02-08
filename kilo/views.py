@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
@@ -14,32 +14,38 @@ from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 @login_required
 def base(request):
-    if request.method == "POST":
-        post_data = json.loads(request.body.decode("utf-8"))['day']
+    return HttpResponse(render(request, "kilo/base.html"))
 
-        date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
-        try:
-            datetime(
-                int(post_data.get('year')),
-                int(post_data.get('month')),
-                int(post_data.get('dayOfMonth')),
-            )
-        except ValueError as e:
+
+@require_POST
+@login_required
+def update(request):
+    date = f"{request.POST.get('year')}-{request.POST.get('month')}-{request.POST.get('day_of_month')}"
+    try:
+        date_obj = datetime(
+            int(request.POST.get('year')),
+            int(request.POST.get('month')),
+            int(request.POST.get('day_of_month')),
+        )
+    except ValueError as e:
+        return JsonResponse({
+            "error": f"Received invalid date {date}: " + str(e),
+        })
+
+    day = Day.objects.filter(day=date).first()
+    if day:
+        if day.id != int(request.POST.get('id') or 0):
+            # TODO: error handling
             return JsonResponse({
-                "error": f"Received invalid date {date}: " + str(e),
+                "error": f"Attempting to duplicate {day.day}",
             })
-        day = Day.objects.filter(day=date).first()
-        if day:
-            if day.id != int(post_data.get('id') or 0):
-                return JsonResponse({
-                    "error": f"Attempting to duplicate {day.day}",
-                })
-        else:
-            day = Day()
-        day.day = date
-        day.notes = post_data.get('notes')
-        day.save()
+    else:
+        day = Day(day=date_obj)
+    day.notes = request.POST.get('notes')
+    day.save()
 
+    # TODO: save workouts
+    '''
         for workout in day.workout_set.all():
             if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
                 workout.delete()
@@ -61,7 +67,13 @@ def base(request):
             "day": day.to_json(),
         })
 
-    return HttpResponse(render(request, "kilo/base.html"))
+    '''
+
+    return render(request, "kilo/partials/day_row.html", {
+        "day": _format_day(day),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
 
 
 @require_GET

@@ -1,4 +1,6 @@
       <tr class="row" x-data="{ editing: false }">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ day.id }}" />
         <td class="col-2">
           {{ day.day_of_week}}, {{ day.month_name }} {{ day.day_of_month }}, {{ day.year }}
           <input type="hidden" name="year" value="{{ day.year }}" />
@@ -73,7 +75,10 @@
         </td>
         <td class="col-1">
           <div class="btn-group" role="group" x-show="editing">
-            <button type="button" class="float-end btn btn-outline-success">
+            <button type="button" class="float-end btn btn-outline-success"
+              hx-post="{% url "update" %}"
+              hx-include="closest tr"
+              hx-target="closest tr">
               <i class="fa fa-check"></i>
             </button>
             <button type="button" class="float-end btn btn-outline-danger" x-on:click="editing = !editing">
