@@ -22,7 +22,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
       <a class="navbar-brand" href="#"
          hx-get="{% url "frequency" %}"
-         hx-trigger="load"
+         hx-trigger="load, click"
          hx-target="#graph-options"
          hx-on:htmx:after-request="c3.generate(JSON.parse(document.getElementById('graph-options').innerHTML))"
       >Kilo</a>
@@ -55,7 +55,14 @@
       </ul>
     </nav>
     <br />
-    <div id="panel"></div>
+    <div id="panel">
+      <div class="loading">
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
     <div id="graph-options" style="display: none;"></div>
   </div>
 {% endblock body %}

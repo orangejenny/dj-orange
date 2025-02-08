@@ -1,5 +1,4 @@
 import { DayRecord } from "./day_record.js";
-import { Loading } from "./loading.js";
 import { Stat } from "./stat.js";
 
 class App extends React.Component {
