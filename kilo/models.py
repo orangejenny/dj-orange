@@ -213,6 +213,8 @@ class Workout(models.Model):
             "sets": self.sets,
             "reps": self.reps,
             "weight": self.weight,
+            "pace": self.pace,
+            "time": self.time,
         }
 
     def faster_than(self, other):

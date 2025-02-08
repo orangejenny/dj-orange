@@ -77,25 +77,25 @@ def recent(request):
             days = [Day(day=day_index)]
         all_days.extend([d for d in days])
 
-    return _days(all_days)
+    return _days(request, all_days)
 
 
 @require_GET
 @login_required
 def history(request):
     days = Day.get_recent_days(90)
-    return _days(days)
+    return _days(request, days)
 
 
-def _days(days):
+def _days(request, days):
     activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
     common_activities = [a[0] for a in activity_counter.most_common(3)]
     other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
 
-    return JsonResponse({
+    return render(request, "kilo/partials/days_table.html", {
+        "days": [_format_day(d) for d in days],
         "all_activities": common_activities + other_activities,
         "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "recent_days": [_format_day(d) for d in days],
     })
 
 
@@ -103,6 +103,11 @@ def _format_day(day):
     return {
         "id": day.id,
         "day": day.day,
+        "year": day.day.year,
+        "month": day.day.month,
+        "month_name": ['', 'Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'][day.day.month],
+        "day_of_month": day.day.day,
+        "day_of_week": ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'][day.day.weekday()],
         "notes": day.notes,
         "workouts": [w.to_json() for w in day.workout_set.all()] if day.id else [],
     }

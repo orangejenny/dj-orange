@@ -1,0 +1,108 @@
+<table class="table table-striped">
+  <tbody>
+    {% for day in days %}
+      <tr class="row">
+        <td class="col-2">
+          {{ day.day_of_week}}, {{ day.month_name }} {{ day.day_of_month }}, {{ day.year }}
+          <input type="hidden" name="year" value="{{ day.year }}" />
+          <input type="hidden" name="month" value="{{ day.month }}" />
+          <input type="hidden" name="day_of_month" value="{{ day.day_of_month }}" />
+        </td>
+        <td class="col-4">
+          <ul class="list-unstyled">
+            {% for workout in day.workouts %}
+              <li data-id="{{ workout.id }}">
+                 <span>
+                   {this.activityIcon(workout) <i class="{this.activityIcon(workout)}"></i><!-- TODO: activity icon -->
+                   &nbsp;
+                   {{workout.activity}} {{ workout.summary }} <!-- TODO: summary -->
+                 </span>}
+                 <div class="row g-1 mb-1 align-items-center">
+                   <div class="col-3">
+                     <select class="form-control" name="activity" value="{{ workout.activity }}">
+                       {% for activity in all_activities %}
+                         <option>{{ activity }}</option>
+                       {% endfor %}
+                     </select>
+                   </div>
+                   <div class="col-2">
+                     <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance }}" />
+                   </div>
+                   <div class="col-2">
+                     <select class="form-control" name="distance_unit" value="{{ workout.distance_unit }}">
+                       {% for unit in all_distance_units %}
+                         <option>{{ unit }}</option>
+                       {% endfor %}
+                     </select>
+                   </div>
+                   <div class="col-2">
+                     <input type="text" class="form-control" placeholder="time" value="{{ workout.time }}" />
+                   </div>
+                   <div class="col-1">
+                     <button type="button" class="btn btn-outline-secondary btn-sm">
+                       <i class="fa fa-times"></i>
+                     </button>
+                   </div>
+                   <div class="col-2">{{ workout.pace|default:"" }}</div>
+                 </div>
+                 <div class="row g-1 mb-1">
+                    <div class="col-3"></div>
+                    <div class="col-2">
+                      <input type="text" class="form-control" name="sets" placeholder="sets"
+                             value="{{ workout.sets }}" />
+                    </div>
+                    <div class="col-2">
+                      <input type="text" class="form-control" name="reps" placeholder="reps"
+                             value="{{ workout.reps }}" />
+                    </div>
+                    <div class="col-2">
+                      <input type="text" class="form-control" name="weight" placeholder="weight"
+                             value="{{ workout.weight }}" />
+                    </div>
+                 </div>
+               </li>
+             {% endfor %}
+             <button type="button" class="btn btn-outline-secondary btn-sm">
+               <i class="fa fa-plus"></i> Add Workout
+             </button>
+          </ul>
+        </td>
+        <td class="col-5">
+          <textarea class="form-control" rows="3" name="notes" placeholder="How was today?" value="{{ day.notes }}"></textarea>
+          {{ day.notes }}
+        </td>
+        <td class="col-1">
+          <!-- TODO: templates -->
+          <!--div class="btn-group" role="group">
+            <button type="button" class="float-end btn btn-outline-success">
+              <i class="fa fa-check"></i>
+            </button>
+            <button type="button" class="float-end btn btn-outline-danger">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          <div class="dropdown dropstart">
+             <button class="btn btn-outline-secondary dropdown-toggle col-12" id="add-workout-dropdown-btn" type="button"
+                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Add
+             </button>
+             <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
+               {this.props.templates.map((template, index) => (<li>
+                 <a class="dropdown-item" onClick={() => this.editDayEntry(template)}>
+                   {template.activity} {template.distance} {template.distance ? template.distance_unit : ""} {template.sets ? `${template.sets} x ${template.reps}` : ""}
+                 </a>
+               </li>))}
+               {!!this.props.templates.length && <div role="separator" class="dropdown-divider"></div>}
+               <li>
+                 <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
+               </li>
+             </ul>
+          </div>
+          <button type="button" class="btn btn-outline-secondary col-12">
+            Edit
+          </button>}
+        </td-->
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
