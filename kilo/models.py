@@ -203,6 +203,33 @@ class Workout(models.Model):
     def pace(self):
         return self._time(self.pace_seconds(self.distance, self.distance_unit, self.seconds))
 
+    @property
+    def summary(self):
+        text = ""
+
+        if self.sets:
+            text += f"{self.sets} x "
+
+        if self.reps:
+            text += f"{self.reps} "
+            if self.distance or self.seconds:
+                text += "x "
+
+        if self.distance:
+            text += f"{self.distance} {self.distance_unit} "
+            if self.seconds:
+                text += "in "
+
+        if self.seconds:
+            text += self.time;
+            if self.pace:
+              text += f" ({self.pace}) ";
+
+        if self.weight:
+            text += f"@ {self.weight}lb"
+
+        return text.strip()
+
     def to_json(self):
         return {
             "id": self.id,
@@ -215,6 +242,7 @@ class Workout(models.Model):
             "weight": self.weight,
             "pace": self.pace,
             "time": self.time,
+            "summary": self.summary,
         }
 
     def faster_than(self, other):

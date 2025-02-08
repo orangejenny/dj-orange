@@ -1,7 +1,6 @@
 import { DayRecord } from "./day_record.js";
 import { Loading } from "./loading.js";
 import { Stat } from "./stat.js";
-import { Workout } from "../workout.js";
 
 class App extends React.Component {
   constructor(props) {
