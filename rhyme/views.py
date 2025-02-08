@@ -123,7 +123,7 @@ def song_update(request):
     song = Song.objects.get(id=request.POST.get("id"))
     field = request.POST.get("field")
     value = request.POST.get("value")
-    playlist_name = request.POST.get("playlist_name")
+    playlist_name = request.POST.get("playlist_name") or None
 
     if field == 'tags':
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
