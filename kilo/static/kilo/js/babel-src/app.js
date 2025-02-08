@@ -127,7 +127,3 @@ class App extends React.Component {
     );
   }
 }
-
-window.addEventListener('DOMContentLoaded', (event) => {
-  ReactDOM.render(React.createElement(App), document.getElementById("app"));
-});

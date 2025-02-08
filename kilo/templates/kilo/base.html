@@ -13,11 +13,8 @@
 
 {% block js %}{{ block.super }}
   <script src="{% static "htmx.org/dist/htmx.min.js" %}"></script>
-  <script src="{% static "react/umd/react.production.min.js" %}"></script>
-  <script src="{% static "react-dom/umd/react-dom.production.min.js" %}"></script>
   <script src="{% static "d3/dist/d3.min.js" %}"></script>
   <script src="{% static "c3/c3.min.js" %}"></script>
-  <script type="module" src="{% static "kilo/js/babel-prod/app.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
@@ -61,5 +58,4 @@
     <div id="panel"></div>
     <div id="graph-options" style="display: none;"></div>
   </div>
-  <div class="container-fluid" id="app"></div>
 {% endblock body %}
