@@ -10,61 +10,12 @@
         <td class="col-4">
           <ul class="list-unstyled">
             {% for workout in day.workouts %}
-              <li data-id="{{ workout.id }}">
-                 <span x-show="!editing">
-                   <i class="{{ workout.activity_icon }}"></i>
-                   &nbsp;
-                   {{workout.activity}} {{ workout.summary }}
-                 </span>
-                 <div class="row g-1 mb-1 align-items-center" x-show="editing">
-                   <div class="col-3">
-                     <select class="form-control" name="activity" value="{{ workout.activity }}">
-                       {% for activity in all_activities %}
-                         <option{% if workout.activity == activity %} selected{% endif %}>{{ activity }}</option>
-                       {% endfor %}
-                     </select>
-                   </div>
-                   <div class="col-2">
-                     <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
-                   </div>
-                   <div class="col-2">
-                     <select class="form-control" name="distance_unit" value="{{ workout.distance_unit }}">
-                       {% for unit in all_distance_units %}
-                         <option{% if workout.distance_unit == unit %} selected{% endif %}>{{ unit }}</option>
-                       {% endfor %}
-                     </select>
-                   </div>
-                   <div class="col-2">
-                     <input type="text" class="form-control" placeholder="time" value="{{ workout.time|default:"" }}" />
-                   </div>
-                   <div class="col-1">
-                     <button type="button" class="btn btn-outline-secondary btn-sm">
-                       <i class="fa fa-times"></i>
-                     </button>
-                   </div>
-                   <div class="col-2">{{ workout.pace|default:"" }}</div>
-                 </div>
-                 <div class="row g-1 mb-1" x-show="editing">
-                    <div class="col-3"></div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" name="sets" placeholder="sets"
-                             value="{{ workout.sets|default:"" }}" />
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" name="reps" placeholder="reps"
-                             value="{{ workout.reps|default:"" }}" />
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" name="weight" placeholder="weight"
-                             value="{{ workout.weight|default:"" }}" />
-                    </div>
-                 </div>
-               </li>
-             {% endfor %}
-             <!-- TODO: add workout -->
-             <button type="button" class="btn btn-outline-secondary btn-sm" x-show="editing">
-               <i class="fa fa-plus"></i> Add Workout
-             </button>
+              {% include "kilo/partials/workout_item.html" %}
+            {% endfor %}
+            <!-- TODO: add workout -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" x-show="editing">
+              <i class="fa fa-plus"></i> Add Workout
+            </button>
           </ul>
         </td>
         <td class="col-5">
