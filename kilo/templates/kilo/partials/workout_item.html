@@ -1,4 +1,5 @@
-<li data-id="{{ workout.id }}">
+<li>
+  {% csrf_token %}
   <input type="hidden" name="workout_id" value="{{ workout.id }}" />
   <span x-show="!editing">
     <i class="{{ workout.activity_icon }}"></i>
@@ -27,7 +28,10 @@
       <input type="text" class="form-control" placeholder="time" value="{{ workout.time|default:"" }}" />
     </div>
     <div class="col-1">
-      <button type="button" class="btn btn-outline-secondary btn-sm">
+      <button type="button" class="btn btn-outline-secondary btn-sm"
+        hx-post="{% url "delete_workout" %}"
+        hx-include="closest li"
+        hx-target="closest li">
         <i class="fa fa-times"></i>
       </button>
     </div>

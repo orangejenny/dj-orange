@@ -76,6 +76,14 @@ def update(request):
     })
 
 
+@require_POST
+@login_required
+def delete_workout(request):
+    workout = Workout.objects.get(id=int(request.POST.get('workout_id')))
+    workout.delete()
+    return HttpResponse("")
+
+
 @require_GET
 @login_required
 def recent(request):

@@ -1,6 +1,15 @@
 from django.urls import path
 
-from kilo.views import base, frequency, history, pace, recent, stats, update
+from kilo.views import (
+    base,
+    delete_workout,
+    frequency,
+    history,
+    pace,
+    recent,
+    stats,
+    update,
+)
 
 urlpatterns = [
     path('', base, name='base'),
@@ -10,4 +19,5 @@ urlpatterns = [
     path('recent/', recent, name='recent'),
     path('stats/', stats, name='stats'),
     path('update/', update, name='update'),
+    path('workout/delete/', delete_workout, name='delete_workout'),
 ]
