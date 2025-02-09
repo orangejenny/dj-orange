@@ -264,6 +264,11 @@ class Workout(models.Model):
 
         return "fas fa-circle-question"
 
+    def save(self, *args, **kwargs):
+        if not self.distance:
+            self.distance_unit = None
+        super().save(*args, **kwargs)
+
     def to_json(self):
         return {
             "id": self.id,
