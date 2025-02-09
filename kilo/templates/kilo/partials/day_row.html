@@ -12,10 +12,16 @@
             {% for workout in day.workouts %}
               {% include "kilo/partials/workout_item.html" %}
             {% endfor %}
-            <!-- TODO: add workout -->
-            <button type="button" class="btn btn-outline-secondary btn-sm" x-show="editing">
-              <i class="fa fa-plus"></i> Add Workout
-            </button>
+            <li>
+              <button type="button" class="btn btn-outline-secondary btn-sm"
+                x-show="editing"
+                hx-post="{% url "add_workout" %}"
+                hx-include="closest tr"
+                hx-swap="beforebegin"
+              >
+                <i class="fa fa-plus"></i> Add Workout
+              </button>
+            </li>
           </ul>
         </td>
         <td class="col-5">

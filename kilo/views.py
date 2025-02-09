@@ -44,33 +44,40 @@ def update(request):
     day.notes = request.POST.get('notes')
     day.save()
 
-    # TODO: save workouts
-    '''
-        for workout in day.workout_set.all():
-            if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
-                workout.delete()
-
-        for workout_data in post_data.get("workouts", []):
-            try:
-                workout = Workout.objects.get(id=workout_data.get('id'))
-            except Workout.DoesNotExist:
-                workout = Workout(day=day)
-            for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
-                setattr(workout, attr, workout_data.get(attr))
-            if not workout.distance:
-                workout.distance_unit = None
-            if workout.activity:
-                workout.save()
-
-        return JsonResponse({
-            "success": 1,
-            "day": day.to_json(),
-        })
-
-    '''
-
     return render(request, "kilo/partials/day_row.html", {
         "day": _format_day(day),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
+
+
+@require_POST
+@login_required
+def add_workout(request):
+    # TODO: DRY up with update view
+    date = f"{request.POST.get('year')}-{request.POST.get('month')}-{request.POST.get('day_of_month')}"
+    try:
+        date_obj = datetime(
+            int(request.POST.get('year')),
+            int(request.POST.get('month')),
+            int(request.POST.get('day_of_month')),
+        )
+    except ValueError as e:
+        return JsonResponse({
+            "error": f"Received invalid date {date}: " + str(e),
+        })
+
+    day = Day.objects.filter(day=date).first()
+    if not day:
+        day = Day(day=date_obj)
+        day.save()
+
+    workout = Workout(day=day)
+    workout.activity = "running"
+    workout.save()
+
+    return render(request, "kilo/partials/workout_item.html", {
+        "workout": workout.to_json(),
         "all_activities": Workout.activity_options(),
         "all_distance_units": Workout.DISTANCE_UNITS,
     })

@@ -8,7 +8,7 @@
   </span>
   <div class="row g-1 mb-1 align-items-center" x-show="editing">
     <div class="col-3">
-      <select class="form-control" name="activity" value="{{ workout.activity }}">
+      <select class="form-control" name="activity">
         {% for activity in all_activities %}
           <option{% if workout.activity == activity %} selected{% endif %}>{{ activity }}</option>
         {% endfor %}
@@ -18,7 +18,7 @@
       <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
     </div>
     <div class="col-2">
-      <select class="form-control" name="distance_unit" value="{{ workout.distance_unit }}">
+      <select class="form-control" name="distance_unit">
         {% for unit in all_distance_units %}
           <option{% if workout.distance_unit == unit %} selected{% endif %}>{{ unit }}</option>
         {% endfor %}
