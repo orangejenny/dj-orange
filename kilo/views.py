@@ -20,6 +20,8 @@ def base(request):
 @require_POST
 @login_required
 def update(request):
+    # TODO: simplify this. User isn't entering the date.
+    # TODO: simplify UI, so it only passes day-related data, nothing about the workouts.
     date = f"{request.POST.get('year')}-{request.POST.get('month')}-{request.POST.get('day_of_month')}"
     try:
         date_obj = datetime(
