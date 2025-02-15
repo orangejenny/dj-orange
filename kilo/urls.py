@@ -10,6 +10,7 @@ from kilo.views import (
     recent,
     stats,
     update,
+    update_workout,
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path('update/', update, name='update'),
     path('workout/add/', add_workout, name='add_workout'),
     path('workout/delete/', delete_workout, name='delete_workout'),
+    path('workout/update/', update_workout, name='update_workout'),
 ]

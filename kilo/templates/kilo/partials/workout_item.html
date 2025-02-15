@@ -25,14 +25,26 @@
       </select>
     </div>
     <div class="col-2">
-      <input type="text" class="form-control" placeholder="time" value="{{ workout.time|default:"" }}" />
+      <input type="text" class="form-control" name="time" placeholder="time" value="{{ workout.time|default:"" }}" />
     </div>
     <div class="col-1">
-      <button type="button" class="btn btn-outline-secondary btn-sm"
+      <div class="btn-group" role="group" x-show="editing">
+        <button type="button" class="float-end btn btn-outline-success btn-sm"
+          hx-post="{% url "update_workout" %}"
+          hx-include="closest li"
+          hx-target="closest li">
+          <i class="fa fa-check"></i>
+        </button>
+        <button type="button" class="float-end btn btn-outline-danger btn-sm"
+          x-on:click="editing = !editing">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <button type="button" class="btn btn-outline-danger btn-sm"
         hx-post="{% url "delete_workout" %}"
         hx-include="closest li"
         hx-target="closest li">
-        <i class="fa fa-times"></i>
+        <i class="fa fa-trash"></i>
       </button>
     </div>
     <div class="col-2">{{ workout.pace|default:"" }}</div>

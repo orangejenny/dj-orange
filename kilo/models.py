@@ -1,4 +1,5 @@
 import math
+import re
 
 from collections import Counter
 from datetime import datetime, timedelta
@@ -185,6 +186,13 @@ class Workout(models.Model):
     @classmethod
     def _pad(cls, num):
         return f"0{num}" if num < 10 else str(num)
+
+    @classmethod
+    def parse_time(cls, time):
+        seconds = 0
+        for index, part in enumerate([int(p) for p in reversed(re.split(r'\D', time))]):
+            seconds += 60 ** index * part
+        return seconds
 
     @classmethod
     def pace_seconds(cls, distance, distance_unit, seconds):

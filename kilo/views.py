@@ -91,6 +91,33 @@ def delete_workout(request):
     return HttpResponse("")
 
 
+@require_POST
+@login_required
+def update_workout(request):
+    workout = Workout.objects.get(id=request.POST.get('workout_id'))
+
+    for cast, attrs in [
+        (str, ['activity', 'distance_unit']),
+        (int, ['seconds', 'sets', 'reps']),
+        (float, ['distance', 'weight']),
+    ]:
+        for attr in attrs:
+            if request.POST.get(attr):
+                setattr(workout, attr, cast(request.POST.get(attr)))
+
+    time = request.POST.get('time')
+    if time:
+        workout.seconds = Workout.parse_time(time)
+
+    workout.save()
+
+    return render(request, "kilo/partials/workout_item.html", {
+        "workout": workout.to_json(),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
+
+
 @require_GET
 @login_required
 def recent(request):
