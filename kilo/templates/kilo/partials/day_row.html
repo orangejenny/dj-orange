@@ -1,4 +1,4 @@
-      <tr class="row" x-data="{ editing: false }">
+      <tr class="row" x-data="{ editingWorkouts: false }">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ day.id }}" />
         <td class="col-2">
@@ -14,7 +14,7 @@
             {% endfor %}
             <li>
               <button type="button" class="btn btn-outline-secondary btn-sm"
-                x-show="editing"
+                x-show="editingWorkouts"
                 hx-post="{% url "add_workout" %}"
                 hx-include="closest tr"
                 hx-swap="beforebegin"
@@ -24,45 +24,29 @@
             </li>
           </ul>
         </td>
-        <td class="col-5">
-          <textarea class="form-control" rows="3" name="notes" placeholder="How was today?"
-            x-show="editing"
+        <td class="col-6" x-data="{ editingNotes: false }">
+          <button type="button" class="btn btn-outline-secondary btn-sm float-end"
+            x-show="!editingNotes"
+            x-on:click="editingNotes = true"
+          ><i class="fa fa-pencil"></i></button>
+
+          <textarea class="form-control float-start" rows="3" name="notes" placeholder="How was today?"
+            x-show="editingNotes"
           >{{ day.notes|default:"" }}</textarea>
-          <div x-show="!editing">{{ day.notes|default:"" }}</div>
-        </td>
-        <td class="col-1">
-          <div class="btn-group" role="group" x-show="editing">
-            <button type="button" class="float-end btn btn-outline-success"
+          <div x-show="!editingNotes">{{ day.notes|default:"" }}</div>
+
+          <div class="btn-group" role="group" x-show="editingNotes">
+            <button type="button" class="btn btn-sm btn-outline-success"
               hx-post="{% url "update" %}"
               hx-include="closest tr"
               hx-target="closest tr">
               <i class="fa fa-check"></i>
             </button>
-            <button type="button" class="float-end btn btn-outline-danger" x-on:click="editing = !editing">
+            <button type="button" class="btn btn-sm btn-outline-danger"
+              x-on:click="editingNotes = false"
+            >
               <i class="fa fa-times"></i>
             </button>
           </div>
-          <!-- TODO: templates (or a duplication workflow) -->
-          <!--div class="dropdown dropstart">
-             <button class="btn btn-outline-secondary dropdown-toggle col-12" id="add-workout-dropdown-btn" type="button"
-                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-               Add
-             </button>
-             <ul class="dropdown-menu" aria-labelledby="add-workout-dropdown-btn">
-               {this.props.templates.map((template, index) => (<li>
-                 <a class="dropdown-item" onClick={() => this.editDayEntry(template)}>
-                   {template.activity} {template.distance} {template.distance ? template.distance_unit : ""} {template.sets ? `${template.sets} x ${template.reps}` : ""}
-                 </a>
-               </li>))}
-               {!!this.props.templates.length && <div role="separator" class="dropdown-divider"></div>}
-               <li>
-                 <a class="dropdown-item" href="#" onClick={this.editExistingDayEntry}>Blank Day</a>
-               </li>
-             </ul>
-          </div-->
-          <button type="button" class="btn btn-outline-secondary col-12"
-            x-show="!editing"
-            x-on:click="editing = !editing"
-          >Edit</button>
         </td>
       </tr>

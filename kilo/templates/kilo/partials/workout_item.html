@@ -1,12 +1,12 @@
 <li>
   {% csrf_token %}
   <input type="hidden" name="workout_id" value="{{ workout.id }}" />
-  <span x-show="!editing">
+  <span x-show="!editingWorkouts">
     <i class="{{ workout.activity_icon }}"></i>
     &nbsp;
     {{workout.activity}} {{ workout.summary }}
   </span>
-  <div class="row g-1 mb-1 align-items-center" x-show="editing">
+  <div class="row g-1 mb-1 align-items-center" x-show="editingWorkouts">
     <div class="col-3">
       <select class="form-control" name="activity">
         {% for activity in all_activities %}
@@ -28,7 +28,7 @@
       <input type="text" class="form-control" name="time" placeholder="time" value="{{ workout.time|default:"" }}" />
     </div>
     <div class="col-1">
-      <div class="btn-group" role="group" x-show="editing">
+      <div class="btn-group" role="group" x-show="editingWorkouts">
         <button type="button" class="float-end btn btn-outline-success btn-sm"
           hx-post="{% url "update_workout" %}"
           hx-include="closest li"
@@ -36,7 +36,7 @@
           <i class="fa fa-check"></i>
         </button>
         <button type="button" class="float-end btn btn-outline-danger btn-sm"
-          x-on:click="editing = !editing">
+          x-on:click="editingWorkouts = !editingWorkouts">
           <i class="fa fa-times"></i>
         </button>
       </div>
@@ -49,7 +49,7 @@
     </div>
     <div class="col-2">{{ workout.pace|default:"" }}</div>
   </div>
-  <div class="row g-1 mb-1" x-show="editing">
+  <div class="row g-1 mb-1" x-show="editingWorkouts">
      <div class="col-3"></div>
      <div class="col-2">
        <input type="text" class="form-control" name="sets" placeholder="sets"
