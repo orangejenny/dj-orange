@@ -1,12 +1,12 @@
 import json
 
-from collections import defaultdict, Counter
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
@@ -14,54 +14,89 @@ from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 @login_required
 def base(request):
-    if request.method == "POST":
-        post_data = json.loads(request.body.decode("utf-8"))['day']
+    return HttpResponse(render(request, "kilo/base.html"))
 
-        date = f"{post_data.get('year')}-{post_data.get('month')}-{post_data.get('dayOfMonth')}"
-        try:
-            datetime(
-                int(post_data.get('year')),
-                int(post_data.get('month')),
-                int(post_data.get('dayOfMonth')),
-            )
-        except ValueError as e:
-            return JsonResponse({
-                "error": f"Received invalid date {date}: " + str(e),
-            })
-        day = Day.objects.filter(day=date).first()
-        if day:
-            if day.id != int(post_data.get('id') or 0):
-                return JsonResponse({
-                    "error": f"Attempting to duplicate {day.day}",
-                })
-        else:
-            day = Day()
-        day.day = date
-        day.notes = post_data.get('notes')
+
+@require_POST
+@login_required
+def update(request):
+    date_obj = datetime(
+        int(request.POST.get('year')),
+        int(request.POST.get('month')),
+        int(request.POST.get('day_of_month')),
+    )
+
+    day = Day.objects.filter(day=date_obj).first()
+    if day is None:
+        day = Day(day=date_obj)
+    day.notes = request.POST.get('notes')
+    day.save()
+
+    return render(request, "kilo/partials/day_row.html", {
+        "day": _format_day(day),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
+
+
+@require_POST
+@login_required
+def add_workout(request):
+    date_obj = datetime(
+        int(request.POST.get('year')),
+        int(request.POST.get('month')),
+        int(request.POST.get('day_of_month')),
+    )
+
+    day = Day.objects.filter(day=date_obj).first()
+    if day is None:
+        day = Day(day=date_obj)
         day.save()
 
-        for workout in day.workout_set.all():
-            if workout.id not in [int(w.get('id')) for w in post_data.get("workouts", []) if w.get('id')]:
-                workout.delete()
+    workout = Workout(day=day)
+    workout.activity = "running"
+    workout.save()
 
-        for workout_data in post_data.get("workouts", []):
-            try:
-                workout = Workout.objects.get(id=workout_data.get('id'))
-            except Workout.DoesNotExist:
-                workout = Workout(day=day)
-            for attr in ['activity', 'seconds', 'distance', 'distance_unit', 'sets', 'reps', 'weight']:
-                setattr(workout, attr, workout_data.get(attr))
-            if not workout.distance:
-                workout.distance_unit = None
-            if workout.activity:
-                workout.save()
+    return render(request, "kilo/partials/workout_item.html", {
+        "workout": workout.to_json(),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
 
-        return JsonResponse({
-            "success": 1,
-            "day": day.to_json(),
-        })
 
-    return HttpResponse(render(request, "kilo/base.html"))
+@require_POST
+@login_required
+def delete_workout(request):
+    workout = Workout.objects.get(id=int(request.POST.get('workout_id')))
+    workout.delete()
+    return HttpResponse("")
+
+
+@require_POST
+@login_required
+def update_workout(request):
+    workout = Workout.objects.get(id=request.POST.get('workout_id'))
+
+    for cast, attrs in [
+        (str, ['activity', 'distance_unit']),
+        (int, ['seconds', 'sets', 'reps']),
+        (float, ['distance', 'weight']),
+    ]:
+        for attr in attrs:
+            if request.POST.get(attr):
+                setattr(workout, attr, cast(request.POST.get(attr)))
+
+    time = request.POST.get('time')
+    if time:
+        workout.seconds = Workout.parse_time(time)
+
+    workout.save()
+
+    return render(request, "kilo/partials/workout_item.html", {
+        "workout": workout.to_json(),
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
+    })
 
 
 @require_GET
@@ -77,25 +112,22 @@ def recent(request):
             days = [Day(day=day_index)]
         all_days.extend([d for d in days])
 
-    return _days(all_days)
+    return _days(request, all_days)
 
 
 @require_GET
 @login_required
 def history(request):
     days = Day.get_recent_days(90)
-    return _days(days)
+    return _days(request, days)
 
 
-def _days(days):
-    activity_counter = Counter(Workout.objects.all().values_list("activity", flat=True))
-    common_activities = [a[0] for a in activity_counter.most_common(3)]
-    other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
+def _days(request, days):
 
-    return JsonResponse({
-        "all_activities": common_activities + other_activities,
-        "all_distance_units": [u[0] for u in Workout.DISTANCE_UNITS],
-        "recent_days": [_format_day(d) for d in days],
+    return render(request, "kilo/partials/days_table.html", {
+        "days": [_format_day(d) for d in days],
+        "all_activities": Workout.activity_options(),
+        "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
 
@@ -103,6 +135,11 @@ def _format_day(day):
     return {
         "id": day.id,
         "day": day.day,
+        "year": day.day.year,
+        "month": day.day.month,
+        "month_name": ['', 'Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'][day.day.month],
+        "day_of_month": day.day.day,
+        "day_of_week": ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'][day.day.weekday()],
         "notes": day.notes,
         "workouts": [w.to_json() for w in day.workout_set.all()] if day.id else [],
     }
@@ -185,7 +222,7 @@ def stats(request):
             "secondary": workout.secondary_stat(),
         })
 
-    return JsonResponse({
+    return render(request, "kilo/partials/stats.html", {
         "stats": [{
             "title": "Erging",
             "stats": erging_stats,
@@ -222,8 +259,18 @@ def frequency(request):
     ]
     data["types"] = {activity: "area-spline" for activity in all_activities}
     data["groups"] = [list(all_activities)]
-
-    return JsonResponse(data)
+    options = _get_graph_options(data)
+    options.update({
+        "legend": {"show": True},
+        "point": {"show": False},
+        "tooltip": {
+            "show": False,
+            "grouped": False,
+        },
+    })
+    options["axis"]["y"]["max"] = 7
+    options["axis"]["y"]["tick"] = {"count": 8}
+    return JsonResponse(options)
 
 
 @require_GET
@@ -276,5 +323,53 @@ def pace(request):
         [label] + values
         for label, values in columns.items()
     ]
+    options = _get_graph_options(data)
+    options.update({
+        "legend": {"show": False},
+        "point": {"show": True},
+        "tooltip": {
+            "show": True,
+            "grouped": False,
+        },
+    })
+    options["axis"]["y"]["min"] = 0 * 60
+    options["axis"]["y"]["max"] = 11 * 60
+    options["axis"]["y"]["tick"] = {
+        "outer": False,
+        "values": [x * 60 for x in [7, 8, 9, 10]],
+    }
+    options["axis"]["y2"] = {
+        "show": True,
+        "min": 1.75 * 60,
+        "max": 2.5 * 60,
+        "tick": {
+            "outer": False,
+            "values": [105, 110, 115, 120, 125, 130, 135],
+        },
+    }
+    return JsonResponse(options)
 
-    return JsonResponse(data)
+
+def _get_graph_options(data):
+    return {
+        "bindto": "#panel",
+        "data": data,
+        "axis": {
+            "x": {
+                "type": "timeseries",
+                "tick": {
+                    "count": len(data["columns"][0]),
+                    "fit": True,
+                    "format": "%b %d",
+                    "rotate": 90,
+                },
+            },
+            "y": {
+                "min": 0,
+                "padding": {
+                    "top": 0,
+                    "bottom": 0,
+                },
+            },
+        },
+    }

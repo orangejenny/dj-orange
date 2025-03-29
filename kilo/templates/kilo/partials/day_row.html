@@ -1,0 +1,67 @@
+      <tr class="row" x-data="{ editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ day.id }}" />
+        <td class="col-2">
+          {{ day.day_of_week}}, {{ day.month_name }} {{ day.day_of_month }}, {{ day.year }}
+          <input type="hidden" name="year" value="{{ day.year }}" />
+          <input type="hidden" name="month" value="{{ day.month }}" />
+          <input type="hidden" name="day_of_month" value="{{ day.day_of_month }}" />
+        </td>
+        <td class="col-4">
+          <ul class="list-unstyled" id="workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}" x-show="workoutCount">
+            {% for workout in day.workouts %}
+              {% include "kilo/partials/workout_item.html" %}
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+            x-show="!editingWorkouts && !workoutCount"
+            x-on:click="editingWorkouts = true; workoutCount += 1"
+            hx-post="{% url "add_workout" %}"
+            hx-include="closest tr"
+            hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
+            hx-swap="beforeend"
+          >
+            <i class="fa fa-plus"></i> Add Workout
+          </button>
+          <div class="btn-group" role="group" x-show="editingWorkouts">
+              <button type="button" class="btn btn-outline-secondary btn-sm"
+                x-on:click="editingWorkouts = true; workoutCount += 1"
+                hx-post="{% url "add_workout" %}"
+                hx-include="closest tr"
+                hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
+                hx-swap="beforeend"
+              >
+                <i class="fa fa-plus"></i> Add Workout
+              </button>
+              <button type="button" class="float-end btn btn-outline-danger btn-sm"
+                x-on:click="editingWorkouts = !editingWorkouts">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </td>
+        <td class="col-6" x-data="{ editingNotes: false }">
+          <button type="button" class="btn btn-outline-secondary btn-sm float-end"
+            x-show="!editingNotes"
+            x-on:click="editingNotes = true"
+          ><i class="fa fa-pencil"></i></button>
+
+          <textarea class="form-control float-start" rows="3" name="notes" placeholder="How was today?"
+            x-show="editingNotes"
+          >{{ day.notes|default:"" }}</textarea>
+          <div x-show="!editingNotes">{{ day.notes|default:"" }}</div>
+
+          <div class="btn-group" role="group" x-show="editingNotes">
+            <button type="button" class="btn btn-sm btn-outline-success"
+              hx-post="{% url "update" %}"
+              hx-include="closest tr"
+              hx-target="closest tr">
+              <i class="fa fa-check"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+              x-on:click="editingNotes = false"
+            >
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </td>
+      </tr>

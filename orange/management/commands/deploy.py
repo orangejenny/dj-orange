@@ -82,8 +82,6 @@ class Command(BaseCommand):
         subprocess.run(["pip", "install", "-r", "requirements.txt"])
         call_command("migrate")
         subprocess.run(["npm", "install"])
-        subprocess.run(["npx", "babel", "kilo/static/kilo/js/babel-src",
-                        "--out-dir", "kilo/static/kilo/js/babel-prod", "--presets", "react-app/prod"])
         call_command("collectstatic", "--noinput")
         subprocess.run(["touch", "tmp/restart.txt"])
 

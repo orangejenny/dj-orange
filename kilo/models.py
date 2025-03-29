@@ -1,5 +1,7 @@
 import math
+import re
 
+from collections import Counter
 from datetime import datetime, timedelta
 
 from django.db import models
@@ -78,11 +80,7 @@ class Workout(models.Model):
     MILES = 'mi'
     METERS = 'm'
     KILOMETERS = 'km'
-    DISTANCE_UNITS = [
-        (MILES, MILES),
-        (KILOMETERS, KILOMETERS),
-        (METERS, METERS),
-    ]
+    DISTANCE_UNITS = [MILES, KILOMETERS, METERS]
 
     class Meta:
         ordering = ["ordering"]
@@ -90,7 +88,7 @@ class Workout(models.Model):
     activity = models.CharField(max_length=32)
     seconds = models.FloatField(null=True)
     distance = models.FloatField(null=True)
-    distance_unit = models.CharField(null=True, max_length=3, choices=DISTANCE_UNITS, default=MILES)
+    distance_unit = models.CharField(null=True, max_length=3, choices=[(u, u) for u in DISTANCE_UNITS], default=MILES)
     sets = models.SmallIntegerField(null=True)
     reps = models.SmallIntegerField(null=True)
     weight = models.FloatField(null=True)
@@ -101,7 +99,7 @@ class Workout(models.Model):
         return self.activity
 
     def __init__(self, *args, **kwargs):
-        units = set(kwargs.keys()) & {u[0] for u in self.DISTANCE_UNITS}
+        units = set(kwargs.keys()) & set(self.DISTANCE_UNITS)
         if len(units) > 1:
             raise ValueError("May only provide one distance, provided: " + ", ".join(units))
         if len(units) == 1:
@@ -109,6 +107,13 @@ class Workout(models.Model):
             kwargs['distance'] = kwargs.pop(unit)
             kwargs['distance_unit'] = unit
         super().__init__(*args, **kwargs)
+
+    @classmethod
+    def activity_options(cls):
+        activity_counter = Counter(cls.objects.all().values_list("activity", flat=True))
+        common_activities = [a[0] for a in activity_counter.most_common(3)]
+        other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
+        return common_activities + other_activities
 
     @property
     def m(self):
@@ -183,6 +188,13 @@ class Workout(models.Model):
         return f"0{num}" if num < 10 else str(num)
 
     @classmethod
+    def parse_time(cls, time):
+        seconds = 0
+        for index, part in enumerate([int(p) for p in reversed(re.split(r'\D', time))]):
+            seconds += 60 ** index * part
+        return seconds
+
+    @classmethod
     def pace_seconds(cls, distance, distance_unit, seconds):
         if not distance or not seconds:
             return None
@@ -203,16 +215,82 @@ class Workout(models.Model):
     def pace(self):
         return self._time(self.pace_seconds(self.distance, self.distance_unit, self.seconds))
 
+    @property
+    def summary(self):
+        text = ""
+
+        if self.sets:
+            text += f"{self.sets} x "
+
+        if self.reps:
+            text += f"{self.reps} "
+            if self.distance or self.seconds:
+                text += "x "
+
+        if self.distance:
+            text += f"{self.distance} {self.distance_unit} "
+            if self.seconds:
+                text += "in "
+
+        if self.seconds:
+            text += self.time;
+            if self.pace:
+              text += f" ({self.pace}) ";
+
+        if self.weight:
+            text += f"@ {self.weight}lb"
+
+        return text.strip()
+
+    @property
+    def activity_icon(self):
+        single_icons = {
+            "erging": "fas fa-gears",
+            "sculling": "fas fa-water",
+            "running": "fas fa-running",
+            "stairs": "fas fa-stairs",
+            "circuits": "fas fa-heart-pulse",
+            "crossfit": "fas fa-child-reaching",
+            "biking": "fas fa-person-biking",
+            "swimming": "fas fa-person-swimming",
+            "lifting": "fas fa-dumbbell",
+            "cleans": "fas fa-dumbbell",
+            "deadlifts": "fas fa-dumbbell",
+            "overhead press": "fas fa-dumbbell",
+            "bench press": "fas fa-dumbbell",
+            "barbell rows": "fas fa-dumbbell",
+            "single leg deadlifts": "fas fa-balance-scale",
+            "lunges": "fas fa-balance-scale",
+            "calf raises": "fas fa-balance-scale",
+        }
+
+        if self.activity in single_icons:
+            return single_icons[self.activity]
+
+        if self.reps and self.weight:
+            return "fas fa-dumbbell"
+
+        return "fas fa-circle-question"
+
+    def save(self, *args, **kwargs):
+        if not self.distance:
+            self.distance_unit = None
+        super().save(*args, **kwargs)
+
     def to_json(self):
         return {
             "id": self.id,
             "activity": self.activity,
+            "activity_icon": self.activity_icon,
             "seconds": self.seconds,
             "distance": self.distance,
             "distance_unit": self.distance_unit,
             "sets": self.sets,
             "reps": self.reps,
             "weight": self.weight,
+            "pace": self.pace,
+            "time": self.time,
+            "summary": self.summary,
         }
 
     def faster_than(self, other):
