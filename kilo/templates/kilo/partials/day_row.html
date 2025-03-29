@@ -1,4 +1,4 @@
-      <tr class="row" x-data="{ editingWorkouts: false }">
+      <tr class="row" x-data="{ editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ day.id }}" />
         <td class="col-2">
@@ -8,21 +8,36 @@
           <input type="hidden" name="day_of_month" value="{{ day.day_of_month }}" />
         </td>
         <td class="col-4">
-          <ul class="list-unstyled">
+          <ul class="list-unstyled" id="workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}" x-show="workoutCount">
             {% for workout in day.workouts %}
               {% include "kilo/partials/workout_item.html" %}
             {% endfor %}
-            <li>
+          </ul>
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+            x-show="!editingWorkouts && !workoutCount"
+            x-on:click="editingWorkouts = true; workoutCount += 1"
+            hx-post="{% url "add_workout" %}"
+            hx-include="closest tr"
+            hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
+            hx-swap="beforeend"
+          >
+            <i class="fa fa-plus"></i> Add Workout
+          </button>
+          <div class="btn-group" role="group" x-show="editingWorkouts">
               <button type="button" class="btn btn-outline-secondary btn-sm"
-                x-show="editingWorkouts"
+                x-on:click="editingWorkouts = true; workoutCount += 1"
                 hx-post="{% url "add_workout" %}"
                 hx-include="closest tr"
-                hx-swap="beforebegin"
+                hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
+                hx-swap="beforeend"
               >
                 <i class="fa fa-plus"></i> Add Workout
               </button>
-            </li>
-          </ul>
+              <button type="button" class="float-end btn btn-outline-danger btn-sm"
+                x-on:click="editingWorkouts = !editingWorkouts">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </td>
         <td class="col-6" x-data="{ editingNotes: false }">
           <button type="button" class="btn btn-outline-secondary btn-sm float-end"

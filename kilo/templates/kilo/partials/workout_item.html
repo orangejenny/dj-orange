@@ -1,8 +1,9 @@
 <li>
   {% csrf_token %}
   <input type="hidden" name="workout_id" value="{{ workout.id }}" />
-  <span x-show="!editingWorkouts">
-    <i class="{{ workout.activity_icon }}"></i>
+  <span x-show="!editingWorkouts"
+        x-on:click="editingWorkouts = true">
+    <i role="button" class="{{ workout.activity_icon }}"></i>
     &nbsp;
     {{workout.activity}} {{ workout.summary }}
   </span>
@@ -35,17 +36,14 @@
           hx-target="closest li">
           <i class="fa fa-check"></i>
         </button>
-        <button type="button" class="float-end btn btn-outline-danger btn-sm"
-          x-on:click="editingWorkouts = !editingWorkouts">
-          <i class="fa fa-times"></i>
+        <button type="button" class="btn btn-outline-danger btn-sm"
+          x-on:click="workoutCount -= 1"
+          hx-post="{% url "delete_workout" %}"
+          hx-include="closest li"
+          hx-target="closest li">
+          <i class="fa fa-trash"></i>
         </button>
       </div>
-      <button type="button" class="btn btn-outline-danger btn-sm"
-        hx-post="{% url "delete_workout" %}"
-        hx-include="closest li"
-        hx-target="closest li">
-        <i class="fa fa-trash"></i>
-      </button>
     </div>
     <div class="col-2">{{ workout.pace|default:"" }}</div>
   </div>
