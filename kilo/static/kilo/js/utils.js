@@ -1,4 +1,23 @@
-getTime(seconds) {
+function getFrequencyGraphOptions() {
+    return getGraphOptions();
+}
+
+function getPaceGraphOptions() {
+    let options = getGraphOptions();
+    if (options?.axis?.y?.tick) {
+        options.axis.y.tick.format = getTime;
+    }
+    if (options?.axis?.y2?.tick) {
+        options.axis.y2.tick.format = getTime;
+    }
+    return options;
+}
+
+function getGraphOptions() {
+    return JSON.parse(document.getElementById('graph-options').innerHTML);
+}
+
+function getTime(seconds) {
   let hours = 0;
   if (seconds > 3600) {
       hours = Math.floor(seconds / 3600);

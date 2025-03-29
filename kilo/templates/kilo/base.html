@@ -16,6 +16,7 @@
   <script src="{% static "d3/dist/d3.min.js" %}"></script>
   <script src="{% static "c3/c3.min.js" %}"></script>
   <script src="{% static "alpinejs/dist/cdn.min.js" %}"></script>
+  <script src="{% static "kilo/js/utils.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
@@ -25,7 +26,7 @@
          hx-get="{% url "frequency" %}"
          hx-trigger="load, click"
          hx-target="#graph-options"
-         hx-on:htmx:after-request="c3.generate(JSON.parse(document.getElementById('graph-options').innerHTML))"
+         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
       >Kilo</a>
       <ul class="navbar-nav flex-grow-1">
         <li class="nav-item">
@@ -38,7 +39,7 @@
           <a class="nav-link" href="#"
              hx-get="{% url "pace" %}"
              hx-target="#graph-options"
-             hx-on:htmx:after-request="c3.generate(JSON.parse(document.getElementById('graph-options').innerHTML))"
+             hx-on:htmx:after-request="c3.generate(getPaceGraphOptions())"
           >Speed</a>
         </li>
         <li class="nav-item">

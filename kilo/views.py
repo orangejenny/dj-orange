@@ -336,7 +336,6 @@ def pace(request):
     options["axis"]["y"]["max"] = 11 * 60
     options["axis"]["y"]["tick"] = {
         "outer": False,
-        #"format": self.getTime,    # TODO
         "values": [x * 60 for x in [7, 8, 9, 10]],
     }
     options["axis"]["y2"] = {
@@ -345,7 +344,6 @@ def pace(request):
         "max": 2.5 * 60,
         "tick": {
             "outer": False,
-            #"format": self.getTime,    # TODO
             "values": [105, 110, 115, 120, 125, 130, 135],
         },
     }
