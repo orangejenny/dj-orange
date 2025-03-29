@@ -20,28 +20,14 @@ def base(request):
 @require_POST
 @login_required
 def update(request):
-    # TODO: simplify this. User isn't entering the date.
-    # TODO: simplify UI, so it only passes day-related data, nothing about the workouts.
-    date = f"{request.POST.get('year')}-{request.POST.get('month')}-{request.POST.get('day_of_month')}"
-    try:
-        date_obj = datetime(
-            int(request.POST.get('year')),
-            int(request.POST.get('month')),
-            int(request.POST.get('day_of_month')),
-        )
-    except ValueError as e:
-        return JsonResponse({
-            "error": f"Received invalid date {date}: " + str(e),
-        })
+    date_obj = datetime(
+        int(request.POST.get('year')),
+        int(request.POST.get('month')),
+        int(request.POST.get('day_of_month')),
+    )
 
-    day = Day.objects.filter(day=date).first()
-    if day:
-        if day.id != int(request.POST.get('id') or 0):
-            # TODO: error handling
-            return JsonResponse({
-                "error": f"Attempting to duplicate {day.day}",
-            })
-    else:
+    day = Day.objects.filter(day=date_obj).first()
+    if day is None:
         day = Day(day=date_obj)
     day.notes = request.POST.get('notes')
     day.save()
@@ -56,21 +42,14 @@ def update(request):
 @require_POST
 @login_required
 def add_workout(request):
-    # TODO: DRY up with update view
-    date = f"{request.POST.get('year')}-{request.POST.get('month')}-{request.POST.get('day_of_month')}"
-    try:
-        date_obj = datetime(
-            int(request.POST.get('year')),
-            int(request.POST.get('month')),
-            int(request.POST.get('day_of_month')),
-        )
-    except ValueError as e:
-        return JsonResponse({
-            "error": f"Received invalid date {date}: " + str(e),
-        })
+    date_obj = datetime(
+        int(request.POST.get('year')),
+        int(request.POST.get('month')),
+        int(request.POST.get('day_of_month')),
+    )
 
-    day = Day.objects.filter(day=date).first()
-    if not day:
+    day = Day.objects.filter(day=date_obj).first()
+    if day is None:
         day = Day(day=date_obj)
         day.save()
 
