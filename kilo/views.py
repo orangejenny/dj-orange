@@ -79,7 +79,7 @@ def update_workout(request):
 
     for cast, attrs in [
         (str, ['activity', 'distance_unit']),
-        (int, ['seconds', 'sets', 'reps']),
+        (int, ['sets', 'reps']),
         (float, ['distance', 'weight']),
     ]:
         for attr in attrs:
