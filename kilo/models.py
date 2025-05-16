@@ -11,7 +11,7 @@ class Day(models.Model):
     day = models.DateField(unique_for_date=True)
     notes = models.CharField(max_length=1024, null=True)
 
-    PRIMARY_ACTIVITIES = [
+    PRIMARY_ACTIVITIES = set([
         "erging",
         "sculling",
         "running",
@@ -20,8 +20,7 @@ class Day(models.Model):
         "crossfit",
         "biking",
         "swimming",
-        "lifting",
-    ]
+    ])
 
     class Meta:
         ordering = ["-day"]
@@ -42,14 +41,14 @@ class Day(models.Model):
         if self.workout_set.count() == 0:
             return None
 
-        workout = self.workout_set.last()
-        if workout.activity in self.PRIMARY_ACTIVITIES:
-            return workout.activity
+        primaries = self.PRIMARY_ACTIVITIES & {w.activity for w in self.workout_set.all()}
+        if primaries:
+            return list(primaries)[0]
 
-        if workout.reps and workout.weight:
+        if any(w.reps and w.weight for w in self.workout_set.all()):
             return "lifting"
 
-        return workout.activity
+        return self.workout_set.last().activity
 
     def average_pace_seconds(self):
         first = self.workout_set.first()
@@ -190,7 +189,7 @@ class Workout(models.Model):
     @classmethod
     def parse_time(cls, time):
         seconds = 0
-        for index, part in enumerate([int(p) for p in reversed(re.split(r'\D', time))]):
+        for index, part in enumerate([float(p) for p in reversed(re.split(r'[:/-]', time))]):
             seconds += 60 ** index * part
         return seconds
 
@@ -261,6 +260,8 @@ class Workout(models.Model):
             "barbell rows": "fas fa-dumbbell",
             "single leg deadlifts": "fas fa-balance-scale",
             "lunges": "fas fa-balance-scale",
+            "front lunges": "fas fa-balance-scale",
+            "rear lunges": "fas fa-balance-scale",
             "calf raises": "fas fa-balance-scale",
         }
 
