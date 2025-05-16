@@ -189,7 +189,7 @@ class Workout(models.Model):
     @classmethod
     def parse_time(cls, time):
         seconds = 0
-        for index, part in enumerate([int(p) for p in reversed(re.split(r'\D', time))]):
+        for index, part in enumerate([float(p) for p in reversed(re.split(r'[:/-]', time))]):
             seconds += 60 ** index * part
         return seconds
 
