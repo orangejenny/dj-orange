@@ -1,4 +1,5 @@
 import json
+import re
 
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -78,13 +79,18 @@ def update_workout(request):
     workout = Workout.objects.get(id=request.POST.get('workout_id'))
 
     for cast, attrs in [
-        (str, ['activity', 'distance_unit']),
+        (str, ['activity', 'distance_unit', 'weight']),
         (int, ['sets', 'reps']),
-        (float, ['distance', 'weight']),
+        (float, ['distance']),
     ]:
         for attr in attrs:
             if request.POST.get(attr):
-                setattr(workout, attr, cast(request.POST.get(attr)))
+                value = cast(request.POST.get(attr))
+                if attr == "weight" and "kg" in value:
+                    value = float(re.sub(r'[\skg]*', '', value))
+                    value *= 2.2
+                    value = round(value, 1)
+                setattr(workout, attr, value)
 
     time = request.POST.get('time')
     if time:
