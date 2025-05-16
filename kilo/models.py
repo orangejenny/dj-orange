@@ -261,6 +261,8 @@ class Workout(models.Model):
             "barbell rows": "fas fa-dumbbell",
             "single leg deadlifts": "fas fa-balance-scale",
             "lunges": "fas fa-balance-scale",
+            "front lunges": "fas fa-balance-scale",
+            "rear lunges": "fas fa-balance-scale",
             "calf raises": "fas fa-balance-scale",
         }
 
