@@ -1,39 +1,25 @@
-{% if not last %}
-    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon condensed=condensed %}
-{% endif %}
-
 <div class="modal filter-modal" id="filter-modal-{{ name|slugify }}" tabindex="-1" role="dialog" aria-hidden="true" data-lhs="{{ lhs }}" data-bind="event: {'shown.bs.modal': focusFilter }">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h5>{{ name }}</h5>
+                <h5 class="modal-title">{{ name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 {% block body %}{% endblock %}
                 {% if not disallow_null %}
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', false) }" data-dismiss="modal">
-                                <i class="fas fa-question-circle"></i>
-                                is null
-                            </button>
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', true) }" data-dismiss="modal">
-                                <i class="fas fa-check-circle"></i>
-                                is not null
-                            </button>
-                        </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary flex-fill" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', false) }" data-bs-dismiss="modal">
+                            <i class="fas fa-question-circle"></i>
+                            is null
+                        </button>
+                        <button class="btn btn-outline-secondary flex-fill" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=?', true) }" data-bs-dismiss="modal">
+                            <i class="fas fa-check-circle"></i>
+                            is not null
+                        </button>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
-{% if last %}
-    {% include "rhyme/partials/modal_filter_base_button.html" with name=name icon=icon condensed=condensed %}
-{% endif %}

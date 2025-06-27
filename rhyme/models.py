@@ -93,9 +93,9 @@ class FilterMixin():
             elif lhs == "playlist":
                 song_ids = set()
                 for value in rhs.split(","):
-                    playlist = Playlist.objects.filter(name=rhs).first()
+                    playlist = Playlist.objects.filter(name=value).first()
                     if playlist is None:
-                        raise Exception("Could not find playlist: {}".format(rhs))
+                        raise Exception("Could not find playlist: {}".format(value))
                     if op == '=':   # all
                         song_ids = song_ids & {s.id for s in playlist.songs}
                     else:           # any, none
@@ -104,6 +104,19 @@ class FilterMixin():
                 if op == '!=':    # none
                     actions = [("id__in", song_ids, False)]
                 elif op == '=' or op == '*=':             # any, all (will have different values for song_ids)
+                    actions = [("id__in", song_ids, True)]
+                else:
+                    raise Exception("Unrecognized op for {}: {}".format(lhs, op))
+            elif lhs == "album_id":
+                song_ids = set()
+                for value in rhs.split(","):
+                    try:
+                        album = Album.objects.get(id=value)
+                    except Album.DoesNotExist as e:
+                        raise Exception("Could not find album: {}".format(value))
+                    if op == '*=':
+                        song_ids = song_ids | {s.id for s in album.songs}
+                if op == '*=':  # any
                     actions = [("id__in", song_ids, True)]
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
@@ -147,8 +160,13 @@ class Artist(models.Model):
     name = models.CharField(max_length=63, unique=True)
     genre = models.CharField(max_length=63)
 
+    import_fields = set(['name', 'genre'])
+
     def __str__(self):
         return self.name
+
+    def to_json(self):
+        return {field: getattr(self, field) for field in self.import_fields}
 
     @classmethod
     def all_genres(cls):
@@ -169,6 +187,9 @@ class Song(models.Model, FilterMixin, ExportableMixin):
 
     omni_fields = ['name', 'artist', 'tag']
 
+    import_fields = set(['id', 'name', 'artist', 'rating', 'mood',
+                         'energy', 'starred', 'year', 'time', 'filename'])
+
     name = models.CharField(max_length=127, db_index=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
@@ -184,7 +205,6 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     play_count = models.IntegerField(default=0)
     last_play = models.DateTimeField(null=True)
 
-    plex_filename = models.CharField(max_length=255, null=True)
     plex_guid = models.CharField(max_length=255, null=True)
     plex_key = models.CharField(max_length=255, null=True, db_index=True)
 
@@ -257,12 +277,52 @@ class Playlist(models.Model):
         return self.name
 
     @property
-    def songs(self):
+    def all_filters(self):
+        values = []
+        if self.omni_filter:
+            values.append(f"[{self.omni_filter}]")
+        if self.song_filters:
+            values.append(self.song_filters)
+        if self.album_filters:
+            values.append(self.album_filters)
+        return "; ".join(values)
+
+    @classmethod
+    def empty_playlist(cls):
+        return Playlist(song_filters="rating=10")
+
+    @property
+    def natural_songs(self):
         return Song.list(
             song_filters=self.song_filters,
             album_filters=self.album_filters,
             omni_filter=self.omni_filter,
         )
+
+    @property
+    def songs(self):
+        songs = self.natural_songs
+
+        song_ids_to_remove = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=False).values_list("song_id", flat=True)
+        songs = [s for s in songs if s.id not in song_ids_to_remove]
+
+        song_ids_to_add = PlaylistSong.objects.filter(playlist_id=self.id, inclusion=True).values_list("song_id", flat=True)
+        songs = songs + list(Song.objects.filter(id__in=song_ids_to_add))
+
+        return songs
+
+
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    inclusion = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("playlist", "song")
+
+    def __str__(self):
+        verb = "includes" if self.inclusion else "excludes"
+        return "{} {} {}".format(str(self.playlist), verb, str(self.song))
 
 
 class Album(models.Model, FilterMixin, ExportableMixin):
@@ -271,6 +331,8 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     related_fields = {}
 
     omni_fields = ['name']
+
+    import_fields = set(['id', 'name', 'date_acquired', 'is_mix'])
 
     name = models.CharField(max_length=255, db_index=True)
     date_acquired = models.DateTimeField(null=True)
@@ -459,8 +521,13 @@ class Disc(models.Model):
     name = models.CharField(max_length=255, null=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
+    import_fields = set(['album_id', 'ordinal', 'name'])
+
     class Meta:
         unique_together = ("ordinal", "album")
+
+    def __str__(self):
+        return "{} #{}: {}".format(str(self.album), self.ordinal, self.name)
 
 
 class Track(models.Model):
@@ -468,6 +535,8 @@ class Track(models.Model):
     disc = models.IntegerField(default=1)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
+
+    import_fields = set(['song_id', 'album_id', 'ordinal', 'disc_ordinal'])
 
     class Meta:
         unique_together = ("song", "album")
@@ -480,6 +549,8 @@ class Tag(models.Model):
     name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
     songs = models.ManyToManyField(Song)
+
+    import_fields = set(['song_id', 'name', 'category'])
 
     def __str__(self):
         return self.name
@@ -494,12 +565,10 @@ class Color(models.Model):
     hex_code = models.CharField(max_length=8, default='ffffff')
     white_text = models.BooleanField(default=False)
 
+    import_fields = set(['name', 'hex_code', 'white_text'])
+
     def __str__(self):
         return "{} (#{})".format(self.name, self.hex_code)
 
     def to_json(self):
-        return {
-            "name": self.name,
-            "hex_code": self.hex_code,
-            "white_text": self.white_text,
-        }
+        return {field: getattr(self, field) for field in self.import_fields}

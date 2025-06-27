@@ -1,20 +1,23 @@
-from django.core.management.base import BaseCommand
 from django.db.models import Q
 
-from rhyme.models import *
+from rhyme.management.commands.rhyme_command import Command as RhymeCommand
+from rhyme.models import Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 from datetime import datetime
 import random
 
 
-class Command(BaseCommand):
+class Command(RhymeCommand):
     def handle(self, *args, **options):
-        seed = self.get_seed()
+        seed = self.get_song()
         print(f"Seed: {seed}")
 
-        # Limits for rating, mood, energy
-        ocean = Song.objects.filter(Q(rating__gte=3) | Q(rating__isnull=True))
+        # Basic limits
+        ocean = Song.objects.filter(Q(rating__gte=3) | Q(starred=True))
+        ocean = ocean.exclude(tag__name="christmas")
+        ocean = ocean.exclude(artist__genre="soundtrack", rating__lte=3)
+
         print(f"Start with {ocean.count()} songs")
         if seed.mood is not None:
             ocean = ocean.filter(mood__in={seed.mood, seed.mood + 1, seed.mood - 1})
@@ -83,7 +86,14 @@ class Command(BaseCommand):
         for song_id in lake:
             print(Song.objects.get(id=song_id))
 
-        if input("\nExport to Plex (y/n)? ").lower() == "y":
+        command = input("\nExport to (r)hyme, (p)lex? ").lower()
+        if command == "r":
+            playlist = Playlist.empty_playlist()
+            playlist.name = input("Name? ")
+            playlist.save()
+            for song_id in lake.keys():
+                PlaylistSong(playlist_id=playlist.id, song_id=song_id, inclusion=True).save()
+        elif command == "p":
             playlist_name = input("Name? ")
             create_plex_playlist(playlist_name, Song.objects.filter(id__in=lake.keys()))
 
@@ -107,23 +117,3 @@ class Command(BaseCommand):
 
     def common_tags(self, tags, song):
         return set(tags) & set(song.tags())
-
-    def get_seed(self):
-        seed = None
-        while seed is None:
-            name = input("Song name? ")
-            songs = Song.objects.filter(name__icontains=name)
-            if songs.count() > 7:
-                artist = input("Artist? ")
-                songs = songs.filter(artist__name__icontains=artist)
-            if songs.count() == 1:
-                seed = songs.first()
-            elif songs.count() > 1:
-                for i, song in enumerate(songs):
-                    print(f"{i + 1}) {song}")
-                ordinal = input("Which song? ")
-                try:
-                    seed = songs[int(ordinal) - 1]
-                except (ValueError, IndexError):
-                    pass
-        return seed

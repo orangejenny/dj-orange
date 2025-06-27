@@ -55,10 +55,10 @@ function ExportPlaylist(data) {
     }
 
     var url = reverse(data.model === "album" ? 'album_export' : 'song_export') + '?' + params.join('&');
-    if (data.config === "plex") {
-        $.get(url, function (data) {
-            alert("Playlist exported. " + JSON.stringify(data));
-        });
+    if (["plex", "rhyme"].find((x) => x === data.config)) {
+        $.ajax({url: url, dataType: "json", function (data) {
+            alert("Playlist exported: " + data.name);
+        }});
     } else {
         document.location = url;
     }

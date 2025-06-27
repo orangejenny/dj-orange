@@ -31,17 +31,22 @@ class Command(BaseCommand):
             day = Day(day=today, notes=lorem.sentence())
             day.save()
             try:
-                workout = random.choice([
-                   self._generate_erg,
-                   self._generate_erg,
-                   self._generate_run,
-                   self._generate_run,
-                   self._generate_other,
-                ])(day)
-                workout.save()
-            except Exception:
+                if random.choice([True, True, False]):
+                    workout = random.choice([
+                       self._generate_erg,
+                       self._generate_erg,
+                       self._generate_run,
+                       self._generate_run,
+                       self._generate_other,
+                    ])(day)
+                    workout.save()
+                else:
+                    for index in range(1, random.randrange(2, 6)):
+                        workout = self._generate_lift(day)
+                        workout.save()
+            except Exception as e:
                 day.delete()
-            print(f"Saved day: {day.day}: {workout.activity}")
+            print(f"Saved day: {day.day}: {[w for w in day.workout_set.all()]}")
 
     def _parse_date(self, date_str):
         try:
@@ -70,6 +75,15 @@ class Command(BaseCommand):
             distance_unit=Workout.MILES,
             distance=distance,
             seconds=distance * pace,
+        )
+
+    def _generate_lift(self, day):
+        return Workout(
+            day=day,
+            activity=random.choice(['overhead press', 'bench press', 'cleans', 'squats']),
+            sets=random.choice([2, 3, 5]),
+            reps=random.choice([1, 5, 10]),
+            weight=random.randrange(9, 20) * 5,
         )
 
     def _generate_other(self, day):

@@ -9,16 +9,14 @@
 {% endblock js %}
 
 {% block content %}
-    {% include "rhyme/partials/all_filters.html" %}
-
     <div class="item-page" data-url="{% url "album_list" %}">
-        <div class="albums clearfix infinite-scroll-container" data-bind="foreach: items">
+        <div class="albums clearfix" data-bind="foreach: items">
             {% include "rhyme/partials/album.html" %}
         </div>
-        {% include "rhyme/partials/loading.html" %}
     </div>
 {% endblock content %}
 
 {% block modals %}
+    {{ block.super }}
     {% include "rhyme/partials/modal_song_list.html" %}
 {% endblock %}

@@ -56,10 +56,21 @@ class Command(BaseCommand):
         for file in files:
             print(file)
 
-        if not files or input("\nGo ahead and scp (y/n)? ") not in ['y', 'Y']:
+        if not files:
             return []
 
-        return files
+        op = input("\nGo ahead and scp (y/n/(e)dit)? ")
+
+        if op in ['y', 'Y']:
+            return files
+
+        if op in ['e', 'E']:
+            for index, file in enumerate(files):
+                if input(f"Want to SCP {file} (y/n)? ") in ['Y', 'y']:
+                    return files[index:]
+
+        return []
+
 
     def get_repo(self):
         repo = Repo(os.getcwd())
@@ -71,10 +82,6 @@ class Command(BaseCommand):
         subprocess.run(["pip", "install", "-r", "requirements.txt"])
         call_command("migrate")
         subprocess.run(["npm", "install"])
-        subprocess.run(["npx", "babel", "kilo/static/kilo/js/babel-src",
-                        "--out-dir", "kilo/static/kilo/js/babel-prod", "--presets", "react-app/prod"])
-        subprocess.run(["npx", "babel", "rhyme/static/rhyme/js/babel-src",
-                        "--out-dir", "rhyme/static/rhyme/js/babel-prod", "--presets", "react-app/prod"])
         call_command("collectstatic", "--noinput")
         subprocess.run(["touch", "tmp/restart.txt"])
 

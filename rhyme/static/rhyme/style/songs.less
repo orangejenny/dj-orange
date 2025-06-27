@@ -1,17 +1,26 @@
 @import "base.less";
 
+#active-playlist-container {
+    width: 100%;
+}
+
 .song-table {
     tr {
+        th.icon-cell, td.icon-cell {
+            width: @fontSizeDefault + @spacingNarrow * 2;
+        }
+
         td {
             border: none;
+            border-bottom: 1px solid @greyLightest;
             vertical-align: middle;
+
+            ul {
+                margin-bottom: 0;
+            }
 
             a {
                 color: @defaultFontColor;
-            }
-
-            &:not(:first-child) {
-                border-bottom: 1px solid @greyLightest;
             }
 
             &:last-child {
@@ -23,12 +32,16 @@
             }
 
             &.icon-cell {
-                width: @fontSizeDefault + @spacingNarrow * 2;
                 color: @greyLight;
-                border: none;
 
                 .far, .fas {
                     cursor: pointer;
+
+                    &.update-in-progress {
+                        // Both !important as the base definition of .update-in-progress is
+                        background-color: inherit !important;
+                        color: @updateInProgressColor !important;
+                    }
                 }
             }
             &.is-starred {
@@ -37,11 +50,6 @@
                 .fas {
                     &.fa-star {
                         color: @grey;
-                    }
-
-                    &.update-in-progress {
-                        background-color: @white;
-                        color: @updateInProgressColor;
                     }
                 }
             }

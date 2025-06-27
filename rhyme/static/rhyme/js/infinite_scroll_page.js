@@ -10,9 +10,9 @@ $(function() {
 
     // TODO: move to knockout
     $itemPage.scroll(function(e) {
-        var contentHeight = $itemPage.find(".infinite-scroll-container").height(),
+        var contentHeight = _.reduce($(".item-page").children(), function (memo, child) { return memo + $(child).height(); }, 0),
             screenHeight = $itemPage.height();
-        if (contentHeight - (screenHeight + $itemPage.scrollTop() < 100)) {     // 100 pixels from bottom, then scroll
+        if (contentHeight - (screenHeight + $itemPage.scrollTop()) < 100) {     // 100 pixels from bottom, then scroll
             model.nextPage();
         }
     });

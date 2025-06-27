@@ -1,40 +1,30 @@
-{# Song filters #}
-{% include 'rhyme/partials/modal_filter_bool.html' with model='song' name='Starred' icon='star-half-alt' lhs='starred' condensed=condensed disallow_null=True %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Starred' icon='star-half-alt' lhs='starred' %}
 
-<div class="btn-group">
-    {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_select2' condensed=condensed disallow_null=True %}
-    {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' icon='folder' lhs='genre' options=RHYME_GENRES condensed=condensed last=True %}
-</div>
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Rating' icon='star' lhs='rating' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Energy' icon='fire' lhs='energy' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Mood' icon='heart' lhs='mood' %}
 
-<div class="btn-group">
-    {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' condensed=condensed %}
-    {% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='clock' lhs='time' condensed=condensed last=True %}
-</div>
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Tag' icon='tags' lhs='tag' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Tag Year' icon='history' lhs='tag_year' %}
 
-<div class="btn-group">
-    {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Rating' lhs='rating' icon='star' condensed=condensed %}
-    {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Energy' lhs='energy' icon='fire' condensed=condensed %}
-    {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Mood'  lhs='mood' icon='heart' condensed=condensed last=True %}
-</div>
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Artist' icon='microphone' lhs='artist' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Genre' icon='folder' lhs='genre' %}
 
-<div class="btn-group">
-    {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_select2' include_all=True condensed=condensed disallow_null=True %}
-    {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='history' lhs='tag_year' condensed=condensed disallow_null=True %}
-    {% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Year Acquired' icon='shopping-cart' lhs='acquired_year' condensed=condensed disallow_null=True last=True %}
-</div>
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Release Year' icon='calendar' lhs='year' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Song Length' icon='clock' lhs='time' %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_select2' include_all=True condensed=condensed disallow_null=True %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Year Acquired' icon='shopping-cart' lhs='acquired_year' %}
 
-<div class="btn-group" role="group">
-    {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' disallow_null=True %}
-    {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' disallow_null=True last=True %}
-</div>
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Playlist' icon='list' lhs='playlist' %}
+
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Album Name' icon='compact-disc' lhs='name' %}
+{% include "rhyme/partials/modal_filter_base_button.html" with name='Is Mix' icon='blender' lhs='is_mix' %}
 
 <input name="song_filters" type="hidden" data-bind="value: songFilters" />
 <input name="album_filters" type="hidden" data-bind="value: albumFilters" />
 
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" data-bind="click: toggleConjunction, css: {active: useAnd}">AND</button>
-    <button type="button" class="btn btn-default" data-bind="click: toggleConjunction, css: {active: useOr}">OR</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: toggleConjunction, css: {active: useAnd}">AND</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bind="click: toggleConjunction, css: {active: useOr}">OR</button>
 </div>
 <input name="conjunction" type="hidden" data-bind="value: conjunction" />

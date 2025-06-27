@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from rhyme.exceptions import ExportConfigNotFoundException
-from rhyme.models import Album, Artist, Color, Playlist, Song, Tag, Track
+from rhyme.models import Album, Artist, Color, Disc, Playlist, PlaylistSong, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 
@@ -44,6 +44,11 @@ def index(request):
     context = {
         **_rhyme_context(),
         "has_export": True,
+        "model": "song",
+        "playlists": [
+            {"id": p.id, "name": p.name}
+            for p in Playlist.objects.all().order_by("name")
+        ],
     }
     return HttpResponse(template.render(context, request))
 
@@ -73,13 +78,23 @@ def song_list(request):
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
         song_filters = request.GET.get('song_filters')
-        songs_per_page = request.GET.get('songs_per_page', 20)
+        songs_per_page = request.GET.get('songs_per_page', 100)
         songs = Song.list(song_filters=song_filters, album_filters=album_filters, omni_filter=omni_filter)
         count = songs.count()
         paginator = Paginator(songs, songs_per_page)
         more = paginator.num_pages > page
         tracks = [(None, None, song) for song in paginator.get_page(page)]
         disc_names = []
+
+    active_playlist_name = request.GET.get('active_playlist_name') or None
+    active_playlist = None
+    if active_playlist_name:
+        active_playlist = Playlist.objects.filter(name=active_playlist_name).first()
+        if active_playlist is None:
+            active_playlist = Playlist.empty_playlist()
+            active_playlist.name = active_playlist_name
+            active_playlist.save()
+    starred_ids = [s.id for s in active_playlist.songs] if active_playlist else None
 
     context.update({
         'count': count,
@@ -91,8 +106,7 @@ def song_list(request):
             'rating': song.rating or '',
             'energy': song.energy or '',
             'mood': song.mood or '',
-            'starred': song.starred,
-            'year': song.year,
+            'starred': song.id in starred_ids if starred_ids is not None else song.starred,
             'albums': [{'name': album.name, 'id': album.id} for album in song.albums],
             'tags': song.tags(),
             'disc_number': disc_number,
@@ -106,15 +120,10 @@ def song_list(request):
 @require_POST
 @login_required
 def song_update(request):
-    try:
-        post_data = json.loads(request.body.decode("utf-8"))
-        song = Song.objects.get(id=post_data.get("id"))
-        field = post_data.get("field")
-        value = post_data.get("value")
-    except JSONDecodeError:
-        song = Song.objects.get(id=request.POST.get("id"))
-        field = request.POST.get("field")
-        value = request.POST.get("value")
+    song = Song.objects.get(id=request.POST.get("id"))
+    field = request.POST.get("field")
+    value = request.POST.get("value")
+    playlist_name = request.POST.get("playlist_name") or None
 
     if field == 'tags':
         value = re.sub(r'\s+', ' ', value.strip())   # normalize whitespace
@@ -124,6 +133,27 @@ def song_update(request):
             song.tag_set.add(tag)
             if tag_created:
                 tag.save()
+    elif field == 'starred' and playlist_name is not None:
+        playlist = Playlist.objects.filter(name=playlist_name).first()
+        playlist_song = PlaylistSong.objects.filter(playlist_id=playlist.id, song_id=song.id)
+        is_natural = song.id in [s.id for s in playlist.natural_songs]
+
+        if value:
+            if is_natural:
+                if playlist_song:
+                    # delete presumable exclusion
+                    playlist_song.delete()
+            else:
+                # add inclusion
+                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=True).save()
+        else:
+            if is_natural:
+                # add exclusion
+                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=False).save()
+            else:
+                if playlist_song:
+                    # delete presumable inclusion
+                    playlist_song.delete()
     else:
         setattr(song, field, value)
     song.save()
@@ -136,6 +166,7 @@ def albums(request):
     template = loader.get_template('rhyme/albums.html')
     context = {
         **_rhyme_context(),
+        "model": "album",
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))
@@ -159,16 +190,6 @@ def album_list(request):
         'items': albums,
     }
     return JsonResponse(context)
-
-
-@require_GET
-@login_required
-def playlist(request):
-    template = loader.get_template('rhyme/playlist.html')
-    context = {
-        **_rhyme_context(),
-    }
-    return HttpResponse(template.render(context, request))
 
 
 @require_GET
@@ -211,7 +232,7 @@ def album_export(request):
     if album_id:
         album = Album.objects.get(id=album_id)
         album.audit_export()
-        return _playlist_response(request, album.songs)
+        return _playlist_response(request, album.songs, song_filters=f"album_id*={album.id}")
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
@@ -219,68 +240,135 @@ def album_export(request):
         'omni_filter': request.GET.get('omni_filter'),
     }
     songs = []
-    for album in Album.list(**filter_kwargs):
+    albums = Album.list(**filter_kwargs)
+    for album in albums:
         songs += album.songs
         album.audit_export()
-    return _playlist_response(request, songs, **filter_kwargs)
-
-
-@require_GET
-@login_required
-def playlist_export(request):
-    filter_kwargs = {
-        'album_filters': request.GET.get('album_filters'),
-        'song_filters': request.GET.get('song_filters'),
-    }
-    filtered_songs = Song.list(**filter_kwargs)
-
-    # TODO: DRYer with command...or remove command
-    attrs = ["rating", "energy", "mood"]
-    start_values = {}
-    end_values = {}
-    ranges = {}
-    for attr in attrs:
-        start = request.GET.get(attr + "_start")
-        end = request.GET.get(attr + "_end")
-        if start and end:
-            start_values[attr] = int(start)
-            end_values[attr] = int(end)
-            ranges[attr] = end_values[attr] - start_values[attr]
-
-    # TODO: DRYer with command...or remove command
-    total_time = 60 * 60
-    accumulated_time = 0
-    songs = set()
-    stop = False
-    while not stop and accumulated_time < total_time:
-        kwargs = {}
-        for attr in attrs:
-            if attr not in ranges:
-                continue
-
-            ratio = accumulated_time / total_time
-            filter_value = round(start_values[attr] + ratio * ranges[attr])
-            kwargs[attr] = filter_value
-        candidates = filtered_songs.filter(time__isnull=False, **kwargs).order_by('?')
-        candidates = candidates.exclude(id__in=[song.id for song in songs])
-        song = candidates.first()
-        if song:
-            songs.add(song)
-            accumulated_time += song.time
-        else:
-            stop = True
-
-    return _playlist_response(request, songs, **filter_kwargs)    # TODO: name playlist
+    song_filters = "album_id*=" + ",".join([str(a.id) for a in albums])
+    return _playlist_response(request, songs, song_filters=song_filters)
 
 
 @require_GET
 @login_required
 def song_export(request):
+    if request.GET.get('album_id'):
+        return album_export(request)
+
     filter_kwargs = {
+        'album_filters': request.GET.get('album_filters'),
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),
     }
     return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
+
+
+@require_GET
+@login_required
+def csv_songs(request):
+    lines = ["song_id,rating,mood,energy,genre"]
+    lines.extend([
+        f"{s.id},{s.rating or ''},{s.mood or ''},{s.energy or ''},{s.artist.genre or ''}"
+        for s in Song.list()
+    ])
+
+    response = HttpResponse("\n".join(lines))
+    response['Content-Disposition'] = 'attachment; filename="songs.csv"'
+    return response
+
+
+@require_GET
+@login_required
+def csv_tags(request):
+    category_map = {
+        tag.name: tag.category
+        for tag in Tag.objects.all()
+    }
+
+    lines = ["tag,tag_category,song_id,rating,mood,energy"]
+    for s in Song.list():
+        for tag in s.tags():
+            category = category_map[tag]
+            lines.append(f"{tag},{category or ''},{s.id},{s.rating or ''},{s.mood or ''},{s.energy or ''}")
+
+    response = HttpResponse("\n".join(lines))
+    response['Content-Disposition'] = 'attachment; filename="tags.csv"'
+    return response
+
+
+@require_GET
+@login_required
+def json_albums(request):
+    albums = [{k: getattr(a, k) for k in Album.import_fields} for a in Album.objects.all()]
+    for album in albums:
+        album['date_acquired'] = datetime.strftime(album['date_acquired'], "%Y-%m-%d %H:%M:%S %Z")
+    response = HttpResponse(json.dumps(albums, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="albums.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_artists(request):
+    response = HttpResponse(json.dumps([a.to_json() for a in Artist.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="artists.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_colors(request):
+    response = HttpResponse(json.dumps([c.to_json() for c in Color.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="colors.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_discs(request):
+    response = HttpResponse(json.dumps([{
+        "album_id": d.album.id,
+        "name": d.name,
+        "ordinal": d.ordinal,
+    } for d in Disc.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="discs.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_songs(request):
+    songs = [{k: getattr(a, k) for k in Song.import_fields} for a in Song.objects.all()]
+    for song in songs:
+        if song["artist"] is not None:
+            song["artist"] = song["artist"].name
+    response = HttpResponse(json.dumps(songs, indent=4))
+    response['Content-Disposition'] = 'attachment; filename="songs.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_tags(request):
+    response = HttpResponse(json.dumps([{
+        "name": tag.name,
+        "category": tag.category,
+        "song_id": song.id,
+    } for tag in Tag.objects.all() for song in tag.songs.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="tags.json"'
+    return response
+
+
+@require_GET
+@login_required
+def json_tracks(request):
+    response = HttpResponse(json.dumps([{
+        "song_id": track.song.id,
+        "album_id": track.album.id,
+        "ordinal": track.ordinal,
+        "disc_ordinal": track.disc,
+    } for track in Track.objects.all()], indent=4))
+    response['Content-Disposition'] = 'attachment; filename="tracks.json"'
+    return response
 
 
 def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
@@ -296,12 +384,21 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             "count": count,
             "name": playlist_name,
         })
+    elif config_name == "rhyme":
+        Playlist(name=playlist_name,
+                 song_filters=song_filters,
+                 album_filters=album_filters,
+                 omni_filter=omni_filter).save()
+        return JsonResponse({
+            "success": 1,
+            "name": playlist_name,
+        })
     else:
         try:
             config = [c for c in settings.RHYME_EXPORT_CONFIGS if c["name"] == config_name][0]
         except IndexError:
             raise ExportConfigNotFoundException(f"Could not find {config_name}")
-        filenames = [config["prefix"] + (s.plex_filename or s.filename) for s in songs]
+        filenames = [config["prefix"] + s.filename for s in songs]
         response = HttpResponse("\n".join(filenames))
         response['Content-Disposition'] = 'attachment; filename="{}.m3u"'.format(playlist_name)
 

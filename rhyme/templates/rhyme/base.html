@@ -5,7 +5,6 @@
 {% block title %}Rhyme{% endblock title %}
 
 {% block style %}{{ block.super }}
-    <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" href="{% static "select2/dist/css/select2.min.css" %}" />
     <link rel="stylesheet" type="text/less" href="{% static "rhyme/style/rhyme.less" %}" />
 {% endblock style %}
@@ -14,7 +13,6 @@
     <script src="{% static "less/dist/less.min.js" %}"></script>
     <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
     <script src="{% static "underscore/underscore-min.js" %}"></script>
-    <script src="{% static "bootstrap/dist/js/bootstrap.min.js" %}"></script>
     <script src="{% static "knockout/build/output/knockout-latest.js" %}"></script>
     <script src="{% static "select2/dist/js/select2.full.min.js" %}"></script>
     <script src="{% static "rhyme/js/utils.js" %}"></script>
@@ -23,56 +21,67 @@
 {% endblock js %}
 
 {% block body %}
-    <div class="navbar-container">
-        <nav class="navbar navbar-default">
+    {% include "rhyme/partials/loading.html" %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
             <a class='navbar-brand' href='#'>Rhyme</a>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "index" %}'>
+                            <i class="fas fa-music"></i>
+                            Songs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "albums" %}'>
+                            <i class="fas fa-compact-disc"></i>
+                            Albums
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "network" %}'>
+                            <i class="fas fa-globe-asia"></i>
+                            Network
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='{% url "matrix" %}'>
+                            <i class="fas fa-table"></i>
+                            Matrix
+                        </a>
+                    </li>
+                </ul>
+            </div>
             {% if has_export %}
                 <div class="controls">
                     {% block controls %}
-                        {% include "rhyme/partials/export_action.html" with params="{}" %}
+                        {% include "rhyme/partials/export_action.html" with count="count" model=model params="{}" %}
                     {% endblock controls %}
                 </div>
             {% endif %}
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href='{% url "index" %}'>
-                        <i class="fas fa-music"></i>
-                        Songs
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "albums" %}'>
-                        <i class="fas fa-compact-disc"></i>
-                        Albums
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "network" %}'>
-                        <i class="fas fa-globe-asia"></i>
-                        Network
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "matrix" %}'>
-                        <i class="fas fa-table"></i>
-                        Matrix
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "playlist" %}'>
-                        <i class="fas fa-list"></i>
-                        Playlist
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+        </div>
+    </nav>
 
     <div class="post-nav">
-        {% block content %}{% endblock %}
+        <div class="row">
+            <div class="col-sm-2">
+            <div class="post-nav-left">
+                {% block filters %}
+                    <input class="form-control form-control-sm" data-bind="value: omniFilter, valueUpdate: 'keyup'" />
+                    {% include "rhyme/partials/filters.html" %}
+                {% endblock %}
+            </div>
+            </div>
+            <div class="col-sm-10 post-nav-right">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
     </div>
 
-    {% block modals %}{% endblock %}
+    {% block modals %}
+        {% include "rhyme/partials/modal_filters.html" %}
+    {% endblock %}
 
     <div id="rhyme-urls" class="hide">
         {% for name, url in RHYME_URLS.items %}

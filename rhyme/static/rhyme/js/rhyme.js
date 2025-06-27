@@ -2,6 +2,34 @@ function pluralize(count, stem) {
     return +count === 1 ? stem : stem + "s";
 }
 
+function filterTypeModel (options) {
+    AssertArgs(options, ['lhs', 'root']);
+
+    let self = {};
+    self.lhs = options.lhs;
+    self.root = options.root;
+
+    self.relevantFilters = ko.computed(function () {
+        return _.filter(self.root.filters(), function (f) {
+            return f.lhs === self.lhs;
+        });
+    });
+
+    self.filterText = ko.computed(function () {
+        return _.map(self.relevantFilters(), function (f) {
+            return f.readOnly();
+        }).join(", ");
+    });
+
+    self.removeFilters = function () {
+        _.each(self.relevantFilters(), function (f) {
+            self.root.removeFilter(f);
+        });
+    };
+
+    return self;
+}
+
 function filterModel (options) {
     AssertArgs(options, ['model', 'lhs', 'op', 'rhs']);
     var self = _.extend({}, options);
@@ -24,7 +52,7 @@ function filterModel (options) {
             rhs = '"' + rhs + '"';
         }
 
-        return self.lhs + ' ' + op + ' ' + rhs;
+        return op + ' ' + rhs;
     };
 
     return self;
@@ -39,6 +67,43 @@ function AlbumModel(options) {
 function SongModel(options) {
     var self = _.extend({}, options);
     self.albums = _.map(options.albums, AlbumModel);
+
+    self.starred = ko.observable(self.starred);
+    self.updateInProgress = ko.observable(false);
+    self.hasError = ko.observable(false);
+
+    self.starOnClasses = self.activePlaylistName ? 'fa-check-square far' : 'fa-star fas';
+    self.starOffClasses = self.activePlaylistName ? 'fa-square far' : 'fa-star far';
+    self.starClass = ko.computed(function () {
+        return self.starred() ? self.starOnClasses : self.starOffClasses;
+    });
+
+    self.toggleStar = function () {
+        // Update markup
+        self.starred(!self.starred());
+
+        // Update server data
+        self.updateInProgress(true);
+        $.ajax({
+            method: 'POST',
+            url: reverse('song_update'),
+            data: {
+                csrfmiddlewaretoken: $("#csrf-token").find("input").val(),
+                id: self.id,
+                field: 'starred',
+                value: self.starred() ? 1 : 0,
+                playlist_name: this.activePlaylistName,
+            },
+            success: function (data) {
+                self.updateInProgress(false);
+            },
+            error: function () {
+                self.updateInProgress(false);
+                self.hasError(true);
+            },
+        });
+    }
+
     return self;
 }
 
@@ -57,10 +122,19 @@ function rhymeModel (options) {
     self.isLoading = ko.observable(true);
     self.omniFilter = ko.observable('');
 
+    self.activePlaylistName = ko.observable('');
+    self.starOnClasses = ko.computed(function () {
+        return self.activePlaylistName() ? 'fa-check-square far' : 'fa-star fas';
+    });
+    self.starOffClasses = ko.computed(function () {
+        return self.activePlaylistName() ? 'fa-square far' : 'fa-star far';
+    });
+
     self.modalName = ko.observable("");
     self.modalHeaders = ko.observableArray();
     self.modalSongs = ko.observableArray();     // flat list, even for multi-disc albums
     self.songListParams = ko.observable();
+    self.songListCount = ko.observable(0);
 
     self.refresh = function(page) {
         if (!self.url) {
@@ -78,6 +152,7 @@ function rhymeModel (options) {
                 page: page,
                 omni_filter: self.omniFilter(),
                 conjunction: self.conjunction(),
+                active_playlist_name: self.activePlaylistName(),
             }, self.serializeFilters()),
             success: function(data) {
                 if (data.omni_filter !== self.omniFilter()) {
@@ -87,10 +162,19 @@ function rhymeModel (options) {
                 self.isLoading(false);
                 self.count(data.count);
 
+                var wrappedItems = _.map(data.items, function (item) {
+                    if (self.model == 'album') {
+                        return AlbumModel(item);
+                    } else {
+                        return SongModel(_.extend(item, {
+                            activePlaylistName: self.activePlaylistName(),
+                        }));
+                    }
+                });
                 if (page === 1) {
-                    self.items(_.map(data.items, self.model == 'album' ? AlbumModel : SongModel));
+                    self.items(wrappedItems);
                 } else {
-                    self.items(self.items().concat(data.items));
+                    self.items(self.items().concat(wrappedItems));
                 }
                 if (data.more) {
                     self.allowScroll(true);
@@ -109,6 +193,17 @@ function rhymeModel (options) {
         }
     };
 
+    self.filterTypeModels = {};
+    self.getFilterTypeModel = function(lhs) {
+         if (!self.filterTypeModels[lhs]) {
+            self.filterTypeModels[lhs] = new filterTypeModel({
+                lhs: lhs,
+                root: self,
+            });
+        }
+        return self.filterTypeModels[lhs];
+    }
+
     self.addFilter = function (model, lhs, op, rhs) {
         self.filters.push(filterModel({
             model: model,
@@ -122,6 +217,24 @@ function rhymeModel (options) {
     self.omniFilter.subscribe(_.throttle(function (newValue) {
         self.refresh();
     }, {leading: false}));
+
+    let knownPlaylistNames = [];
+    $(document).ready(function () {
+        knownPlaylistNames = $("#active-playlist option:not(:first)").toArray().map((o) => o.innerText);
+    });
+    self.activePlaylistName.subscribe(function (newValue) {
+        _.each(self.filters(), function (f) {
+            if (f.lhs === 'playlist') {
+                self.removeFilter(f);
+            }
+        });
+        if (newValue && knownPlaylistNames.find((p) => p === newValue)) {
+            self.addFilter(self.model, 'playlist', "*=", newValue);
+        } else {
+            knownPlaylistNames.push(newValue);
+            self.refresh();
+        }
+    });
 
     self.getFilterValue = function (e) {
         var $input = $(e.target).closest(".form-group").find("input, select");
@@ -192,30 +305,51 @@ function rhymeModel (options) {
         return self.conjunction() === "||";
     });
 
-    self.exportPlaylist = function (config, additionalParams) {
-        ExportPlaylist(_.extend({
+    self.exportPlaylist = function (config, model, additionalParams) {
+        var params = {
             config: config,
-            model: self.model,
-        }, self.serializeFilters(), additionalParams));
+            model: model,
+        };
+        if (self.modalName()) {
+            params = _.extend(params, {
+                filename: self.modalName(),
+            }, self.songListParams());
+        } else {
+            params = _.extend(params, self.serializeFilters());
+        }
+        params = _.extend(params, additionalParams);
+
+        ExportPlaylist(params);
+    };
+
+    self.resetModal = function () {
+        self.modalName("");
+        self.modalHeaders([]);
+        self.modalSongs([]);
+        self.songListParams({});
+        self.songListCount(0);
     };
 
     self.showModal = function (name, songListParams) {
+        self.resetModal();
         self.modalName(name);
-        self.modalHeaders([]);
-        self.modalSongs([]);
         self.songListParams(songListParams);
 
         var $modal = $("#song-list");
         self.isLoading(true);
-        $modal.modal();
-        songListParams.songs_per_page = 100;    // TODO: paginate modal?
+        const modal = new bootstrap.Modal($modal.get(0));
+        modal.show();
+        songListParams.songs_per_page = 100;
         $.ajax({
             method: 'GET',
             url: reverse('song_list'),
-            data: songListParams,
+            data: _.extend({
+                active_playlist_name: self.activePlaylistName(),
+            }, songListParams),
             success: function (data) {
                 self.isLoading(false);
-                self.modalSongs(data.items);
+                self.modalSongs(_.map(data.items, SongModel));
+                self.songListCount(data.items.length);
                 self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
                     $image = $backdrop.clone();
@@ -230,6 +364,7 @@ function rhymeModel (options) {
 
                 $modal.one("hide.bs.modal", function() {
                     $image.remove();
+                    self.resetModal();
                 });
             },
             error: function () {
@@ -258,6 +393,9 @@ $(function() {
             data = $element.data(),
             options = {
                 width: "100%",
+                placeholder: data.placeholder,
+                allowClear: data.allowClear,
+                tags: data.tags,
             };
         if ($element.hasClass("in-modal")) {
             options.dropdownParent = $element.closest(".modal");

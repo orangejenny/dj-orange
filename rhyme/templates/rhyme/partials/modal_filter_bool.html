@@ -1,10 +1,8 @@
 {% extends 'rhyme/partials/modal_filter_base.html' %}
 
 {% block body %}
-    <div class="form-group">
-        <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=', 1) }" data-dismiss="modal">On</button>
-    </div>
-    <div class="form-group">
-        <button class="btn btn-info btn-block" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=', 0) }" data-dismiss="modal">Off</button>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary flex-fill" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=', 1) }" data-bs-dismiss="modal">On</button>
+        <button class="btn btn-outline-secondary flex-fill" data-bind="click: function () { addFilter('{{ model }}', '{{ lhs }}', '=', 0) }" data-bs-dismiss="modal">Off</button>
     </div>
 {% endblock %}

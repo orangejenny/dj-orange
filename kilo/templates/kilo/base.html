@@ -5,10 +5,6 @@
 {% block title %}Kilo{% endblock title %}
 
 {% block style %}{{ block.super }}
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
-        rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
-        crossorigin="anonymous">
-  </link>
   <link rel="stylesheet" href="{% static "c3/c3.min.css" %}"
         integrity="sha512-cznfNokevSG7QPA5dZepud8taylLdvgr0lDqw/FEZIhluFsSwyvS81CMnRdrNSKwbsmc43LtRd2/WMQV+Z85AQ=="
         crossorigin="anonymous">
@@ -16,15 +12,59 @@
 {% endblock style %}
 
 {% block js %}{{ block.super }}
-  <!-- TODO: reconcile bootstrap across kilo and rhyme -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"></script>
+  <script src="{% static "htmx.org/dist/htmx.min.js" %}"></script>
   <script src="{% static "d3/dist/d3.min.js" %}"></script>
   <script src="{% static "c3/c3.min.js" %}"></script>
-  <script type="module" src="{% static "kilo/js/babel-prod/app.js" %}"></script>
+  <script src="{% static "alpinejs/dist/cdn.min.js" %}"></script>
+  <script src="{% static "kilo/js/utils.js" %}"></script>
 {% endblock js %}
 
 {% block body %}
-  <div class="container-fluid" id="app"></div>
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
+      <a class="navbar-brand" href="#"
+         hx-get="{% url "frequency" %}"
+         hx-trigger="load, click"
+         hx-target="#graph-options"
+         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
+      >Kilo</a>
+      <ul class="navbar-nav flex-grow-1">
+        <li class="nav-item">
+          <a class="nav-link" href="#"
+             hx-get="{% url "recent" %}"
+             hx-target="#panel"
+          >Recent</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"
+             hx-get="{% url "pace" %}"
+             hx-target="#graph-options"
+             hx-on:htmx:after-request="c3.generate(getPaceGraphOptions())"
+          >Speed</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"
+             hx-get="{% url "stats" %}"
+             hx-target="#panel"
+          >Achievement</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"
+             hx-get="{% url "history" %}"
+             hx-target="#panel"
+          >History</a>
+        </li>
+      </ul>
+    </nav>
+    <br />
+    <div id="panel">
+      <div class="loading">
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <div class="spinner-grow text-secondary m-3" role="status"></div>
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <div id="graph-options" style="display: none;"></div>
+  </div>
 {% endblock body %}

@@ -1,11 +1,3 @@
-import { Star } from "./babel-prod/star.js";
-
-ko.bindingHandlers.reactStar = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-        ReactDOM.render(React.createElement(Star, valueAccessor()), element);
-    },
-};
-
 var iconClasses = {
     'rating': 'fa-star',
     'energy': 'fa-fire',
@@ -60,6 +52,7 @@ $(document).ready(function() {
                     $editable.removeClass("update-in-progress");
                 },
                 error: function () {
+                    $editable.removeClass("update-in-progress");
                     $editable.addClass("danger");
                 },
             });

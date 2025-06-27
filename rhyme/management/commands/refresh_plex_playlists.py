@@ -26,12 +26,11 @@ class Command(BaseCommand):
             playlists = Playlist.objects.all()
 
         print(f"Found {playlists.count()} playlists")
-        for playlist in playlists:
+        for index, playlist in enumerate(playlists):
+            print(f"({index} of {len(playlists)}) Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
             self.refresh_playlist(playlist, force=options.get('force', False), quiet=options.get('quiet', False))
 
     def refresh_playlist(self, playlist, force=False, quiet=False):
-        print(f"Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
-
         rhyme_keys = {song.plex_key for song in playlist.songs if song.plex_key}
 
         if not force and len(rhyme_keys) == playlist.plex_count:
@@ -42,6 +41,7 @@ class Command(BaseCommand):
             plex_playlist = self.server.playlist(playlist.name)
         except NotFound:
             print(f"Could not find \"{playlist.name}\" on plex.")
+            print(f"\"{playlist.name}\" has {len(playlist.songs)} songs and these filters: {playlist.all_filters}")
             command = "i" if quiet else None
             while command not in ['d', 'c', 'r', 'i']:
                 command = input(f"Ignore (i), create on plex (c), delete from rhyme (d), or rename in rhyme (r)? ")

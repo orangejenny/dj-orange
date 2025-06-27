@@ -106,7 +106,6 @@ class Command(BaseCommand):
             name=name,
             artist=artist,
             filename=filename,
-            plex_filename=filename,
             time=minutes * 60 + seconds,
             year=album_year or input("Year? "),
         )
