@@ -63,6 +63,7 @@ def copy(request):
             distance=workout.distance,
             seconds=workout.seconds,
         ).save()
+    messages.success(request, f"Copied {to_day.workout_set.count()} workouts from {from_day.day} to {to_day.day}.")
 
     return redirect(reverse('base'))
 
