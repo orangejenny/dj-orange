@@ -1,0 +1,9 @@
+<button type="button" class="btn btn-outline-secondary btn-sm"
+  x-on:click="editingWorkouts = true; workoutCount += 1"
+  hx-post="{% url "add_workout" %}"
+  hx-include="closest tr"
+  hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
+  hx-swap="beforeend"
+>
+  <i class="fa fa-plus"></i> Add Workout
+</button>

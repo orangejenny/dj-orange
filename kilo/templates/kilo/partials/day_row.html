@@ -13,26 +13,11 @@
               {% include "kilo/partials/workout_item.html" %}
             {% endfor %}
           </ul>
-          <button type="button" class="btn btn-outline-secondary btn-sm"
-            x-show="!editingWorkouts && !workoutCount"
-            x-on:click="editingWorkouts = true; workoutCount += 1"
-            hx-post="{% url "add_workout" %}"
-            hx-include="closest tr"
-            hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
-            hx-swap="beforeend"
-          >
-            <i class="fa fa-plus"></i> Add Workout
-          </button>
+          <span x-show="!editingWorkouts && !workoutCount">
+            {% include "kilo/partials/add_workout.html" %}
+          </span>
           <div class="btn-group" role="group" x-show="editingWorkouts">
-              <button type="button" class="btn btn-outline-secondary btn-sm"
-                x-on:click="editingWorkouts = true; workoutCount += 1"
-                hx-post="{% url "add_workout" %}"
-                hx-include="closest tr"
-                hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
-                hx-swap="beforeend"
-              >
-                <i class="fa fa-plus"></i> Add Workout
-              </button>
+              {% include "kilo/partials/add_workout.html" %}
               <button type="button" class="float-end btn btn-outline-danger btn-sm"
                 x-on:click="editingWorkouts = !editingWorkouts">
               <i class="fa fa-times"></i>
