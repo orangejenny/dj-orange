@@ -161,6 +161,7 @@ def _days(request, days):
         "days": [_format_day(d) for d in days],
         "all_activities": Workout.activity_options(),
         "all_distance_units": Workout.DISTANCE_UNITS,
+        "today": datetime.now().date(),
     })
 
 

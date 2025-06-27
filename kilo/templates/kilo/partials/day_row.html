@@ -1,4 +1,4 @@
-      <tr class="row" x-data="{ editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
+      <tr class="row" x-data="{ copyingWorkouts: false, editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ day.id }}" />
         <td class="col-2">
@@ -16,13 +16,32 @@
           <span x-show="!editingWorkouts && !workoutCount">
             {% include "kilo/partials/add_workout.html" %}
           </span>
-          <div class="btn-group" role="group" x-show="editingWorkouts">
-              {% include "kilo/partials/add_workout.html" %}
-              <button type="button" class="float-end btn btn-outline-danger btn-sm"
-                x-on:click="editingWorkouts = !editingWorkouts">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
+          <form method="POST" action="{% url "copy" %}"><!-- wraps entire button group, instead of just copy-related elements, for styling reasons -->
+            {% csrf_token %}
+            <div class="btn-group" role="group" x-show="editingWorkouts">
+                {% include "kilo/partials/add_workout.html" %}
+                <button type="button" class="btn btn-outline-secondary btn-sm"
+                  x-show="!copyingWorkouts && workoutCount"
+                  x-on:click="copyingWorkouts = true;"
+                >
+                  <i class="fa fa-copy"></i> Copy
+                </button>
+                <input type="hidden" name="from" value="{{ day.year }}-{{ day.month }}-{{ day.day.day }}" />
+                <input type="text" name="to"
+                  x-show="copyingWorkouts"
+                  style="width: 150px"
+                  xvalue="{{ today }}"
+                  value="{{ today.year }}-{{ today.month }}-{{ today.day }}"
+                />
+                <button type="submit" class="float-end btn btn-outline-success btn-sm"
+                  x-show="copyingWorkouts">
+                <i class="fa fa-copy"></i>
+                <button type="button" class="float-end btn btn-outline-danger btn-sm"
+                  x-on:click="editingWorkouts = !editingWorkouts">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </form>
         </td>
         <td class="col-6" x-data="{ editingNotes: false }">
           <button type="button" class="btn btn-outline-secondary btn-sm float-end"
