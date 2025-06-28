@@ -57,6 +57,14 @@
       </ul>
     </nav>
     <br />
+    {% if messages %}
+      <ul class="list-unstyled">
+        {% for message in messages %}
+          <li{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      <br />
+    {% endif %}
     <div id="panel">
       <div class="loading">
         <div class="spinner-grow text-secondary m-3" role="status"></div>

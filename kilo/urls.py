@@ -2,6 +2,7 @@ from django.urls import path
 
 from kilo.views import (
     add_workout,
+    copy,
     base,
     delete_workout,
     frequency,
@@ -20,6 +21,7 @@ urlpatterns = [
     path('pace/', pace, name='pace'),
     path('recent/', recent, name='recent'),
     path('stats/', stats, name='stats'),
+    path('copy/', copy, name='copy'),
     path('update/', update, name='update'),
     path('workout/add/', add_workout, name='add_workout'),
     path('workout/delete/', delete_workout, name='delete_workout'),

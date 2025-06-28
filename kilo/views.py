@@ -4,10 +4,12 @@ import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
+from django.urls import reverse
 
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
@@ -38,6 +40,32 @@ def update(request):
         "all_activities": Workout.activity_options(),
         "all_distance_units": Workout.DISTANCE_UNITS,
     })
+
+@require_POST
+@login_required
+def copy(request):
+    to_obj = datetime(*[int(p) for p in request.POST.get('to').split('-')])
+    to_day = Day.objects.filter(day=to_obj).first()
+    if to_day is None:
+        to_day = Day(day=to_obj)
+        to_day.save()
+
+    from_obj = datetime(*[int(p) for p in request.POST.get('from').split('-')])
+    from_day = Day.objects.filter(day=from_obj).first()
+    for workout in from_day.workout_set.all():
+        Workout(
+            day=to_day,
+            activity=workout.activity,
+            distance_unit=workout.distance_unit,
+            weight=workout.weight,
+            sets=workout.sets,
+            reps=workout.reps,
+            distance=workout.distance,
+            seconds=workout.seconds,
+        ).save()
+    messages.success(request, f"Copied {from_day.workout_set.count()} workouts from {from_day.day} to {to_day.day}.")
+
+    return redirect(reverse('base'))
 
 
 @require_POST
@@ -134,6 +162,7 @@ def _days(request, days):
         "days": [_format_day(d) for d in days],
         "all_activities": Workout.activity_options(),
         "all_distance_units": Workout.DISTANCE_UNITS,
+        "today": datetime.now().date(),
     })
 
 

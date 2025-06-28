@@ -76,7 +76,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'orange.wsgi.application'
 
 MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
+    messages.INFO: 'alert-info',
+    messages.DEBUG: '',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
 }
 
 
