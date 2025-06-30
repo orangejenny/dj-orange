@@ -4,10 +4,10 @@
 {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Energy' lhs='energy' icon='fire' %}
 {% include 'rhyme/partials/modal_filter_rating.html' with model='song' name='Mood'  lhs='mood' icon='heart' last=True %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_select2' include_all=True disallow_null=True %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Tag' icon='tags' lhs='tag' url='tag_choices' include_all=True disallow_null=True %}
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Tag Year' icon='history' lhs='tag_year' disallow_null=True %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_select2' disallow_null=True %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_choices' disallow_null=True %}
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' icon='folder' lhs='genre' options=RHYME_GENRES last=True %}
 
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' %}
@@ -15,7 +15,7 @@
 
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Year Acquired' icon='shopping-cart' lhs='acquired_year' disallow_null=True last=True %}
 
-{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_select2' include_all=True disallow_null=True %}
+{% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_choices' include_all=True disallow_null=True %}
 
 {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' disallow_null=True %}
 {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' disallow_null=True last=True %}

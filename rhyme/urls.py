@@ -4,7 +4,7 @@ from rhyme.views import (
     albums,
     album_list,
     album_export,
-    artist_select2,
+    artist_choices,
     csv_songs,
     csv_tags,
     index,
@@ -19,12 +19,12 @@ from rhyme.views import (
     matrix_json,
     network,
     network_json,
-    playlist_select2,
+    playlist_choices,
     plex_in,
     song_list,
     song_update,
     song_export,
-    tag_select2,
+    tag_choices,
 )
 
 urlpatterns = [
@@ -32,7 +32,7 @@ urlpatterns = [
     path('albums/', albums, name='albums'),
     path('albums/list/', album_list, name='album_list'),
     path('albums/export/', album_export, name='album_export'),
-    path('artists/select2/', artist_select2, name='artist_select2'),
+    path('artists/choices/', artist_choices, name='artist_choices'),
     path('csv/song', csv_songs, name='csv_songs'),
     path('csv/tag', csv_tags, name='csv_tags'),
     path('json/albums', json_albums, name='json_albums'),
@@ -42,7 +42,7 @@ urlpatterns = [
     path('json/songs', json_songs, name='json_songs'),
     path('json/tags', json_tags, name='json_tags'),
     path('json/tracks', json_tracks, name='json_tracks'),
-    path('playlist/select2/', playlist_select2, name='playlist_select2'),
+    path('playlist/choices/', playlist_choices, name='playlist_choices'),
     path('plex/in/<slug:api_key>/', plex_in, name='plex_in'),
     path('songs/list/', song_list, name='song_list'),
     path('songs/update/', song_update, name='song_update'),
@@ -51,5 +51,5 @@ urlpatterns = [
     path('stats/matrix/json/', matrix_json, name='matrix_json'),
     path('stats/network/', network, name='network'),
     path('stats/network/json/', network_json, name='network_json'),
-    path('tags/select2/', tag_select2, name='tag_select2'),
+    path('tags/choices/', tag_choices, name='tag_choices'),
 ]
