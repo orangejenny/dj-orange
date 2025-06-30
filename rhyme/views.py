@@ -194,23 +194,23 @@ def album_list(request):
 
 @require_GET
 @login_required
-def artist_select2(request):
-    return _select2_list(request, Artist.objects)
+def artist_choices(request):
+    return _choices_list(request, Artist.objects)
 
 
 @require_GET
 @login_required
-def playlist_select2(request):
-    return _select2_list(request, Playlist.objects)
+def playlist_choices(request):
+    return _choices_list(request, Playlist.objects)
 
 
 @require_GET
 @login_required
-def tag_select2(request):
-    return _select2_list(request, Tag.objects)
+def tag_choices(request):
+    return _choices_list(request, Tag.objects)
 
 
-def _select2_list(request, objects):
+def _choices_list(request, objects):
     query = request.GET.get("term")
     if query:
         objects = objects.filter(name__icontains=query)

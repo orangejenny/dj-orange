@@ -44,3 +44,10 @@ function getTime(seconds) {
   }
   return [minutes, seconds].join(":");
 }
+
+function initDropdowns(event) {
+    const dropdowns = event.detail.elt.querySelectorAll("select");
+    dropdowns.forEach(d => new Choices(d, {
+        itemSelectText: "",
+    }));
+}

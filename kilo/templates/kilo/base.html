@@ -65,7 +65,7 @@
       </ul>
       <br />
     {% endif %}
-    <div id="panel">
+    <div id="panel" hx-on:htmx:after-swap="initDropdowns(event)">
       <div class="loading">
         <div class="spinner-grow text-secondary m-3" role="status"></div>
         <div class="spinner-grow text-secondary m-3" role="status"></div>
