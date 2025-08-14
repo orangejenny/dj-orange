@@ -16,7 +16,10 @@ from django.contrib.messages import constants as messages
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-from orange.localsettings import *
+try:
+    from orange.localsettings import *
+except ModuleNotFoundError:
+    pass
 
 
 # Quick-start development settings - unsuitable for production
