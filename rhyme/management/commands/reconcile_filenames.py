@@ -12,6 +12,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('playlist_file', help="M3U playlist")
         parser.add_argument('--quiet', action='store_true')
+        parser.add_argument('--root', help="Root directory to look for files in")
 
     def input_choice(self, options, message=None, display=None):
         if message:
@@ -65,8 +66,10 @@ class Command(BaseCommand):
         if not song_files:
             return
 
-        root_options = self.subpaths(song_files[0])
-        root_dir = self.input_choice(root_options, "Possible root directories:")
+        root_dir = options.get("root")
+        if not root_dir or not os.path.exists(root_dir):
+            root_options = self.subpaths(song_files[0])
+            root_dir = self.input_choice(root_options, "Possible root directories:")
         if not root_dir:
             print("No root directory identified")
             return
