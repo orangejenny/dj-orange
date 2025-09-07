@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 import os
+import re
 import shutil
 
 
@@ -88,8 +89,22 @@ class Command(BaseCommand):
             tail = os.path.split(path)[1]
             options = []
             for root, dirs, files in os.walk(root_dir):
-                if tail in files:
-                    options.append(os.path.join(root, tail))
+                for original in files:
+                    if not original.endswith(".mp3"):
+                        continue
+
+                    target = original.lower()
+                    tail = tail.lower()
+
+                    target = re.sub("\.mp3$", "", target)
+                    tail = re.sub("\.mp3$", "", tail)
+
+                    if tail not in target:
+                        target = re.sub("^[0-9]*\s*", "", target)
+                    if tail not in target:
+                        target = re.sub("\s*[0-9]*$", "", target)
+                    if tail in target:
+                        options.append(os.path.join(root, original))
             if not options:
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
