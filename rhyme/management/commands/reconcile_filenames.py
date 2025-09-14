@@ -76,7 +76,7 @@ class Command(BaseCommand):
             return
 
         existing_count = 0
-        moved = []
+        copied = []
         skipped = []
         failures = []
         for i, path in enumerate(song_files):
@@ -122,13 +122,13 @@ class Command(BaseCommand):
                     continue
             source_path = os.path.join(root_dir, source_path)
             dest_path = os.path.join(root_dir, path)
-            if quiet or input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
-                moved.append(path)
-                shutil.move(source_path, dest_path)
+            if quiet or input(f"Copy\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
+                copied.append(path)
+                shutil.copy(source_path, dest_path)
 
         print("=====================================")
         print(f"Examined {len(song_files)} songs")
         print(f"{existing_count} already existed")
-        self.print_list(moved, "moved")
+        self.print_list(copied, "copied")
         self.print_list(skipped, "skipped")
         self.print_list(failures, "not found")
