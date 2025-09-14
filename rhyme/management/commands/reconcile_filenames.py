@@ -4,6 +4,8 @@ import os
 import re
 import shutil
 
+from Levenshtein import distance
+
 
 class Command(BaseCommand):
     @property
@@ -109,6 +111,9 @@ class Command(BaseCommand):
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
                 continue
+
+            options = sorted(options, key=lambda option: distance(path, option))
+            options = options[:10]
             source_path = self.input_choice(options, display=lambda x: x.replace(root_dir, "")[1:])
             if not source_path:
                 skipped.append(path)
