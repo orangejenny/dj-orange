@@ -88,7 +88,7 @@ class Command(BaseCommand):
                 existing_count += 1
                 continue
 
-            tail = os.path.split(path)[1]
+            tail = os.path.split(path)[1].lower()
             options = []
             for root, dirs, files in os.walk(root_dir):
                 for original in files:
@@ -96,7 +96,6 @@ class Command(BaseCommand):
                         continue
 
                     target = original.lower()
-                    tail = tail.lower()
 
                     target = re.sub("\.mp3$", "", target)
                     tail = re.sub("\.mp3$", "", tail)
@@ -107,6 +106,11 @@ class Command(BaseCommand):
                         target = re.sub("\s*[0-9]*$", "", target)
                     if tail in target:
                         options.append(os.path.join(root, original))
+                    else:
+                        tail_letters = re.sub("[^a-z]+", "", tail)
+                        target_letters = re.sub("[^a-z]+", "", target)
+                        if tail_letters in target_letters:
+                            options.append(os.path.join(root, original))
             if not options:
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
