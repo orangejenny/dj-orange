@@ -1,3 +1,5 @@
+import re
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -87,7 +89,7 @@ class Command(BaseCommand):
         while not time:
             try:
                 time = input(f"Track {track_index} length? ")
-                minutes, seconds = time.split(":")
+                minutes, seconds = re.split(r"\D+", time)
                 minutes = int(minutes)
                 seconds = int(seconds)
             except ValueError:
