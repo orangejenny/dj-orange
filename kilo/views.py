@@ -83,7 +83,13 @@ def add_workout(request):
         day.save()
 
     workout = Workout(day=day)
-    workout.activity = "running"
+    if day.workout_set.count():
+        last_workout = day.workout_set.last()
+        workout.activity = last_workout.activity
+        workout.distance = last_workout.distance
+        workout.distance_unit = last_workout.distance_unit
+    else:
+        workout.activity = "running"
     workout.save()
 
     return render(request, "kilo/partials/workout_item.html", {
