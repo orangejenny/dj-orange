@@ -6,7 +6,7 @@ import shutil
 
 from Levenshtein import distance
 
-from rhyme.plex import add_plex_ids, missing_songs, plex_library
+from rhyme.plex import add_plex_ids, missing_songs, plex_library, plex_options
 
 
 class Command(BaseCommand):
@@ -88,8 +88,15 @@ class Command(BaseCommand):
                 if not artists:
                     print("No artists found")
                     continue
-                plex_artist_key = self.input_choice(artists).key
-            add_plex_ids(library, [song], plex_key=plex_artist_key, song_in=True)
+                artist = self.input_choice(artists)
+                plex_artist_key = artist.key if artist else None
+            options = plex_options(library, song, plex_artist_key)
+            if options:
+                track = self.input_choice(options)
+                if track:
+                    song.plex_guid = track.guid
+                    song.plex_key = track.key
+                    song.save()
 
         songs = missing_songs()
         print("Finished. Remaining missing songs: {len(songs)}")
