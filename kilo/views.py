@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -160,6 +161,24 @@ def recent(request):
 def history(request):
     days = Day.get_recent_days(90)
     return _days(request, days)
+
+
+@require_GET
+@login_required
+def erging(request):
+    days = Day.get_recent_days(365 * 20)
+    days = days.filter(workout__activity="erging")
+    return _days(request, days)
+
+
+@require_GET
+@login_required
+def long_runs(request):
+    days = Day.get_recent_days(365 * 20)
+    days = days.filter(workout__activity="running")
+    days = days.filter(Q(workout__distance_unit="mi", workout__distance__gt=5) | Q(workout__distance_unit="mi", workout__distance__gt=9))
+    return _days(request, days)
+
 
 
 def _days(request, days):
