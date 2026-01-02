@@ -1,9 +1,13 @@
+import re
+
 from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.playlist import Playlist as PlexPlaylist
 from rhyme.models import Playlist
 
 from django.conf import settings
+
+from Levenshtein import distance
 
 def plex_server():
     account = MyPlexAccount(settings.PLEX_USERNAME, settings.PLEX_PASSWORD)
@@ -30,28 +34,14 @@ def missing_songs_by_album(name):
    from rhyme.models import Album
    return [t.song for t in Album.objects.filter(name__icontains=name).first().tracks if not t.song.plex_key]
 
-# For songs that don't match because rhyme artist is incorrect
-def fix_by_artist_name(library, rhyme_artist, plex_artist):
-    songs = missing_songs(artist__name=rhyme_artist)
-    plex_key = library.get(plex_artist).key
-    add_plex_ids(library, songs, plex_key=plex_key)
-
 # Update plex key and guid for a set of songs missing it
 # Use plex_key to search by that album/artist instead of the rhyme song's artist
-# Use song_in to match songs where the rhyme title is a substring of the plex title
-def add_plex_ids(library, songs, plex_key=None, song_in=False):
+def add_plex_ids(library, songs):
     updated = 0
     songs = list(songs)
     for song in songs:
         try:
-            ancestor = library.fetchItem(plex_key) if plex_key else library.get(song.artist.name)
-            if song_in:
-                results = [t for t in ancestor.tracks() if song.name in t.title]
-                if len(results) != 1:
-                    continue
-                result = results[0]
-            else:
-                result = ancestor.get(song.name)
+            result = library.get(song.artist.name).get(song.name)
             song.plex_guid = result.guid
             song.plex_key = result.key
             song.save()
@@ -59,6 +49,20 @@ def add_plex_ids(library, songs, plex_key=None, song_in=False):
         except Exception as e:
             print("Could not find {} - {}: {}".format(song.artist.name, song.name, str(e)))
     print("Updated {} of {} songs".format(updated, len(songs)))
+
+def plex_options(library, song, plex_key=None):
+    ancestor = library.fetchItem(plex_key) if plex_key else library.get(song.artist.name)
+    needle = song.name
+    options = [t for t in ancestor.tracks() if needle in t.title]
+    if not len(options):
+        needle = song.name.lower()
+        options = [t for t in ancestor.tracks() if needle in t.title.lower()]
+        if not len(options):
+            needle = re.sub("[^a-z]+", "", needle)
+            options = [t for t in ancestor.tracks() if needle in re.sub("[^a-z]+", "", t.title)]
+    options = sorted(options, key=lambda option: distance(song.name, option))
+    options = options[:5]
+    return results
 
 # Add the given plex key (add associated guid) to the given artist's song,
 # which should be the only missing song by that artist
