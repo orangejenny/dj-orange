@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -160,6 +161,30 @@ def recent(request):
 def history(request):
     days = Day.get_recent_days(90)
     return _days(request, days)
+
+
+@require_GET
+@login_required
+def erging(request):
+    days = Day.objects.filter(workout__activity="erging")
+    return _days(request, days)
+
+
+@require_GET
+@login_required
+def lifting(request):
+    days = Day.objects.filter(workout__weight__isnull=False)
+    days = Day.get_recent_days(365)
+    return _days(request, days)
+
+
+@require_GET
+@login_required
+def long_runs(request):
+    days = Day.objects.filter(workout__activity="running")
+    days = days.filter(Q(workout__distance_unit="mi", workout__distance__gt=5) | Q(workout__distance_unit="mi", workout__distance__gt=9))
+    return _days(request, days)
+
 
 
 def _days(request, days):
@@ -329,7 +354,8 @@ def pace(request):
             return False
         if wset.first().activity != activity:
             return False
-        return distance_test(wset.first().km)
+        first = wset.first()
+        return distance_test(first.km) if first.km else False
 
     series_map = {
         "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
