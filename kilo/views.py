@@ -329,7 +329,8 @@ def pace(request):
             return False
         if wset.first().activity != activity:
             return False
-        return distance_test(wset.first().km)
+        first = wset.first()
+        return distance_test(first.km) if first.km else False
 
     series_map = {
         "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
