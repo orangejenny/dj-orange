@@ -62,7 +62,7 @@ def plex_options(library, song, plex_key=None):
             options = [t for t in ancestor.tracks() if needle in re.sub("[^a-z]+", "", t.title)]
     options = sorted(options, key=lambda option: distance(song.name, option))
     options = options[:5]
-    return results
+    return options
 
 # Add the given plex key (add associated guid) to the given artist's song,
 # which should be the only missing song by that artist
