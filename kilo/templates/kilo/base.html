@@ -26,6 +26,7 @@
          hx-get="{% url "frequency" %}"
          hx-trigger="load, click"
          hx-target="#graph-options"
+         hx-indicator="#loading"
          hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
       >Kilo</a>
       <ul class="navbar-nav flex-grow-1">
@@ -33,12 +34,14 @@
           <a class="nav-link" href="#"
              hx-get="{% url "recent" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >Recent</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "pace" %}"
              hx-target="#graph-options"
+             hx-indicator="#loading"
              hx-on:htmx:after-request="c3.generate(getPaceGraphOptions())"
           >Speed</a>
         </li>
@@ -46,30 +49,35 @@
           <a class="nav-link" href="#"
              hx-get="{% url "stats" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >Achievement</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "history" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >History</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "erging" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >Erging</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "lifting" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >Lifting</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#"
              hx-get="{% url "long_runs" %}"
              hx-target="#panel"
+             hx-indicator="#loading"
           >Long Runs</a>
         </li>
       </ul>
@@ -83,13 +91,13 @@
       </ul>
       <br />
     {% endif %}
+    <div id="loading" class="text-center htmx-indicator">
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <span class="visually-hidden">Loading...</span>
+    </div>
     <div id="panel" hx-on:htmx:after-swap="initDropdowns(event)">
-      <div class="loading">
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <span class="visually-hidden">Loading...</span>
-      </div>
     </div>
     <div id="graph-options" style="display: none;"></div>
   </div>
