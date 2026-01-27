@@ -13,21 +13,18 @@
               {% include "kilo/partials/workout_item.html" %}
             {% endfor %}
           </ul>
-          <span x-show="!editingWorkouts && !workoutCount">
-            {% include "kilo/partials/add_workout.html" %}
-          </span>
-          <form method="POST" action="{% url "copy" %}"><!-- wraps entire button group, instead of just copy-related elements, for styling reasons -->
+          <form method="POST" action="{% url "copy" %}" x-show="!editingWorkouts && !workoutCount">
             {% csrf_token %}
-            <div class="btn-group" role="group" x-show="editingWorkouts">
+            <div class="btn-group" role="group">
                 {% include "kilo/partials/add_workout.html" %}
                 <button type="button" class="btn btn-outline-secondary btn-sm"
-                  x-show="!copyingWorkouts && workoutCount"
+                  x-show="!copyingWorkouts"
                   x-on:click="copyingWorkouts = true;"
                 >
                   <i class="fa fa-copy"></i> Copy
                 </button>
-                <input type="hidden" name="from" value="{{ day.year }}-{{ day.month }}-{{ day.day.day }}" />
-                <input type="text" name="to"
+                <input type="hidden" name="to" value="{{ day.year }}-{{ day.month }}-{{ day.day.day }}" />
+                <input type="text" name="from"
                   x-show="copyingWorkouts"
                   style="width: 150px"
                   xvalue="{{ today }}"
@@ -42,6 +39,9 @@
               </button>
             </div>
           </form>
+          <div class="btn-group" role="group" x-show="editingWorkouts">
+              {% include "kilo/partials/add_workout.html" %}
+          </div>
         </td>
         <td class="col-6" x-data="{ editingNotes: false }">
           <button type="button" class="btn btn-outline-secondary btn-sm float-end"
