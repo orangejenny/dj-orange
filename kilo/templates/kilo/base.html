@@ -37,17 +37,10 @@
         <ul class="navbar-nav flex-grow-1">
           <li class="nav-item">
             <a class="nav-link" href="#"
-               hx-get="{% url "pace" %}"
-               hx-target="#graph-options"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="c3.generate(getPaceGraphOptions())"
-            >Speed</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"
                hx-get="{% url "stats" %}"
                hx-target="#panel"
                hx-indicator="#loading"
+               hx-on:htmx:after-request="clearChart()"
             >Achievement</a>
           </li>
           <li class="nav-item">
@@ -55,6 +48,7 @@
                hx-get="{% url "history" %}"
                hx-target="#panel"
                hx-indicator="#loading"
+               hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
             >History</a>
           </li>
           <li class="nav-item">
@@ -62,6 +56,7 @@
                hx-get="{% url "erging" %}"
                hx-target="#panel"
                hx-indicator="#loading"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}')"
             >Erging</a>
           </li>
           <li class="nav-item">
@@ -69,6 +64,7 @@
                hx-get="{% url "lifting" %}"
                hx-target="#panel"
                hx-indicator="#loading"
+               hx-on:htmx:after-request="clearChart()"
             >Lifting</a>
           </li>
           <li class="nav-item">
@@ -76,6 +72,7 @@
                hx-get="{% url "long_runs" %}"
                hx-target="#panel"
                hx-indicator="#loading"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}')"
             >Long Runs</a>
           </li>
         </ul>
@@ -96,6 +93,7 @@
       <div class="spinner-grow text-secondary m-3" role="status"></div>
       <span class="visually-hidden">Loading...</span>
     </div>
+    <div id="chart"></div>
     <div id="panel" hx-on:htmx:after-swap="initDropdowns(event)">
     </div>
     <div id="recent"

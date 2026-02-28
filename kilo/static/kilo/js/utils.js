@@ -45,6 +45,19 @@ function getTime(seconds) {
   return [minutes, seconds].join(":");
 }
 
+function loadPaceChart(url) {
+    fetch(url)
+        .then(response => response.json())
+        .then(options => {
+            document.getElementById('chart').innerHTML = '';
+            c3.generate(options);
+        });
+}
+
+function clearChart() {
+    document.getElementById('chart').innerHTML = '';
+}
+
 function initDropdowns(event) {
     const dropdowns = event.detail.elt.querySelectorAll("select");
     dropdowns.forEach(d => new Choices(d, {

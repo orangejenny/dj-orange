@@ -421,7 +421,7 @@ def pace(request):
 
 def _get_graph_options(data):
     return {
-        "bindto": "#panel",
+        "bindto": "#chart",
         "data": data,
         "axis": {
             "x": {
