@@ -166,25 +166,25 @@ def history(request):
 @require_GET
 @login_required
 def erging(request):
-    days = Day.objects.filter(workout__activity="erging")
-    days = Day.get_recent_days(180)
+    today = datetime.now().date()
+    days = Day.objects.filter(workout__activity="erging", day__gte=today - timedelta(days=180))
     return _days(request, days)
 
 
 @require_GET
 @login_required
 def lifting(request):
-    days = Day.objects.filter(workout__weight__isnull=False)
-    days = Day.get_recent_days(180)
+    today = datetime.now().date()
+    days = Day.objects.filter(workout__weight__isnull=False, day__gte=today - timedelta(days=180))
     return _days(request, days)
 
 
 @require_GET
 @login_required
 def long_runs(request):
-    days = Day.objects.filter(workout__activity="running")
+    today = datetime.now().date()
+    days = Day.objects.filter(workout__activity="running", day__gte=today - timedelta(days=365 * 3))
     days = days.filter(Q(workout__distance_unit="mi", workout__distance__gt=5) | Q(workout__distance_unit="mi", workout__distance__gt=9))
-    days = Day.get_recent_days(365 * 3)
     return _days(request, days)
 
 
