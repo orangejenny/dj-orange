@@ -37,13 +37,6 @@
         <ul class="navbar-nav flex-grow-1">
           <li class="nav-item">
             <a class="nav-link" href="#"
-               hx-get="{% url "recent" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-            >Recent</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"
                hx-get="{% url "pace" %}"
                hx-target="#graph-options"
                hx-indicator="#loading"
@@ -104,6 +97,12 @@
       <span class="visually-hidden">Loading...</span>
     </div>
     <div id="panel" hx-on:htmx:after-swap="initDropdowns(event)">
+    </div>
+    <div id="recent"
+         hx-get="{% url "recent" %}"
+         hx-trigger="load"
+         hx-indicator="#loading"
+         hx-on:htmx:after-swap="initDropdowns(event)">
     </div>
     <div id="graph-options" style="display: none;"></div>
   </div>
