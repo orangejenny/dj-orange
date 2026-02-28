@@ -56,7 +56,7 @@
                hx-get="{% url "erging" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}')"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging')"
             >Erging</a>
           </li>
           <li class="nav-item">
@@ -72,7 +72,7 @@
                hx-get="{% url "long_runs" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}')"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running')"
             >Long Runs</a>
           </li>
         </ul>

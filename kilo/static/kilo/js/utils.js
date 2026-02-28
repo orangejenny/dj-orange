@@ -2,16 +2,6 @@ function getFrequencyGraphOptions() {
     return getGraphOptions();
 }
 
-function getPaceGraphOptions() {
-    let options = getGraphOptions();
-    if (options?.axis?.y?.tick) {
-        options.axis.y.tick.format = getTime;
-    }
-    if (options?.axis?.y2?.tick) {
-        options.axis.y2.tick.format = getTime;
-    }
-    return options;
-}
 
 function getGraphOptions() {
     return JSON.parse(document.getElementById('graph-options').innerHTML);
@@ -49,6 +39,9 @@ function loadPaceChart(url) {
     fetch(url)
         .then(response => response.json())
         .then(options => {
+            if (options?.axis?.y?.tick) {
+                options.axis.y.tick.format = getTime;
+            }
             document.getElementById('chart').innerHTML = '';
             c3.generate(options);
         });

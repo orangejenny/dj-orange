@@ -344,6 +344,9 @@ def frequency(request):
 @require_GET
 @login_required
 def pace(request):
+    activity_filter = request.GET.get('activity')
+    if activity_filter not in ('running', 'erging'):
+        return HttpResponse(f"Invalid activity '{activity_filter}', expected 'running' or 'erging'", status=400)
     days = Day.get_recent_days(365)
 
     def interval_filter(wset, activity, distance_test):
@@ -360,28 +363,27 @@ def pace(request):
         return distance_test(first.km) if first.km else False
 
     series_map = {
-        "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
-        "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
-        "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
-        "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
-        "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
-        "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
+        "erging": {
+            "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
+            "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
+            "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
+            "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
+        },
+        "running": {
+            "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
+            "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
+        },
     }
+
+    active_series = series_map[activity_filter]
+
     data = {}
-    data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
-    data["axes"] = {
-        "y_short_run": "y",
-        "y_long_run": "y",
-        "y_500m": "y2",
-        "y_1000m": "y2",
-        "y_2k": "y2",
-        "y_6k": "y2",
-    }
-    columns = {f"y_{k}": [] for k in series_map.keys()}
-    columns.update({f"x_{k}": [] for k in series_map.keys()})
+    data["xs"] = {f"y_{k}": f"x_{k}" for k in active_series.keys()}
+    columns = {f"y_{k}": [] for k in active_series.keys()}
+    columns.update({f"x_{k}": [] for k in active_series.keys()})
     for day in days:
         series_key = None
-        for key, test in series_map.items():
+        for key, test in active_series.items():
             if test(day.workout_set):
                 series_key = key
         if series_key:
@@ -401,21 +403,20 @@ def pace(request):
             "grouped": False,
         },
     })
-    options["axis"]["y"]["min"] = 0 * 60
-    options["axis"]["y"]["max"] = 11 * 60
-    options["axis"]["y"]["tick"] = {
-        "outer": False,
-        "values": [x * 60 for x in [7, 8, 9, 10]],
-    }
-    options["axis"]["y2"] = {
-        "show": True,
-        "min": 1.75 * 60,
-        "max": 2.5 * 60,
-        "tick": {
+    if activity_filter == "erging":
+        options["axis"]["y"]["min"] = 1.75 * 60
+        options["axis"]["y"]["max"] = 2.5 * 60
+        options["axis"]["y"]["tick"] = {
             "outer": False,
             "values": [105, 110, 115, 120, 125, 130, 135],
-        },
-    }
+        }
+    elif activity_filter == "running":
+        options["axis"]["y"]["min"] = 0 * 60
+        options["axis"]["y"]["max"] = 11 * 60
+        options["axis"]["y"]["tick"] = {
+            "outer": False,
+            "values": [x * 60 for x in [7, 8, 9, 10]],
+        }
     return JsonResponse(options)
 
 
