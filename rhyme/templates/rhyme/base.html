@@ -68,15 +68,21 @@
 
     <div class="post-nav">
         <div class="row">
-            <div class="col-sm-2">
+            <div class="col-12 col-md-2">
             <div class="post-nav-left">
                 {% block filters %}
                     <input class="form-control form-control-sm" data-bind="value: omniFilter, valueUpdate: 'keyup'" />
-                    {% include "rhyme/partials/filters.html" %}
+                    <button class="btn btn-outline-secondary btn-sm d-md-none mt-1" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#filters-collapse">
+                        <i class="fas fa-filter"></i> Filters
+                    </button>
+                    <div class="collapse d-md-block" id="filters-collapse">
+                        {% include "rhyme/partials/filters.html" %}
+                    </div>
                 {% endblock %}
             </div>
             </div>
-            <div class="col-sm-10 post-nav-right">
+            <div class="col-12 col-md-10 post-nav-right">
                 {% block content %}{% endblock %}
             </div>
         </div>
