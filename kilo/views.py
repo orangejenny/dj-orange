@@ -290,6 +290,17 @@ def stats(request):
             "secondary": workout.secondary_stat(),
         })
 
+    last_year = datetime.now().date() - timedelta(days=365)
+    lifting_workouts = Workout.objects.filter(weight__isnull=False, day__day__gte=last_year)
+    lifting_stats = []
+    for activity in lifting_workouts.order_by('activity').values_list('activity', flat=True).distinct():
+        workout = lifting_workouts.filter(activity=activity).order_by('-weight').first()
+        lifting_stats.append({
+            'name': activity,
+            'primary': f"{round(workout.weight, 1)} lb",
+            'secondary': workout.day.day,
+        })
+
     return render(request, "kilo/partials/stats.html", {
         "stats": [{
             "title": "Erging",
@@ -297,6 +308,9 @@ def stats(request):
         }, {
             "title": "Running",
             "stats": running_stats,
+        }, {
+            "title": "Lifting",
+            "stats": lifting_stats,
         }],
     })
 
