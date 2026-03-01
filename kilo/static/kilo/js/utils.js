@@ -51,6 +51,14 @@ function clearChart() {
     document.getElementById('chart').innerHTML = '';
 }
 
+function hideRecent() {
+    document.getElementById('recent').style.display = 'none';
+}
+
+function showRecent() {
+    document.getElementById('recent').style.display = '';
+}
+
 function initDropdowns(event) {
     const dropdowns = event.detail.elt.querySelectorAll("select");
     dropdowns.forEach(d => new Choices(d, {

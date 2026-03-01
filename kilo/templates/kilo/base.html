@@ -27,7 +27,7 @@
          hx-trigger="load, click"
          hx-target="#graph-options"
          hx-indicator="#loading"
-         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
+         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); showRecent()"
       >Kilo</a>
       <button class="navbar-toggler" type="button"
               data-bs-toggle="collapse" data-bs-target="#kilo-nav">
@@ -40,15 +40,15 @@
                hx-get="{% url "stats" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart()"
-            >Achievement</a>
+               hx-on:htmx:after-request="clearChart(); hideRecent()"
+            >PRs</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#"
                hx-get="{% url "history" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
+               hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
             >History</a>
           </li>
           <li class="nav-item">
@@ -56,7 +56,7 @@
                hx-get="{% url "erging" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging')"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging'); hideRecent()"
             >Erging</a>
           </li>
           <li class="nav-item">
@@ -64,7 +64,7 @@
                hx-get="{% url "lifting" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart()"
+               hx-on:htmx:after-request="clearChart(); hideRecent()"
             >Lifting</a>
           </li>
           <li class="nav-item">
@@ -72,7 +72,7 @@
                hx-get="{% url "long_runs" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running')"
+               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
             >Long Runs</a>
           </li>
         </ul>
