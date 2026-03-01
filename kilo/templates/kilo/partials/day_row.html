@@ -1,13 +1,13 @@
       <tr class="row" x-data="{ copyingWorkouts: false, editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ day.id }}" />
-        <td class="col-2">
+        <td class="col-12 col-md-2">
           {{ day.day_of_week}}, {{ day.month_name }} {{ day.day_of_month }}, {{ day.year }}
           <input type="hidden" name="year" value="{{ day.year }}" />
           <input type="hidden" name="month" value="{{ day.month }}" />
           <input type="hidden" name="day_of_month" value="{{ day.day_of_month }}" />
         </td>
-        <td class="col-4">
+        <td class="col-12 col-md-4">
           <ul class="list-unstyled" id="workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}" x-show="workoutCount">
             {% for workout in day.workouts %}
               {% include "kilo/partials/workout_item.html" %}
@@ -43,7 +43,7 @@
               {% include "kilo/partials/add_workout.html" %}
           </div>
         </td>
-        <td class="col-6" x-data="{ editingNotes: false }">
+        <td class="col-12 col-md-6" x-data="{ editingNotes: false }">
           <button type="button" class="btn btn-outline-secondary btn-sm float-end"
             x-show="!editingNotes"
             x-on:click="editingNotes = true"
