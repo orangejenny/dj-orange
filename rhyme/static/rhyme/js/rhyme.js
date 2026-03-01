@@ -348,7 +348,9 @@ function rhymeModel (options) {
             }, songListParams),
             success: function (data) {
                 self.isLoading(false);
-                self.modalSongs(_.map(data.items, SongModel));
+                self.modalSongs(_.map(data.items, function(item) {
+                    return SongModel(_.extend(item, {activePlaylistName: self.activePlaylistName()}));
+                }));
                 self.songListCount(data.items.length);
                 self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
