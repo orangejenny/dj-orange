@@ -242,14 +242,14 @@ def stats(request):
     workout = best_erg(last_year_days, km=2)
     if workout:
         erging_stats.append({
-            "name": "Past Year's Best 2k",
+            "name": "Best 2k",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
     workout = best_erg(last_year_days, km=6)
     if workout:
         erging_stats.append({
-            "name": "Past Year's Best 6k",
+            "name": "Best 6k",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
@@ -278,14 +278,14 @@ def stats(request):
     workout = best_run(last_year_days, upper_mi=boundary)
     if workout:
         running_stats.append({
-            "name": "Past Year's Best Short Run",
+            "name": "Best Short Run",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
     workout = best_run(last_year_days, lower_mi=boundary)
     if workout:
         running_stats.append({
-            "name": "Past Year's Best Long Run",
+            "name": "Best Long Run",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
