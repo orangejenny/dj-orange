@@ -65,10 +65,17 @@ body > .loading {
         top: @navHeight + @spacingWide;
         bottom: @spacingWide;
         overflow-y: auto;
-        width: 16%;    // col-sm-2
+        width: 16%;    // col-md-2
 
         > * {
             margin-bottom: 5px;
+        }
+
+        @media (max-width: 767px) {
+            position: static;
+            width: auto;
+            bottom: auto;
+            overflow-y: visible;
         }
     }
 
@@ -78,6 +85,13 @@ body > .loading {
             top: @navHeight + @spacingWide;
             bottom: @spacingWide;
             overflow-y: auto;
+
+            @media (max-width: 767px) {
+                position: static;
+                top: auto;
+                bottom: auto;
+                overflow-y: visible;
+            }
         }
     }
 }

@@ -136,24 +136,11 @@ def song_update(request):
     elif field == 'starred' and playlist_name is not None:
         playlist = Playlist.objects.filter(name=playlist_name).first()
         playlist_song = PlaylistSong.objects.filter(playlist_id=playlist.id, song_id=song.id)
-        is_natural = song.id in [s.id for s in playlist.natural_songs]
 
-        if value:
-            if is_natural:
-                if playlist_song:
-                    # delete presumable exclusion
-                    playlist_song.delete()
-            else:
-                # add inclusion
-                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=True).save()
+        if playlist_song:
+            playlist_song.delete()
         else:
-            if is_natural:
-                # add exclusion
-                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=False).save()
-            else:
-                if playlist_song:
-                    # delete presumable inclusion
-                    playlist_song.delete()
+            PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=value).save()
     else:
         setattr(song, field, value)
     song.save()
