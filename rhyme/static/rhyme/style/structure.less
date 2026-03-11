@@ -61,36 +61,32 @@ body > .loading {
     margin: @spacingWide;
 
     .post-nav-left {
-        position: fixed;
-        top: @navHeight + @spacingWide;
-        bottom: @spacingWide;
-        overflow-y: auto;
-        width: 16%;    // col-md-2
-
         > * {
             margin-bottom: 5px;
         }
 
-        @media (max-width: 767px) {
-            position: static;
-            width: auto;
-            bottom: auto;
-            overflow-y: visible;
+        @media (max-width: 991px) {
+            .filter-type {
+                display: inline-block;
+            }
         }
-    }
 
-    .post-nav-right {
-        .item-page {
+        @media (min-width: 992px) {
             position: fixed;
             top: @navHeight + @spacingWide;
             bottom: @spacingWide;
             overflow-y: auto;
+            width: 16%;    // col-md-2
+        }
+    }
 
-            @media (max-width: 767px) {
-                position: static;
-                top: auto;
-                bottom: auto;
-                overflow-y: visible;
+    .post-nav-right {
+        @media (min-width: 992px) {
+            .item-page {
+                position: fixed;
+                top: @navHeight + @spacingWide;
+                bottom: @spacingWide;
+                overflow-y: auto;
             }
         }
     }
