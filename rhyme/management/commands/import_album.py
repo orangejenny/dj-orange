@@ -68,6 +68,7 @@ class Command(BaseCommand):
         discs = []
         songs = []
         tracks = []
+        metadata_index = 0
         self.new_artists = []
         for disc_index in range(1, disc_count + 1):
             if has_disc_names:
@@ -86,14 +87,16 @@ class Command(BaseCommand):
                     song = self._build_song(
                         name,
                         track_index,
+                        metadata=self.track_metadata[metadata_index] if self.track_metadata else None,
                         artist=artist,
                         album_name=album.name if not is_mix else None,
-                        album_year=album_year
+                        album_year=album_year,
                     )
                 else:
                     song = self._find_song(track_index, name, artist)
 
                 songs.append(song)
+                metadata_index = metadata_index + 1
 
                 tracks.append(Track(
                     ordinal=track_index,
@@ -147,16 +150,35 @@ class Command(BaseCommand):
                 return song
             print(f"No song found with id {idx}.")
 
-    def _build_song(self, name, track_index, artist=None, album_name=None, album_year=None):
-        song_artist = artist or input(f"Track {track_index} artist? ")
+    def _prompt(self, label, default=None):
+        suffix = f" [{default}]" if default is not None else ""
+        value = input(f"{label}{suffix}? ").strip()
+        return value if value else default
+
+    def _build_song(self, name, track_index, metadata=None, artist=None, album_name=None, album_year=None):
+        metadata = metadata or {}
+        meta_name = metadata.get("title")
+        meta_artist = metadata.get("artist")
+        meta_year = metadata.get("year")
+        meta_duration = metadata.get("duration")
+        if meta_duration:
+            meta_time = f"{meta_duration // 60}:{meta_duration % 60:02d}"
+        else:
+            meta_time = None
+
+        name = self._prompt(f"Track {track_index} name", meta_name or name)
+        song_artist = self._prompt(f"Track {track_index} artist", meta_artist or artist)
+        year = self._prompt(f"Track {track_index} year", meta_year or album_year)
+
         time = None
         while not time:
             try:
-                time = input(f"Track {track_index} length? ")
-                minutes, seconds = re.split(r"\D+", time)
+                raw = self._prompt(f"Track {track_index} length", meta_time)
+                minutes, seconds = re.split(r"\D+", raw)
                 minutes = int(minutes)
                 seconds = int(seconds)
-            except ValueError:
+                time = raw
+            except (ValueError, TypeError):
                 time = None
 
         artist = Artist.objects.filter(name=song_artist).first()
@@ -165,7 +187,7 @@ class Command(BaseCommand):
             artist.save()
             self.new_artists.append(artist)
 
-        album_name = album_name or input("Album name? ")
+        album_name = album_name or self._prompt("Album name")
         filename = "/".join([x for x in [artist.name, album_name, name] if x]) + ".mp3"
 
         song = Song(
@@ -173,7 +195,7 @@ class Command(BaseCommand):
             artist=artist,
             filename=filename,
             time=minutes * 60 + seconds,
-            year=album_year or input("Year? "),
+            year=year or self._prompt("Year"),
         )
         song.save()
         return song
