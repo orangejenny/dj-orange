@@ -1,5 +1,6 @@
 import os
 import re
+from collections import Counter
 
 from mutagen import File as MutagenFile
 
@@ -50,8 +51,11 @@ class Command(BaseCommand):
         playlist_path = options.get("playlist")
         self.track_metadata = self._parse_playlist(playlist_path) if playlist_path else []
 
-        album_name = input("Album name? ")
-        album_year = input("Album year? ")
+        meta_album = self._most_common(m.get("album") for m in self.track_metadata)
+        meta_year = self._most_common(m.get("year") for m in self.track_metadata)
+
+        album_name = self._prompt("Album name", meta_album)
+        album_year = self._prompt("Album year", meta_year)
         album_artist = input("Artist (blank for multiple)? ")
         disc_count = int(input("Number of discs? "))
         multidisc = disc_count > 1
@@ -79,7 +83,7 @@ class Command(BaseCommand):
                 ))
 
             disc_suffix = f" on disc {disc_index}" if multidisc else ""
-            track_count = int(input(f"Number of tracks{disc_suffix}? "))
+            track_count = int(self._prompt(f"Number of tracks{disc_suffix}", len(self.track_metadata)))
             for track_index in range(1, track_count + 1):
                 name = input(f"Track {track_index} name? ")
                 artist = input(f"Track {track_index} artist? ") or album_artist
@@ -149,6 +153,10 @@ class Command(BaseCommand):
             if song:
                 return song
             print(f"No song found with id {idx}.")
+
+    def _most_common(self, values):
+        filtered = [v for v in values if v]
+        return Counter(filtered).most_common(1)[0][0] if filtered else None
 
     def _prompt(self, label, default=None):
         suffix = f" [{default}]" if default is not None else ""
