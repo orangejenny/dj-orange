@@ -43,17 +43,18 @@ class Command(BaseCommand):
             disc_suffix = f" on disc {disc_index}" if multidisc else ""
             track_count = int(input(f"Number of tracks{disc_suffix}? "))
             for track_index in range(1, track_count + 1):
-                song_id = input(f"Track {track_index} name or id? ")
-                try:
-                    song = Song.objects.get(id=int(song_id))
-                except ValueError:
+                name = input(f"Track {track_index} name? ")
+                artist = input(f"Track {track_index} artist? ") or album_artist
+                if input(f"Track {track_index} new song (y/n)? ").lower() == "y":
                     song = self._build_song(
-                        song_id,
+                        name,
                         track_index,
-                        artist=album_artist,
+                        artist=artist,
                         album_name=album.name if not is_mix else None,
                         album_year=album_year
                     )
+                else:
+                    song = self._find_song(track_index, name, artist)
 
                 songs.append(song)
 
@@ -82,6 +83,32 @@ class Command(BaseCommand):
                 artist.delete()
             for song in songs:
                 song.delete()
+
+    def _find_song(self, track_index, name, artist):
+        qs = Song.objects.all()
+        if name:
+            qs = qs.filter(name__icontains=name)
+        if artist:
+            qs = qs.filter(artist__name__icontains=artist)
+        matches = list(qs.select_related("artist")[:20])
+
+        if matches:
+            print("Matches:")
+            for i, song in enumerate(matches, 1):
+                print(f"  {i}. [{song.id}] {song.name} by {song.artist.name} ({song.year})")
+
+        while True:
+            choice = input("Enter result number, or song id: ").strip()
+            try:
+                idx = int(choice)
+            except ValueError:
+                continue
+            if 1 <= idx <= len(matches):
+                return matches[idx - 1]
+            song = Song.objects.filter(id=idx).first()
+            if song:
+                return song
+            print(f"No song found with id {idx}.")
 
     def _build_song(self, name, track_index, artist=None, album_name=None, album_year=None):
         song_artist = artist or input(f"Track {track_index} artist? ")
