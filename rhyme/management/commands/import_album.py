@@ -57,7 +57,7 @@ class Command(BaseCommand):
         album_name = self._prompt("Album name", meta_album)
         album_year = self._prompt("Album year", meta_year)
         album_artist = input("Artist (blank for multiple)? ")
-        disc_count = int(input("Number of discs? "))
+        disc_count = int(self._prompt("Number of discs", 1))
         multidisc = disc_count > 1
         has_disc_names = multidisc and input("Are discs named (y/n)? ").lower() == "y"
         is_mix = input("Is this a mix (y/n)? ").lower() == "y"
