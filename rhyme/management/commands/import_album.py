@@ -85,14 +85,11 @@ class Command(BaseCommand):
             disc_suffix = f" on disc {disc_index}" if multidisc else ""
             track_count = int(self._prompt(f"Number of tracks{disc_suffix}", len(self.track_metadata)))
             for track_index in range(1, track_count + 1):
-                name = input(f"Track {track_index} name? ")
-                artist = input(f"Track {track_index} artist? ") or album_artist
-                if input(f"Track {track_index} new song (y/n)? ").lower() == "y":
+                if self._prompt(f"Track {track_index} new song (y/n)", "y").lower() == "y":
                     song = self._build_song(
-                        name,
                         track_index,
                         metadata=self.track_metadata[metadata_index] if self.track_metadata else None,
-                        artist=artist,
+                        artist=album_artist,
                         album_name=album.name if not is_mix else None,
                         album_year=album_year,
                     )
@@ -163,7 +160,7 @@ class Command(BaseCommand):
         value = input(f"{label}{suffix}? ").strip()
         return value if value else default
 
-    def _build_song(self, name, track_index, metadata=None, artist=None, album_name=None, album_year=None):
+    def _build_song(self, track_index, metadata=None, artist=None, album_name=None, album_year=None):
         metadata = metadata or {}
         meta_name = metadata.get("title")
         meta_artist = metadata.get("artist")
@@ -174,7 +171,7 @@ class Command(BaseCommand):
         else:
             meta_time = None
 
-        name = self._prompt(f"Track {track_index} name", meta_name or name)
+        name = self._prompt(f"Track {track_index} name", meta_name)
         song_artist = self._prompt(f"Track {track_index} artist", meta_artist or artist)
         year = self._prompt(f"Track {track_index} year", meta_year or album_year)
 
