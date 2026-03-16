@@ -1,8 +1,7 @@
+import json
 import os
 import re
 from collections import Counter
-
-from mutagen import File as MutagenFile
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -17,39 +16,15 @@ class Command(BaseCommand):
         return "Import a new album based on command-line input"
 
     def add_arguments(self, parser):
-        parser.add_argument("--playlist", type=str, help="Path to an M3U file")
-
-    def _parse_playlist(self, path):
-        path = os.path.expanduser(path)
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
-            lines = f.readlines()
-        file_paths = [line.strip() for line in lines if line.strip() and not line.startswith("#")]
-
-        track_metadata = []
-        for file_path in file_paths:
-            audio = MutagenFile(file_path, easy=True)
-            if not audio:
-                track_metadata.append({})
-                continue
-
-            def first(key):
-                val = audio.get(key)
-                return val[0] if val else None
-
-            duration = int(round(audio.info.length)) if hasattr(audio, "info") and hasattr(audio.info, "length") else None
-            track_metadata.append({
-                "title": first("title"),
-                "artist": first("artist"),
-                "album": first("album"),
-                "year": first("date"),
-                "duration": duration,
-            })
-
-        return track_metadata
+        parser.add_argument("--meta", type=str, help="Path to a JSON file produced by parse_mp3_meta")
 
     def handle(self, *args, **options):
-        playlist_path = options.get("playlist")
-        self.track_metadata = self._parse_playlist(playlist_path) if playlist_path else []
+        meta = options.get("meta")
+        if meta:
+            with open(os.path.expanduser(meta), "r", encoding="utf-8") as f:
+                self.track_metadata = json.load(f)
+        else:
+            self.track_metadata = []
 
         meta_album = self._most_common(m.get("album") for m in self.track_metadata)
         meta_year = self._most_common(m.get("year") for m in self.track_metadata)
