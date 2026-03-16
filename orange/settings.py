@@ -16,7 +16,11 @@ from django.contrib.messages import constants as messages
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-from orange.localsettings import *
+# Don't fail on import during tests
+try:
+    from orange.localsettings import *
+except ImportError:
+    pass
 
 
 # Quick-start development settings - unsuitable for production
@@ -155,3 +159,14 @@ try:
 except ImportError:
     # No local settings found, skipping
     pass
+
+if not globals().get('SECRET_KEY'):
+    SECRET_KEY = 'ci-secret-key'
+
+if not globals().get('DATABASES'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
