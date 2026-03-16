@@ -60,16 +60,21 @@ class Command(BaseCommand):
             disc_suffix = f" on disc {disc_index}" if multidisc else ""
             track_count = int(self._prompt(f"Number of tracks{disc_suffix}", len(self.track_metadata)))
             for track_index in range(1, track_count + 1):
-                if self._prompt(f"Track {track_index} new song (y/n)", "y").lower() == "y":
+                print(f"Track {track_index}")
+                metadata = self.track_metadata[metadata_index] if self.track_metadata else {}
+                name = self._prompt(f"Track {track_index} name", metadata.get("title"))
+                song_artist = self._prompt(f"Track {track_index} artist", metadata.get("artist") or album_artist)
+                if self._prompt(f"New song (y/n)", "y").lower() == "y":
                     song = self._build_song(
                         track_index,
-                        metadata=self.track_metadata[metadata_index] if self.track_metadata else None,
-                        artist=album_artist,
+                        metadata=metadata,
+                        name=name,
+                        artist=song_artist,
                         album_name=album.name if not is_mix else None,
                         album_year=album_year,
                     )
                 else:
-                    song = self._find_song(track_index, name, artist)
+                    song = self._find_song(name, song_artist)
 
                 songs.append(song)
                 metadata_index = metadata_index + 1
@@ -100,7 +105,7 @@ class Command(BaseCommand):
             for song in songs:
                 song.delete()
 
-    def _find_song(self, track_index, name, artist):
+    def _find_song(self, name, artist):
         qs = Song.objects.all()
         if name:
             qs = qs.filter(name__icontains=name)
@@ -135,10 +140,8 @@ class Command(BaseCommand):
         value = input(f"{label}{suffix}? ").strip()
         return value if value else default
 
-    def _build_song(self, track_index, metadata=None, artist=None, album_name=None, album_year=None):
+    def _build_song(self, track_index, metadata=None, name=None, artist=None, album_name=None, album_year=None):
         metadata = metadata or {}
-        meta_name = metadata.get("title")
-        meta_artist = metadata.get("artist")
         meta_year = metadata.get("year")
         meta_duration = metadata.get("duration")
         if meta_duration:
@@ -146,8 +149,6 @@ class Command(BaseCommand):
         else:
             meta_time = None
 
-        name = self._prompt(f"Track {track_index} name", meta_name)
-        song_artist = self._prompt(f"Track {track_index} artist", meta_artist or artist)
         year = self._prompt(f"Track {track_index} year", meta_year or album_year)
 
         time = None
@@ -161,18 +162,18 @@ class Command(BaseCommand):
             except (ValueError, TypeError):
                 time = None
 
-        artist = Artist.objects.filter(name=song_artist).first()
-        if not artist:
-            artist = Artist(name=song_artist)
-            artist.save()
-            self.new_artists.append(artist)
+        artist_obj = Artist.objects.filter(name=artist).first()
+        if not artist_obj:
+            artist_obj = Artist(name=artist)
+            artist_obj.save()
+            self.new_artists.append(artist_obj)
 
         album_name = album_name or self._prompt("Album name")
-        filename = "/".join([x for x in [artist.name, album_name, name] if x]) + ".mp3"
+        filename = "/".join([x for x in [artist_obj.name, album_name, name] if x]) + ".mp3"
 
         song = Song(
             name=name,
-            artist=artist,
+            artist=artist_obj,
             filename=filename,
             time=minutes * 60 + seconds,
             year=year or self._prompt("Year"),
