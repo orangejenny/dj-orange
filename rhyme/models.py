@@ -452,15 +452,11 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
     @cached_property
     def cover_art_filename(self):
-        # TODO: standardize handling of static files
-        root = os.path.dirname(os.path.abspath(__file__))
-        relative = os.path.join("rhyme", "img", "collections", str(self.id))
-        directory = os.path.join(root, "static", relative)
+        directory = os.path.join(settings.MEDIA_ROOT, "rhyme", "collections", str(self.id))
         if os.path.isdir(directory):
             files = os.listdir(directory)
-            if len(files):
-                # TODO: this is crufty, store one file per album instead of a directory
-                return os.path.join(settings.STATIC_URL, relative, files[0])
+            if files:
+                return os.path.join(settings.MEDIA_URL, "rhyme", "collections", str(self.id), files[0])
         return None
 
     @cached_property

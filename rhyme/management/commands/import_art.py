@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 except (IndexError, ValueError):
                     pass
 
-        album_dir = "rhyme/static/rhyme/img/collections/{album.id}"
+        album_dir = f"media/rhyme/collections/{album.id}"
         print(f"mkdir {album_dir}")
 
         extension = filename.split(".")[-1]
