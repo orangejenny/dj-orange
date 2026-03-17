@@ -424,6 +424,15 @@ def matrix(request):
     }, request))
 
 
+def playlists(request):
+    template = loader.get_template('rhyme/playlists.html')
+    context = {
+        **_rhyme_context(),
+        "playlists": Playlist.objects.order_by("name"),
+    }
+    return HttpResponse(template.render(context, request))
+
+
 def network(request):
     template = loader.get_template('rhyme/network.html')
     return HttpResponse(template.render({
