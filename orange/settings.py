@@ -130,6 +130,9 @@ STATICFILES_DIRS = [
     'node_modules',
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 RHYME_EXPORT_CONFIGS = [
     {
         "name": "home",
