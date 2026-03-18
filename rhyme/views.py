@@ -364,20 +364,23 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
 
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
-    if config_name == "plex":
+
+    Playlist(name=playlist_name,
+             song_filters=song_filters,
+             album_filters=album_filters,
+             omni_filter=omni_filter).save()
+
+    if config_name == "rhyme":
+        # Nothing else to do
+        return JsonResponse({
+            "success": 1,
+            "name": playlist_name,
+        })
+    elif config_name == "plex":
         count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
         return JsonResponse({
             "success": 1,
             "count": count,
-            "name": playlist_name,
-        })
-    elif config_name == "rhyme":
-        Playlist(name=playlist_name,
-                 song_filters=song_filters,
-                 album_filters=album_filters,
-                 omni_filter=omni_filter).save()
-        return JsonResponse({
-            "success": 1,
             "name": playlist_name,
         })
     else:
