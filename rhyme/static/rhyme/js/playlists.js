@@ -37,6 +37,20 @@ function exportCheckedPlaylists(config) {
     });
 }
 
+document.querySelectorAll('.playlist-export-cell').forEach(function(cell) {
+    cell.addEventListener('click', function() {
+        var row = this.closest('tr');
+        ExportPlaylist({
+            config: this.dataset.config,
+            model: 'song',
+            song_filters: row.dataset.songFilters,
+            album_filters: row.dataset.albumFilters,
+            omni_filter: row.dataset.omniFilter,
+            filename: row.dataset.name,
+        });
+    });
+});
+
 document.getElementById('playlist-filter').addEventListener('keyup', function() {
     var query = this.value.toLowerCase();
     document.querySelectorAll('tbody tr[data-id]').forEach(function(row) {

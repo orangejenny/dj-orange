@@ -41,16 +41,28 @@
                 <th>Name</th>
                 <th>Filters</th>
                 <th>Songs</th>
+                {% for config in RHYME_EXPORT_CONFIGS %}
+                    <th class="text-center"><i class="fas {{ config.icon }}"></i></th>
+                {% endfor %}
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% for playlist in playlists %}
-                <tr data-id="{{ playlist.id }}" data-name="{{ playlist.name }}">
+                <tr data-id="{{ playlist.id }}"
+                    data-name="{{ playlist.name }}"
+                    data-song-filters="{{ playlist.song_filters|default:'' }}"
+                    data-album-filters="{{ playlist.album_filters|default:'' }}"
+                    data-omni-filter="{{ playlist.omni_filter|default:'' }}">
                     <td class="text-center playlist-checkbox-cell" style="cursor: pointer"><input type="checkbox" class="playlist-checkbox" /></td>
                     <td>{{ playlist.name }}</td>
                     <td>{{ playlist.all_filters }}</td>
                     <td>{{ playlist.songs|length }}</td>
+                    {% for config in RHYME_EXPORT_CONFIGS %}
+                        <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
+                            <i class="fas {{ config.icon }}"></i>
+                        </td>
+                    {% endfor %}
                     <td>
                         <a class="delete-playlist img-link" href="#"
                            data-id="{{ playlist.id }}"
@@ -62,7 +74,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="5">No playlists found.</td>
+                    <td colspan="{{ RHYME_EXPORT_CONFIGS|length|add:5 }}">No playlists found.</td>
                 </tr>
             {% endfor %}
         </tbody>
