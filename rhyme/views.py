@@ -248,6 +248,17 @@ def song_export(request):
     if request.GET.get('album_id'):
         return album_export(request)
 
+    if request.GET.get('playlist_ids'):
+        playlist_ids = [int(pid) for pid in request.GET['playlist_ids'].split(',')]
+        seen_ids = set()
+        songs = []
+        for playlist in Playlist.objects.filter(id__in=playlist_ids).order_by('name'):
+            for song in playlist.songs:
+                if song.id not in seen_ids:
+                    songs.append(song)
+                    seen_ids.add(song.id)
+        return _playlist_response(request, songs)
+
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
         'song_filters': request.GET.get('song_filters'),
@@ -439,6 +450,7 @@ def playlists(request):
     context = {
         **_rhyme_context(),
         "playlists": Playlist.objects.order_by("name"),
+        "has_export": True,
     }
     return HttpResponse(template.render(context, request))
 

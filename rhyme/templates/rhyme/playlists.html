@@ -6,10 +6,36 @@
 
 {% block filters %}{% endblock %}
 
+{% block controls %}
+<div class="dropdown export-dropdown">
+    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <span class="fas fa-cloud-download-alt"></span>
+        Export <span id="export-count">0</span> playlists
+    </button>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="#" onclick="exportCheckedPlaylists('rhyme'); return false;">
+                <i class="far fa-hdd"></i>
+                Rhyme
+            </a>
+        </li>
+        {% for config in RHYME_EXPORT_CONFIGS %}
+            <li>
+                <a class="dropdown-item" href="#" onclick="exportCheckedPlaylists('{{ config.name }}'); return false;">
+                    <i class="fas {{ config.icon }}"></i>
+                    {{ config.name|title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock controls %}
+
 {% block content %}
     <table class="table">
         <thead>
             <tr>
+                <th class="text-center"></th>
                 <th>Name</th>
                 <th>Filters</th>
                 <th>Songs</th>
@@ -18,7 +44,8 @@
         </thead>
         <tbody>
             {% for playlist in playlists %}
-                <tr>
+                <tr data-id="{{ playlist.id }}" data-name="{{ playlist.name }}">
+                    <td class="text-center playlist-checkbox-cell" style="cursor: pointer"><input type="checkbox" class="playlist-checkbox" /></td>
                     <td>{{ playlist.name }}</td>
                     <td>{{ playlist.all_filters }}</td>
                     <td>{{ playlist.songs|length }}</td>
@@ -33,7 +60,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="4">No playlists found.</td>
+                    <td colspan="5">No playlists found.</td>
                 </tr>
             {% endfor %}
         </tbody>
