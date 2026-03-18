@@ -74,6 +74,12 @@ def song_list(request):
         context.update({
             'cover_art_filename': album.cover_art_filename,
         })
+    elif request.GET.get("playlist_id"):
+        playlist = Playlist.objects.get(id=request.GET.get("playlist_id"))
+        tracks = [(None, None, song) for song in playlist.songs]
+        count = len(tracks)
+        more = False
+        disc_names = []
     else:
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
@@ -191,6 +197,13 @@ def playlist_choices(request):
     return _choices_list(request, Playlist.objects)
 
 
+@require_POST
+@login_required
+def playlist_delete(request, playlist_id):
+    Playlist.objects.filter(id=playlist_id).delete()
+    return JsonResponse({"success": 1})
+
+
 @require_GET
 @login_required
 def tag_choices(request):
@@ -240,6 +253,17 @@ def album_export(request):
 def song_export(request):
     if request.GET.get('album_id'):
         return album_export(request)
+
+    if request.GET.get('playlist_ids'):
+        playlist_ids = [int(pid) for pid in request.GET['playlist_ids'].split(',')]
+        seen_ids = set()
+        songs = []
+        for playlist in Playlist.objects.filter(id__in=playlist_ids).order_by('name'):
+            for song in playlist.songs:
+                if song.id not in seen_ids:
+                    songs.append(song)
+                    seen_ids.add(song.id)
+        return _playlist_response(request, songs)
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
@@ -364,20 +388,23 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
 
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
-    if config_name == "plex":
+
+    Playlist(name=playlist_name,
+             song_filters=song_filters,
+             album_filters=album_filters,
+             omni_filter=omni_filter).save()
+
+    if config_name == "rhyme":
+        # Nothing else to do
+        return JsonResponse({
+            "success": 1,
+            "name": playlist_name,
+        })
+    elif config_name == "plex":
         count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
         return JsonResponse({
             "success": 1,
             "count": count,
-            "name": playlist_name,
-        })
-    elif config_name == "rhyme":
-        Playlist(name=playlist_name,
-                 song_filters=song_filters,
-                 album_filters=album_filters,
-                 omni_filter=omni_filter).save()
-        return JsonResponse({
-            "success": 1,
             "name": playlist_name,
         })
     else:
@@ -422,6 +449,16 @@ def matrix(request):
         "title": "Matrix",
         "has_export": True,
     }, request))
+
+
+def playlists(request):
+    template = loader.get_template('rhyme/playlists.html')
+    context = {
+        **_rhyme_context(),
+        "playlists": Playlist.objects.order_by("name"),
+        "has_export": True,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def network(request):

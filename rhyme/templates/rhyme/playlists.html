@@ -1,0 +1,99 @@
+{% extends 'rhyme/base.html' %}
+
+{% load static %}
+
+{% block style %}{{ block.super }}
+<style>
+    td.playlist-name:hover, td.playlist-filters:hover { background-color: #eee; }
+</style>
+{% endblock %}
+
+{% block loading %}{% endblock %}
+
+{% block filters %}
+    <input class="form-control form-control-sm" id="playlist-filter" placeholder="Filter" />
+{% endblock %}
+
+{% block controls %}
+<div class="dropdown export-dropdown">
+    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <span class="fas fa-cloud-download-alt"></span>
+        Export <span id="export-count">0</span> playlists
+    </button>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="#" onclick="exportCheckedPlaylists('rhyme'); return false;">
+                <i class="far fa-hdd"></i>
+                Rhyme
+            </a>
+        </li>
+        {% for config in RHYME_EXPORT_CONFIGS %}
+            <li>
+                <a class="dropdown-item" href="#" onclick="exportCheckedPlaylists('{{ config.name }}'); return false;">
+                    <i class="fas {{ config.icon }}"></i>
+                    {{ config.name|title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock controls %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="text-center"></th>
+                <th>Name</th>
+                <th>Filters</th>
+                <th>Songs</th>
+                {% for config in RHYME_EXPORT_CONFIGS %}
+                    <th class="text-center"><i class="fas {{ config.icon }}"></i></th>
+                {% endfor %}
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for playlist in playlists %}
+                <tr data-id="{{ playlist.id }}"
+                    data-name="{{ playlist.name }}"
+                    data-song-filters="{{ playlist.song_filters|default:'' }}"
+                    data-album-filters="{{ playlist.album_filters|default:'' }}"
+                    data-omni-filter="{{ playlist.omni_filter|default:'' }}">
+                    <td class="text-center playlist-checkbox-cell" style="cursor: pointer"><input type="checkbox" class="playlist-checkbox" /></td>
+                    <td class="playlist-name" style="cursor: pointer"
+                        data-id="{{ playlist.id }}">{{ playlist.name }}</td>
+                    <td class="playlist-filters" style="cursor: pointer"
+                        data-id="{{ playlist.id }}">{{ playlist.all_filters }}</td>
+                    <td>{{ playlist.songs|length }}</td>
+                    {% for config in RHYME_EXPORT_CONFIGS %}
+                        <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
+                            <i class="fas {{ config.icon }}"></i>
+                        </td>
+                    {% endfor %}
+                    <td>
+                        <a class="delete-playlist img-link" href="#"
+                           data-id="{{ playlist.id }}"
+                           data-name="{{ playlist.name }}"
+                           data-url="{% url 'playlist_delete' playlist.id %}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="{{ RHYME_EXPORT_CONFIGS|length|add:5 }}">No playlists found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+{% include "rhyme/partials/modal_song_list.html" %}
+{% endblock modals %}
+
+{% block js %}{{ block.super }}
+    <script src="{% static "rhyme/js/playlists.js" %}"></script>
+{% endblock %}
