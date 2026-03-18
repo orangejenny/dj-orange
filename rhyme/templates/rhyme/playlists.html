@@ -1,5 +1,7 @@
 {% extends 'rhyme/base.html' %}
 
+{% load static %}
+
 {% block loading %}{% endblock %}
 
 {% block filters %}{% endblock %}
@@ -11,6 +13,7 @@
                 <th>Name</th>
                 <th>Filters</th>
                 <th>Songs</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -19,12 +22,24 @@
                     <td>{{ playlist.name }}</td>
                     <td>{{ playlist.all_filters }}</td>
                     <td>{{ playlist.songs|length }}</td>
+                    <td>
+                        <a class="delete-playlist img-link" href="#"
+                           data-id="{{ playlist.id }}"
+                           data-name="{{ playlist.name }}"
+                           data-url="{% url 'playlist_delete' playlist.id %}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="2">No playlists found.</td>
+                    <td colspan="4">No playlists found.</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+{% endblock %}
+
+{% block js %}{{ block.super }}
+    <script src="{% static "rhyme/js/playlists.js" %}"></script>
 {% endblock %}

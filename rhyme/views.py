@@ -191,6 +191,13 @@ def playlist_choices(request):
     return _choices_list(request, Playlist.objects)
 
 
+@require_POST
+@login_required
+def playlist_delete(request, playlist_id):
+    Playlist.objects.filter(id=playlist_id).delete()
+    return JsonResponse({"success": 1})
+
+
 @require_GET
 @login_required
 def tag_choices(request):
