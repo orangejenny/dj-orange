@@ -37,6 +37,15 @@ function exportCheckedPlaylists(config) {
     });
 }
 
+document.getElementById('playlist-filter').addEventListener('keyup', function() {
+    var query = this.value.toLowerCase();
+    document.querySelectorAll('tbody tr[data-id]').forEach(function(row) {
+        var name = row.dataset.name.toLowerCase();
+        var filters = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        row.style.display = (name.includes(query) || filters.includes(query)) ? '' : 'none';
+    });
+});
+
 document.querySelectorAll('.delete-playlist').forEach(function(el) {
     el.addEventListener('click', function(e) {
         e.preventDefault();
