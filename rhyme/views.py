@@ -74,6 +74,12 @@ def song_list(request):
         context.update({
             'cover_art_filename': album.cover_art_filename,
         })
+    elif request.GET.get("playlist_id"):
+        playlist = Playlist.objects.get(id=request.GET.get("playlist_id"))
+        tracks = [(None, None, song) for song in playlist.songs]
+        count = len(tracks)
+        more = False
+        disc_names = []
     else:
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')

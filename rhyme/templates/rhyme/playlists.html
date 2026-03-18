@@ -2,6 +2,12 @@
 
 {% load static %}
 
+{% block style %}{{ block.super }}
+<style>
+    td.playlist-name:hover, td.playlist-filters:hover { background-color: #eee; }
+</style>
+{% endblock %}
+
 {% block loading %}{% endblock %}
 
 {% block filters %}
@@ -55,8 +61,10 @@
                     data-album-filters="{{ playlist.album_filters|default:'' }}"
                     data-omni-filter="{{ playlist.omni_filter|default:'' }}">
                     <td class="text-center playlist-checkbox-cell" style="cursor: pointer"><input type="checkbox" class="playlist-checkbox" /></td>
-                    <td>{{ playlist.name }}</td>
-                    <td>{{ playlist.all_filters }}</td>
+                    <td class="playlist-name" style="cursor: pointer"
+                        data-id="{{ playlist.id }}">{{ playlist.name }}</td>
+                    <td class="playlist-filters" style="cursor: pointer"
+                        data-id="{{ playlist.id }}">{{ playlist.all_filters }}</td>
                     <td>{{ playlist.songs|length }}</td>
                     {% for config in RHYME_EXPORT_CONFIGS %}
                         <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
@@ -80,6 +88,11 @@
         </tbody>
     </table>
 {% endblock %}
+
+{% block modals %}
+{{ block.super }}
+{% include "rhyme/partials/modal_song_list.html" %}
+{% endblock modals %}
 
 {% block js %}{{ block.super }}
     <script src="{% static "rhyme/js/playlists.js" %}"></script>

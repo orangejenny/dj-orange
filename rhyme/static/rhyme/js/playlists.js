@@ -37,6 +37,16 @@ function exportCheckedPlaylists(config) {
     });
 }
 
+var playlistPageModel = rhymeModel({model: 'song', init: false});
+ko.applyBindings(playlistPageModel, document.getElementById('song-list'));
+
+document.querySelectorAll('.playlist-name, .playlist-filters').forEach(function(cell) {
+    cell.addEventListener('click', function() {
+        var row = this.closest('tr');
+        playlistPageModel.showModal(row.dataset.name, {playlist_id: row.dataset.id});
+    });
+});
+
 document.querySelectorAll('.playlist-export-cell').forEach(function(cell) {
     cell.addEventListener('click', function() {
         var row = this.closest('tr');
