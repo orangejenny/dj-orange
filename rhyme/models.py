@@ -9,6 +9,14 @@ from django.db import models
 from django.utils.functional import cached_property
 
 
+class AuditModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class FilterMixin():
     bool_fields = []
     numeric_fields = []
@@ -156,7 +164,7 @@ class ExportableMixin(object):
         self.save()
 
 
-class Artist(models.Model):
+class Artist(AuditModel):
     name = models.CharField(max_length=63, unique=True)
     genre = models.CharField(max_length=63)
 
@@ -173,7 +181,7 @@ class Artist(models.Model):
         return sorted(list(set([artist.genre for artist in Artist.objects.all() if artist.genre])))
 
 
-class Song(models.Model, FilterMixin, ExportableMixin):
+class Song(AuditModel, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
@@ -264,7 +272,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         return songs.distinct()
 
 
-class Playlist(models.Model):
+class Playlist(AuditModel):
     name = models.CharField(max_length=127, null=True)
     plex_guid = models.CharField(max_length=255, null=True)
     plex_key = models.CharField(max_length=255, null=True)
@@ -327,7 +335,7 @@ class Playlist(models.Model):
         return songs
 
 
-class PlaylistSong(models.Model):
+class PlaylistSong(AuditModel):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     inclusion = models.BooleanField(default=True)
@@ -340,7 +348,7 @@ class PlaylistSong(models.Model):
         return "{} {} {}".format(str(self.playlist), verb, str(self.song))
 
 
-class Album(models.Model, FilterMixin, ExportableMixin):
+class Album(AuditModel, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
     related_fields = {}
@@ -556,7 +564,7 @@ class Track(models.Model):
         return "{}: {}. {}".format(str(self.album), self.ordinal, str(self.song))
 
 
-class Tag(models.Model):
+class Tag(AuditModel):
     name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
     songs = models.ManyToManyField(Song)
