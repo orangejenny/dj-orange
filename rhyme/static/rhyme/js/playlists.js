@@ -82,8 +82,9 @@ document.querySelectorAll('th[data-sort]').forEach(function(th) {
         var tbody = document.querySelector('tbody');
         var rows = Array.from(tbody.querySelectorAll('tr[data-id]'));
         rows.sort(function(a, b) {
-            var aVal = a.cells[colIndex].textContent.trim();
-            var bVal = b.cells[colIndex].textContent.trim();
+            var aCell = a.cells[colIndex], bCell = b.cells[colIndex];
+            var aVal = aCell.dataset.value !== undefined ? aCell.dataset.value : aCell.textContent.trim();
+            var bVal = bCell.dataset.value !== undefined ? bCell.dataset.value : bCell.textContent.trim();
             var aNum = parseInt(aVal, 10), bNum = parseInt(bVal, 10);
             if (!isNaN(aNum) && !isNaN(bNum)) {
                 return currentSortDir * (aNum - bNum);
