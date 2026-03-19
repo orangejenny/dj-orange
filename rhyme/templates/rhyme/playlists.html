@@ -44,9 +44,10 @@
         <thead>
             <tr>
                 <th class="text-center"></th>
-                <th>Name</th>
-                <th>Filters</th>
-                <th>Songs</th>
+                <th data-sort="name" style="cursor: pointer">Name <span class="sort-indicator"></span></th>
+                <th data-sort="filters" style="cursor: pointer">Filters <span class="sort-indicator"></span></th>
+                <th data-sort="songs" style="cursor: pointer">Songs <span class="sort-indicator"></span></th>
+                <th data-sort="updated_at" style="cursor: pointer">Updated <span class="sort-indicator"></span></th>
                 {% for config in RHYME_EXPORT_CONFIGS %}
                     <th class="text-center"><i class="fas {{ config.icon }}"></i></th>
                 {% endfor %}
@@ -66,6 +67,7 @@
                     <td class="playlist-filters" style="cursor: pointer"
                         data-id="{{ playlist.id }}">{{ playlist.all_filters }}</td>
                     <td>{{ playlist.songs|length }}</td>
+                    <td data-value="{{ playlist.updated_at|date:'U' }}">{{ playlist.updated_at|timesince }} ago</td>
                     {% for config in RHYME_EXPORT_CONFIGS %}
                         <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
                             <i class="fas {{ config.icon }}"></i>

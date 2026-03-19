@@ -63,7 +63,7 @@ class SongTest(TestCase):
         self.song.audit_export()
         self.song.refresh_from_db()
         self.assertEqual(self.song.export_count, initial_count + 1)
-        self.assertIsNotNone(self.song.last_export)
+        self.assertIsNotNone(self.song.exported_at)
 
 
 class AlbumModelTest(TestCase):
@@ -161,12 +161,12 @@ class AlbumModelTest(TestCase):
 
     def test_export_html_once(self):
         album = Album(name="Exported Once", export_count=1,
-                      last_export=datetime(2024, 1, 15, tzinfo=timezone.utc))
+                      exported_at=datetime(2024, 1, 15, tzinfo=timezone.utc))
         self.assertIn("Exported once", album.export_html)
 
     def test_export_html_multiple(self):
         album = Album(name="Exported Many", export_count=3,
-                      last_export=datetime(2024, 1, 15, tzinfo=timezone.utc))
+                      exported_at=datetime(2024, 1, 15, tzinfo=timezone.utc))
         self.assertIn("3 times", album.export_html)
 
     def test_alternate_sort_mix_vs_nonmix(self):
@@ -208,7 +208,7 @@ class AlbumModelTest(TestCase):
         expected_keys = {
             "acronym", "acronym_size", "artist", "cover_art_filename",
             "export_html", "color", "completion_text", "stats",
-            "id", "name", "date_acquired", "export_count", "last_export", "starred",
+            "id", "name", "date_acquired", "export_count", "exported_at", "starred",
         }
         self.assertEqual(set(result.keys()), expected_keys)
 
@@ -243,11 +243,11 @@ class PlaylistTest(TestCase):
 
     def test_all_filters_song_only(self):
         playlist = Playlist(song_filters="rating>=3")
-        self.assertEqual(playlist.all_filters, "rating>=3")
+        self.assertEqual(playlist.all_filters, "rating >= 3")
 
     def test_all_filters_combined(self):
         playlist = Playlist(song_filters="rating>=3", album_filters="is_mix=1", omni_filter="test")
-        self.assertEqual(playlist.all_filters, "[test]; rating>=3; is_mix=1")
+        self.assertEqual(playlist.all_filters, "[test]; rating >= 3; is_mix = 1")
 
     def test_empty_playlist(self):
         playlist = Playlist.empty_playlist()
