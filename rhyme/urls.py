@@ -1,6 +1,7 @@
 from django.urls import path
 
 from rhyme.views import (
+    album_art_upload,
     albums,
     album_list,
     album_export,
@@ -32,6 +33,7 @@ from rhyme.views import (
 urlpatterns = [
     path('', index, name='index'),
     path('albums/', albums, name='albums'),
+    path('albums/art/', album_art_upload, name='album_art_upload'),
     path('albums/list/', album_list, name='album_list'),
     path('albums/export/', album_export, name='album_export'),
     path('artists/choices/', artist_choices, name='artist_choices'),
