@@ -282,10 +282,25 @@ class Playlist(models.Model):
         if self.omni_filter:
             values.append(f"[{self.omni_filter}]")
         if self.song_filters:
-            values.append(self.song_filters)
+            values.append(self._format_filters(self.song_filters))
         if self.album_filters:
-            values.append(self.album_filters)
+            values.append(self._format_filters(self.album_filters))
         return "; ".join(values)
+
+    @staticmethod
+    def _format_filters(filters):
+        conjunction = "||" if "||" in filters else "&&"
+        conditions = filters.split(conjunction)
+        formatted = []
+        for condition in conditions:
+            m = re.match(r'(\w+)\s*([<>=*!?]*)\s*(\S.*)', condition.strip())
+            if m:
+                lhs, op, rhs = m.groups()
+                rhs = re.sub(r',\s*', ', ', rhs)
+                formatted.append(f"{lhs} {op} {rhs}")
+            else:
+                formatted.append(condition)
+        return f" {conjunction} ".join(formatted)
 
     @classmethod
     def empty_playlist(cls):

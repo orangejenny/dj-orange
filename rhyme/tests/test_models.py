@@ -243,11 +243,11 @@ class PlaylistTest(TestCase):
 
     def test_all_filters_song_only(self):
         playlist = Playlist(song_filters="rating>=3")
-        self.assertEqual(playlist.all_filters, "rating>=3")
+        self.assertEqual(playlist.all_filters, "rating >= 3")
 
     def test_all_filters_combined(self):
         playlist = Playlist(song_filters="rating>=3", album_filters="is_mix=1", omni_filter="test")
-        self.assertEqual(playlist.all_filters, "[test]; rating>=3; is_mix=1")
+        self.assertEqual(playlist.all_filters, "[test]; rating >= 3; is_mix = 1")
 
     def test_empty_playlist(self):
         playlist = Playlist.empty_playlist()
