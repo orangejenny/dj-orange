@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import re
 
@@ -246,6 +247,30 @@ def album_export(request):
         album.audit_export()
     song_filters = "album_id*=" + ",".join([str(a.id) for a in albums])
     return _playlist_response(request, songs, song_filters=song_filters)
+
+
+@require_POST
+@login_required
+def album_art_upload(request):
+    album_id = request.POST.get('album_id')
+    image = request.FILES.get('image')
+    if not album_id or not image:
+        return JsonResponse({'success': 0, 'message': 'Missing album_id or image'})
+
+    directory = os.path.join(settings.MEDIA_ROOT, 'rhyme', 'collections', str(album_id))
+    os.makedirs(directory, exist_ok=True)
+
+    for existing in os.listdir(directory):
+        os.remove(os.path.join(directory, existing))
+
+    ext = os.path.splitext(image.name)[1]
+    filename = f'cover{ext}'
+    with open(os.path.join(directory, filename), 'wb') as f:
+        for chunk in image.chunks():
+            f.write(chunk)
+
+    cover_art_filename = os.path.join(settings.MEDIA_URL, 'rhyme', 'collections', str(album_id), filename)
+    return JsonResponse({'success': 1, 'cover_art_filename': cover_art_filename})
 
 
 @require_GET

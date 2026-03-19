@@ -61,6 +61,7 @@ function filterModel (options) {
 function AlbumModel(options) {
     var self = _.extend({}, options);
     self.songs = ko.observableArray();
+    self.cover_art_filename = ko.observable(options.cover_art_filename);
     return self;
 }
 
