@@ -159,7 +159,7 @@ class FilterMixin():
 
 class ExportableMixin(object):
     def audit_export(self):
-        self.last_export = datetime.now(timezone.utc)
+        self.exported_at = datetime.now(timezone.utc)
         self.export_count = self.export_count + 1
         self.save()
 
@@ -209,7 +209,7 @@ class Song(AuditModel, FilterMixin, ExportableMixin):
     year = models.IntegerField(null=True)
 
     export_count = models.IntegerField(default=0)
-    last_export = models.DateTimeField(null=True)
+    exported_at = models.DateTimeField(null=True)
     play_count = models.IntegerField(default=0)
     last_play = models.DateTimeField(null=True)
 
@@ -363,7 +363,7 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
     is_mix = models.BooleanField(default=False)
 
     export_count = models.IntegerField(default=0)
-    last_export = models.DateTimeField(null=True)
+    exported_at = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ["-date_acquired"]
@@ -461,10 +461,10 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
             return "Never exported"
 
         if self.export_count == 1:
-            return f"Exported once, on {self.last_export}"
+            return f"Exported once, on {self.exported_at}"
 
         times = "twice" if self.export_count == 2 else f"{self.export_count} times"
-        return f"Exported {times}<br>Last exported {self.last_export}"
+        return f"Exported {times}<br>Last exported {self.exported_at}"
 
     @property
     def artist(self):
@@ -524,7 +524,7 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
             "name": self.name,
             "date_acquired": self._format_date(self.date_acquired),
             "export_count": self.export_count,
-            "last_export": self._format_date(self.last_export),
+            "exported_at": self._format_date(self.exported_at),
             "starred": self.starred,
         }
 
