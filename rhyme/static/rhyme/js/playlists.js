@@ -61,6 +61,39 @@ document.querySelectorAll('.playlist-export-cell').forEach(function(cell) {
     });
 });
 
+var currentSortCol = null;
+var currentSortDir = 1;
+
+document.querySelectorAll('th[data-sort]').forEach(function(th) {
+    th.addEventListener('click', function() {
+        if (currentSortCol === this) {
+            currentSortDir *= -1;
+        } else {
+            currentSortCol = this;
+            currentSortDir = 1;
+        }
+
+        document.querySelectorAll('th[data-sort] .sort-indicator').forEach(function(el) {
+            el.textContent = '';
+        });
+        this.querySelector('.sort-indicator').textContent = currentSortDir === 1 ? ' ▲' : ' ▼';
+
+        var colIndex = this.cellIndex;
+        var tbody = document.querySelector('tbody');
+        var rows = Array.from(tbody.querySelectorAll('tr[data-id]'));
+        rows.sort(function(a, b) {
+            var aVal = a.cells[colIndex].textContent.trim();
+            var bVal = b.cells[colIndex].textContent.trim();
+            var aNum = parseInt(aVal, 10), bNum = parseInt(bVal, 10);
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                return currentSortDir * (aNum - bNum);
+            }
+            return currentSortDir * aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+        });
+        rows.forEach(function(row) { tbody.appendChild(row); });
+    });
+});
+
 document.getElementById('playlist-filter').addEventListener('keyup', function() {
     var query = this.value.toLowerCase();
     document.querySelectorAll('tbody tr[data-id]').forEach(function(row) {

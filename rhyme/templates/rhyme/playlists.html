@@ -44,9 +44,9 @@
         <thead>
             <tr>
                 <th class="text-center"></th>
-                <th>Name</th>
-                <th>Filters</th>
-                <th>Songs</th>
+                <th data-sort="name" style="cursor: pointer">Name <span class="sort-indicator"></span></th>
+                <th data-sort="filters" style="cursor: pointer">Filters <span class="sort-indicator"></span></th>
+                <th data-sort="songs" style="cursor: pointer">Songs <span class="sort-indicator"></span></th>
                 {% for config in RHYME_EXPORT_CONFIGS %}
                     <th class="text-center"><i class="fas {{ config.icon }}"></i></th>
                 {% endfor %}
