@@ -310,6 +310,22 @@ class Playlist(AuditModel):
                 formatted.append(condition)
         return f" {conjunction} ".join(formatted)
 
+    @property
+    def last_update(self):
+        from django.db.models import Max
+        ps_max = PlaylistSong.objects.filter(playlist=self).aggregate(Max('updated_at'))['updated_at__max']
+        if ps_max and ps_max > self.updated_at:
+            return ps_max
+        return self.updated_at
+
+    @property
+    def added_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=True).count()
+
+    @property
+    def removed_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=False).count()
+
     @classmethod
     def empty_playlist(cls):
         return Playlist(song_filters="rating=10")

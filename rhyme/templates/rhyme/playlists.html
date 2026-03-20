@@ -65,9 +65,15 @@
                     <td class="playlist-name" style="cursor: pointer"
                         data-id="{{ playlist.id }}">{{ playlist.name }}</td>
                     <td class="playlist-filters" style="cursor: pointer"
-                        data-id="{{ playlist.id }}">{{ playlist.all_filters }}</td>
+                        data-id="{{ playlist.id }}">{{ playlist.all_filters }}
+                        {% if playlist.added_count or playlist.removed_count %}
+                            <br>
+                            {% if playlist.added_count %}[+{{ playlist.added_count }} songs]{% endif %}
+                            {% if playlist.removed_count %}[-{{ playlist.removed_count }} songs]{% endif %}
+                        {% endif %}
+                    </td>
                     <td>{{ playlist.songs|length }}</td>
-                    <td data-value="{{ playlist.updated_at|date:'U' }}">{{ playlist.updated_at|timesince }} ago</td>
+                    <td data-value="{{ playlist.last_update|date:'U' }}">{{ playlist.last_update|timesince }} ago</td>
                     {% for config in RHYME_EXPORT_CONFIGS %}
                         <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
                             <i class="fas {{ config.icon }}"></i>
