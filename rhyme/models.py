@@ -318,6 +318,14 @@ class Playlist(AuditModel):
             return ps_max
         return self.updated_at
 
+    @property
+    def added_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=True).count()
+
+    @property
+    def removed_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=False).count()
+
     @classmethod
     def empty_playlist(cls):
         return Playlist(song_filters="rating=10")
