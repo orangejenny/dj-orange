@@ -1,7 +1,7 @@
 from argparse import RawTextHelpFormatter
 from datetime import datetime
 import json
-import pytz
+from django.utils import timezone
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -68,7 +68,7 @@ class AlbumImporter(Importer):
         (album, created) = Album.objects.get_or_create(id=item['id'])
         album.name = item['name']
         if item['date_acquired']:
-            album.date_acquired = pytz.utc.localize(datetime.strptime(item['date_acquired'], "%Y-%m-%d %H:%M:%S %Z"))
+            album.date_acquired = timezone.make_aware(datetime.strptime(item['date_acquired'], "%Y-%m-%d %H:%M:%S"))
         if item['is_mix']:
             album.is_mix = True
 
