@@ -284,6 +284,22 @@ class PlaylistTest(TestCase):
         self.assertIn(self.songs[3].id, song_ids)  # rating=4
 
 
+class SongListTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.artist = Artist.objects.create(name="Song List Artist", genre="Rock")
+        cls.song = Song.objects.create(name="Song List Song", artist=cls.artist, rating=3)
+
+    @classmethod
+    def tearDownClass(cls):
+        Artist.objects.all().delete()
+        Song.objects.all().delete()
+
+    def test_nonexistent_playlist_filter(self):
+        songs = Song.list(song_filters="playlist*=NonExistentPlaylist")
+        self.assertEqual(songs.count(), 0)
+
+
 class ArtistTest(TestCase):
     @classmethod
     def setUpClass(cls):
