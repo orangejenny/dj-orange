@@ -102,12 +102,11 @@ class FilterMixin():
                 song_ids = set()
                 for value in rhs.split(","):
                     playlist = Playlist.objects.filter(name=value).first()
-                    if playlist is None:
-                        raise Exception("Could not find playlist: {}".format(value))
-                    if op == '=':   # all
-                        song_ids = song_ids & {s.id for s in playlist.songs}
-                    else:           # any, none
-                        song_ids = song_ids | {s.id for s in playlist.songs}
+                    if playlist:
+                        if op == '=':   # all
+                            song_ids = song_ids & {s.id for s in playlist.songs}
+                        else:           # any, none
+                            song_ids = song_ids | {s.id for s in playlist.songs}
 
                 if op == '!=':    # none
                     actions = [("id__in", song_ids, False)]
