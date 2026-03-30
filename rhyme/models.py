@@ -184,7 +184,7 @@ class Song(AuditModel, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
-    numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
+    numeric_fields = RATING_ATTRIBUTES + ['time', 'year', 'track__ordinal']
     text_fields = ['name']
     related_fields = {
         'tag': 'tag__name',
