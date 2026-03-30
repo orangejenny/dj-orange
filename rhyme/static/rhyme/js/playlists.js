@@ -53,6 +53,7 @@ document.querySelectorAll('.playlist-export-cell').forEach(function(cell) {
         ExportPlaylist({
             config: this.dataset.config,
             model: 'song',
+            source: 'playlists',
             song_filters: row.dataset.songFilters,
             album_filters: row.dataset.albumFilters,
             omni_filter: row.dataset.omniFilter,

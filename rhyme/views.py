@@ -288,14 +288,15 @@ def song_export(request):
                 if song.id not in seen_ids:
                     songs.append(song)
                     seen_ids.add(song.id)
-        return _playlist_response(request, songs)
+        return _playlist_response(request, songs, save=len(playlist_ids) > 1)
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),
     }
-    return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
+    save = request.GET.get('source') != 'playlists'
+    return _playlist_response(request, Song.list(**filter_kwargs), save=save, **filter_kwargs)
 
 
 @require_GET
@@ -407,17 +408,18 @@ def json_tracks(request):
     return response
 
 
-def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
+def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None, save=True):
     for song in songs:
         song.audit_export()
 
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
 
-    Playlist(name=playlist_name,
-             song_filters=song_filters,
-             album_filters=album_filters,
-             omni_filter=omni_filter).save()
+    if save:
+        Playlist(name=playlist_name,
+                 song_filters=song_filters,
+                 album_filters=album_filters,
+                 omni_filter=omni_filter).save()
 
     if config_name == "rhyme":
         # Nothing else to do
