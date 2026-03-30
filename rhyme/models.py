@@ -184,12 +184,13 @@ class Song(AuditModel, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
-    numeric_fields = RATING_ATTRIBUTES + ['time', 'year', 'track__ordinal']
+    numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
     text_fields = ['name']
     related_fields = {
         'tag': 'tag__name',
         'artist': 'artist__name',
         'genre': 'artist__genre',
+        'ordinal': 'track__ordinal',
     }
 
     omni_fields = ['name', 'artist', 'tag']
