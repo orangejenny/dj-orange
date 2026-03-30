@@ -295,7 +295,8 @@ def song_export(request):
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),
     }
-    return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
+    save = request.GET.get('source') != 'playlists'
+    return _playlist_response(request, Song.list(**filter_kwargs), save=save, **filter_kwargs)
 
 
 @require_GET
