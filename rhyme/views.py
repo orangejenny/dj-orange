@@ -407,17 +407,18 @@ def json_tracks(request):
     return response
 
 
-def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
+def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None, save=True):
     for song in songs:
         song.audit_export()
 
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
 
-    Playlist(name=playlist_name,
-             song_filters=song_filters,
-             album_filters=album_filters,
-             omni_filter=omni_filter).save()
+    if save:
+        Playlist(name=playlist_name,
+                 song_filters=song_filters,
+                 album_filters=album_filters,
+                 omni_filter=omni_filter).save()
 
     if config_name == "rhyme":
         # Nothing else to do
