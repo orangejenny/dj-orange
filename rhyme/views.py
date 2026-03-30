@@ -288,7 +288,7 @@ def song_export(request):
                 if song.id not in seen_ids:
                     songs.append(song)
                     seen_ids.add(song.id)
-        return _playlist_response(request, songs)
+        return _playlist_response(request, songs, save=len(playlist_ids) > 1)
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
