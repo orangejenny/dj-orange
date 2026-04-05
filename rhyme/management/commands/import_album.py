@@ -30,7 +30,7 @@ class Command(BaseCommand):
         meta_year = self._most_common(m.get("year") for m in self.track_metadata)
 
         album_name = self._prompt("Album name", meta_album)
-        album_year = self._prompt("Album year", meta_year)
+        album_year = input("Album year (blank for multiple)? ")
         album_artist = input("Artist (blank for multiple)? ")
         disc_count = int(self._prompt("Number of discs", 1))
         multidisc = disc_count > 1
