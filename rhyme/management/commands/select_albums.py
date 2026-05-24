@@ -15,6 +15,8 @@ class Command(BaseCommand):
         this_month = int(datetime.utcnow().strftime("%m"))
         seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
         this_season = seasons[this_month - 1]
+        last_season = seasons[this_month - 4]
+        last_season_year = this_year - 1 if this_season == "winter" else this_year
 
         # Current
         albums = Album.objects.all()[:3]
@@ -22,6 +24,7 @@ class Command(BaseCommand):
 
         self.add_album(song_filters=f"tag={this_year},{this_season}", count=2)
         self.add_album(song_filters=f"starred=1&&tag!={this_year}", count=2)
+        self.add_album(song_filters=f"tag={last_season_year},{last_season}", count=2)
 
         # Nostalgia
         start = 1999
