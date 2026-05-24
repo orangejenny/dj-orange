@@ -30,8 +30,8 @@ class Command(BaseCommand):
             self.add_album(song_filters=f"tag*={tags}")
             start = end
 
-        self.add_album(song_filters=f"rating>=3&&tag={this_year},{this_season}")
-        self.add_album(song_filters=f"rating>=3&&tag={this_year - 1},{this_season}")
+        self.add_album(song_filters=f"rating>=3&&tag={this_year},{this_season}", count=2)
+        self.add_album(song_filters=f"rating>=3&&tag={this_year - 1},{this_season}", count=2)
 
         # Undiscovered
         self.add_album(album_filters="acquired_year>={this_year - 1}", song_filters="rating=?false")
