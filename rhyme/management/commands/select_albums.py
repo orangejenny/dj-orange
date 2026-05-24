@@ -10,7 +10,12 @@ import random
 class Command(BaseCommand):
     album_ids = set()
 
+    def add_arguments(self, parser):
+        parser.add_argument('--quiet', action='store_true')
+
     def handle(self, *args, **options):
+        self.quiet = options.get('quiet', False)
+
         this_year = int(datetime.utcnow().strftime("%Y"))
         this_month = int(datetime.utcnow().strftime("%m"))
         seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
@@ -51,13 +56,25 @@ class Command(BaseCommand):
         names = ",".join([name for name, count in artist_counts.items() if count > 1])
         self.add_album(song_filters=f"artist*={names}", count=2)
 
+        print("\n\n")
         for album in sorted(Album.objects.filter(id__in=self.album_ids), key=Album.alternate_sort):
-            print(f"{album} ({album.artist})")
+            self.print_album(album)
 
     def add_album(self, song_filters=None, album_filters=None, count=1):
-        ids = Album.list(song_filters=song_filters).values_list("id", flat=True)
-        ids = set(ids) - self.album_ids
-        if len(ids):
-            self.album_ids |= set(random.sample(list(ids), count))
+        print(f"Adding {count} of {song_filters or ''} {album_filters or ''}")
+        qualifiers = { a.id: a for a in Album.list(song_filters=song_filters) if a.id not in self.album_ids }
+        if len(qualifiers):
+            added = 0
+            while added < count:
+                random_albums = set(random.sample(list(qualifiers.values()), count - added))
+                for album in random_albums:
+                    self.print_album(album)
+                    if self.quiet or input("Keep this one (y/n)? ") not in ['N', 'n']:
+                        self.album_ids |= { album.id }
+                        added += 1
+
         else:
             self.add_album(song_filters="rating>=4", count=count)
+
+    def print_album(self, album):
+        print(f"{album} ({album.artist})")
