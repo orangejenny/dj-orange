@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         # Nostalgia
         start = 1999
-        for end in [2002, 2008, 2013, 2017, this_year]:
+        for end in [2002, 2008, 2013, 2017, 2020, 2023, this_year]:
             tags = ",".join([str(x) for x in range(start, end + 1)])
             self.add_album(song_filters=f"tag*={tags}")
             start = end
