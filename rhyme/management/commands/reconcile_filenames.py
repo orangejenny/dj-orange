@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('playlist_file', help="M3U playlist")
+        parser.add_argument('--force', action='store_true')
         parser.add_argument('--quiet', action='store_true')
         parser.add_argument('--root', help="Root directory to look for files in")
 
@@ -57,6 +58,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         playlist_file = options.get("playlist_file")
+        force = options.get('force', False)
         quiet = options.get('quiet', False)
         if not os.path.exists(playlist_file):
             print(f"{playlist_file} does not exist")
@@ -82,7 +84,7 @@ class Command(BaseCommand):
         skipped = []
         failures = []
         for i, path in enumerate(song_files):
-            exists = os.path.exists(path)
+            exists = not force and os.path.exists(path)
             print(f"Checking if {i + 1} of {len(song_files)}, {path}, exists: {exists}")
             if exists:
                 existing_count += 1
