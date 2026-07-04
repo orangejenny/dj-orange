@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
     def get_candidates(self):
         repo = self.get_repo()
-        pointer = repo.heads.master.commit
+        pointer = repo.heads.main.commit
         commits = []
         while len(commits) < 7:
             commits.append(pointer)
@@ -75,7 +75,7 @@ class Command(BaseCommand):
     def get_repo(self):
         repo = Repo(os.getcwd())
         assert not repo.bare
-        assert repo.head.ref == repo.heads.master
+        assert repo.head.ref == repo.heads.main
         return repo
 
     def handle_remote(self):
