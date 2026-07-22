@@ -77,4 +77,7 @@ class Command(BaseCommand):
             self.add_album(song_filters="rating>=4", count=count)
 
     def print_album(self, album):
-        print(f"{album} ({album.artist})")
+        if album.is_mix:
+            print(f"{album} ({album.artist}) ({album.date_acquired})")
+        else:
+            print(f"{album} ({album.artist})")
