@@ -44,12 +44,29 @@
             >PRs</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "history" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
-            >History</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "history" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
+              >History</a>
+              <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle History Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                {% for year in years %}
+                  <li>
+                    <a class="dropdown-item" href="#"
+                       hx-get="{% url "history" %}?year={{ year }}"
+                       hx-target="#panel"
+                       hx-indicator="#loading"
+                       hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
+                    >{{ year }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#"

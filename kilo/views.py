@@ -18,7 +18,13 @@ from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 @login_required
 def base(request):
-    return HttpResponse(render(request, "kilo/base.html"))
+    year = datetime.now().year
+    years = [y for y in range(year - 5, year)]
+    years.reverse()
+
+    return HttpResponse(render(request, "kilo/base.html", {
+        "years": years,
+    }))
 
 
 @require_POST
@@ -159,7 +165,12 @@ def recent(request):
 @require_GET
 @login_required
 def history(request):
-    days = Day.get_recent_days(90)
+    year =  request.GET.get('year')
+    if year:
+        year = int(year)
+    else:
+        year = datetime.now().year
+    days = Day.objects.filter(day__gte=f"{year}-01-01", day__lte=f"{year}-12-31")
     return _days(request, days)
 
 
