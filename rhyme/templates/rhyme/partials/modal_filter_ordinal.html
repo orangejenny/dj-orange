@@ -1,0 +1,16 @@
+{% extends 'rhyme/partials/modal_filter_base.html' %}
+
+{% block body %}
+    <div class="input-group mb-2">
+        <div class="input-group-text">
+            equals
+        </div>
+        <input class="form-control rhs" type="number" min="1" />
+        <button class="btn btn-outline-secondary"
+                data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }"
+                data-bs-dismiss="modal">
+            Onward
+        </button>
+    </div>
+
+{% endblock %}
