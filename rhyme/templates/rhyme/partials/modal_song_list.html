@@ -9,7 +9,7 @@
                 <div data-bind="if: modalHeaders().length">
                     <div data-bind="foreach: modalHeaders()">
                         <h4 data-bind="text: $data"></h4>
-                        <table class='song-table'>
+                        <table class='song-table table table-hover'>
                             <tbody data-bind="foreach: _.filter($root.modalSongs(), function (song) { return song.disc_number === $index() + 1; })">
                                 {% include "rhyme/partials/song_row.html" %}
                             </tbody>
