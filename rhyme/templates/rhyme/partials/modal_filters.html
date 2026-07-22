@@ -17,5 +17,7 @@
 
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_choices' include_all=True disallow_null=True %}
 
+{% include 'rhyme/partials/modal_filter_ordinal.html' with model='song' name='Track Ordinal' icon='sort-numeric-down' lhs='ordinal' disallow_null=True %}
+
 {% include "rhyme/partials/modal_filter_text.html" with model='album' name='Album Name' icon='compact-disc' lhs='name' disallow_null=True %}
 {% include "rhyme/partials/modal_filter_bool.html" with model='album' name='Is Mix' icon='blender' lhs='is_mix' disallow_null=True last=True %}

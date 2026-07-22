@@ -143,6 +143,9 @@ class Command(BaseCommand):
     def _build_song(self, track_index, metadata=None, name=None, artist=None, album_name=None, album_year=None):
         metadata = metadata or {}
         meta_year = metadata.get("year")
+        if meta_year and not str(meta_year).isdigit():
+            from datetime import datetime
+            meta_year = datetime.fromisoformat(str(meta_year)).year
         meta_duration = metadata.get("duration")
         if meta_duration:
             meta_time = f"{meta_duration // 60}:{meta_duration % 60:02d}"

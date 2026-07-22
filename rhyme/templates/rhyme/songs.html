@@ -22,7 +22,7 @@
 {% endblock filters %}
 
 {% block content %}
-    <table class="song-table table table-striped table-condensed table-hover">
+    <table class="song-table table table-striped table-hover">
         <tbody class="item-page" data-url="{% url "song_list" %}" data-bind="foreach: items">
             {% include "rhyme/partials/song_row.html" %}
         </tbody>
