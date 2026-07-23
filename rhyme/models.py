@@ -480,7 +480,7 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
             return f"Exported once, on {self.exported_at}"
 
         times = "twice" if self.export_count == 2 else f"{self.export_count} times"
-        return f"Exported {times}<br>Last exported {self.exported_at}"
+        return f"Exported {times}<br>Last exported {self._format_date(self.exported_at)}"
 
     @property
     def artist(self):
@@ -547,7 +547,7 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
     def _format_date(self, date):
         if not date:
             return ""
-        return date.strftime("%b %d, %Y")
+        return date.strftime("%b %e, %Y")
 
 
 # Only named discs have entries here
