@@ -547,7 +547,7 @@ class Album(AuditModel, FilterMixin, ExportableMixin):
     def _format_date(self, date):
         if not date:
             return ""
-        return date.strftime("%b %d, %Y")
+        return date.strftime("%b %e, %Y")
 
 
 # Only named discs have entries here
