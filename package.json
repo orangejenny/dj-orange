@@ -14,7 +14,7 @@
     "jquery": "^3.5.1",
     "knockout": "^3.5.0",
     "less": "^3.7.1",
-    "underscore": "^1.12.1"
+    "underscore": "^1.13.8"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
