@@ -166,11 +166,7 @@ def recent(request):
 @login_required
 def history(request):
     year =  request.GET.get('year')
-    if year:
-        year = int(year)
-    else:
-        year = datetime.now().year
-    days = Day.objects.filter(day__gte=f"{year}-01-01", day__lte=f"{year}-12-31")
+    days = Day.get_year(year)
     return _days(request, days)
 
 
