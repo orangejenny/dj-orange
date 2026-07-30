@@ -173,8 +173,9 @@ def history(request):
 @require_GET
 @login_required
 def erging(request):
-    today = datetime.now().date()
-    days = Day.objects.filter(workout__activity="erging", day__gte=today - timedelta(days=180))
+    year =  request.GET.get('year')
+    days = Day.get_year(year)
+    days = days.filter(workout__activity="erging")
     return _days(request, days)
 
 
