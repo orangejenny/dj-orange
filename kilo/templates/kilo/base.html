@@ -41,7 +41,7 @@
                  hx-get="{% url "stats" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('stats', '{% url "pace" %}')"
+                 hx-on:htmx:after-request="navigateVisual('stats')"
               >PRs</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="stats" %}
             </div>
@@ -52,7 +52,7 @@
                  hx-get="{% url "history" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('history', '{% url "pace" %}')"
+                 hx-on:htmx:after-request="navigateVisual('history')"
               >History</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="history" %}
             </div>
@@ -63,7 +63,7 @@
                  hx-get="{% url "erging" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('erging', '{% url "pace" %}')"
+                 hx-on:htmx:after-request="navigateVisual('erging')"
               >Erging</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="erging" %}
             </div>
@@ -74,7 +74,7 @@
                  hx-get="{% url "lifting" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('lifting', '{% url "pace" %}')"
+                 hx-on:htmx:after-request="navigateVisual('lifting')"
               >Lifting</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
             </div>
@@ -85,7 +85,7 @@
                  hx-get="{% url "long_runs" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('running', '{% url "pace" %}')"
+                 hx-on:htmx:after-request="navigateVisual('running')"
               >Long Runs</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="long_runs" %}
             </div>
@@ -118,5 +118,6 @@
          hx-on:htmx:after-swap="initDropdowns(event)">
     </div>
     <div id="graph-options" style="display: none;"></div>
+    <div id="pace-url" style="display: none;">{% url "pace" %}</div>
   </div>
 {% endblock body %}

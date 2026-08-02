@@ -67,6 +67,7 @@ function initDropdowns(event) {
 
 function navigateVisual(page, url, year) {
     if (page === "erging" || page === "running") {
+        let url = document.getElementById('pace-url').innerHTML;
         loadPaceChart(url + '?activity=' + page + '&year=' + year);
     } else if (page === "history") {
         c3.generate(getFrequencyGraphOptions());
