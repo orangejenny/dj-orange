@@ -36,6 +36,14 @@ class Day(models.Model):
         today = datetime.now().date()
         return Day.objects.filter(day__gte=today - timedelta(days=days))
 
+    @classmethod
+    def get_year(cls, year=None):
+        try:
+            year = int(year)
+        except (TypeError, ValueError):
+            year = datetime.now().year
+        return Day.objects.filter(day__gte=f"{year}-01-01", day__lte=f"{year}-12-31")
+
     @property
     def primary_activity(self):
         if self.workout_set.count() == 0:

@@ -36,12 +36,15 @@
       <div class="collapse navbar-collapse" id="kilo-nav">
         <ul class="navbar-nav flex-grow-1">
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "stats" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart(); hideRecent()"
-            >PRs</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "stats" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('stats')"
+              >PRs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="stats" %}
+            </div>
           </li>
           <li class="nav-item">
             <div class="btn-group">
@@ -49,48 +52,43 @@
                  hx-get="{% url "history" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('history')"
               >History</a>
-              <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="visually-hidden">Toggle History Dropdown</span>
-              </button>
-              <ul class="dropdown-menu">
-                {% for year in years %}
-                  <li>
-                    <a class="dropdown-item" href="#"
-                       hx-get="{% url "history" %}?year={{ year }}"
-                       hx-target="#panel"
-                       hx-indicator="#loading"
-                       hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
-                    >{{ year }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
+              {% include "kilo/partials/years_dropdown.html" with url_name="history" %}
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "erging" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging'); hideRecent()"
-            >Erging</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "erging" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('erging')"
+              >Erging</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="erging" %}
+            </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "lifting" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart(); hideRecent()"
-            >Lifting</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "lifting" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('lifting')"
+              >Lifting</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
+            </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "long_runs" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
-            >Long Runs</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "long_runs" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('running')"
+              >Long Runs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="long_runs" %}
+            </div>
           </li>
         </ul>
       </div>
@@ -120,5 +118,6 @@
          hx-on:htmx:after-swap="initDropdowns(event)">
     </div>
     <div id="graph-options" style="display: none;"></div>
+    <div id="pace-url" style="display: none;">{% url "pace" %}</div>
   </div>
 {% endblock body %}

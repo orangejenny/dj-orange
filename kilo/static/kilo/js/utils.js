@@ -2,7 +2,6 @@ function getFrequencyGraphOptions() {
     return getGraphOptions();
 }
 
-
 function getGraphOptions() {
     return JSON.parse(document.getElementById('graph-options').innerHTML);
 }
@@ -64,4 +63,14 @@ function initDropdowns(event) {
     dropdowns.forEach(d => new Choices(d, {
         itemSelectText: "",
     }));
+}
+
+function navigateVisual(page, url, year) {
+    if (page === "erging" || page === "running") {
+        let url = document.getElementById('pace-url').innerHTML;
+        loadPaceChart(url + '?activity=' + page + '&year=' + year);
+    } else {
+        clearChart();
+    }
+    hideRecent();
 }
