@@ -8,15 +8,7 @@
          hx-get="{% url url_name %}?year={{ year }}"
          hx-target="#panel"
          hx-indicator="#loading"
-         {% if url_name == "erging" %}
-           hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging'); hideRecent()"
-         {% elif url_name == "long_runs" %}
-           hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
-         {% elif url_name == "history" %}
-           hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
-         {% else %}
-           hx-on:htmx:after-request="clearChart(); hideRecent()"
-         {% endif %}
+         hx-on:htmx:after-request="navigateVisual('{{ url_name }}', '{% url "pace" %}')"
       >{{ year }}</a>
     </li>
   {% endfor %}

@@ -2,7 +2,6 @@ function getFrequencyGraphOptions() {
     return getGraphOptions();
 }
 
-
 function getGraphOptions() {
     return JSON.parse(document.getElementById('graph-options').innerHTML);
 }
@@ -64,4 +63,15 @@ function initDropdowns(event) {
     dropdowns.forEach(d => new Choices(d, {
         itemSelectText: "",
     }));
+}
+
+function navigateVisual(page, url) {
+    if (url && (page === "erging" || page === "running")) {
+        loadPaceChart(url + '?activity=' + page);
+    } else if (page === "history") {
+        c3.generate(getFrequencyGraphOptions());
+    } else {
+        clearChart();
+    }
+    hideRecent();
 }

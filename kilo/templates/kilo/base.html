@@ -40,7 +40,7 @@
                hx-get="{% url "stats" %}"
                hx-target="#panel"
                hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart(); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('stats')"
             >PRs</a>
           </li>
           <li class="nav-item">
@@ -49,7 +49,7 @@
                  hx-get="{% url "history" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('history')"
               >History</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="history" %}
             </div>
@@ -60,7 +60,7 @@
                  hx-get="{% url "erging" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=erging'); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('erging', '{% url "pace" %}')"
               >Erging</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="erging" %}
             </div>
@@ -71,7 +71,7 @@
                  hx-get="{% url "lifting" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="clearChart(); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('lifting')"
               >Lifting</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
             </div>
@@ -82,7 +82,7 @@
                  hx-get="{% url "long_runs" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
+                 hx-on:htmx:after-request="navigateVisual('running', '{% url "pace" %}')"
               >Long Runs</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="long_runs" %}
             </div>
