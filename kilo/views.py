@@ -383,7 +383,9 @@ def pace(request):
     activity_filter = request.GET.get('activity')
     if activity_filter not in ('running', 'erging'):
         return HttpResponse(f"Invalid activity '{activity_filter}', expected 'running' or 'erging'", status=400)
-    days = Day.get_recent_days(365)
+
+    year =  request.GET.get('year')
+    days = Day.get_year(year)
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):

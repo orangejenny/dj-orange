@@ -65,9 +65,9 @@ function initDropdowns(event) {
     }));
 }
 
-function navigateVisual(page, url) {
-    if (url && (page === "erging" || page === "running")) {
-        loadPaceChart(url + '?activity=' + page);
+function navigateVisual(page, url, year) {
+    if (page === "erging" || page === "running") {
+        loadPaceChart(url + '?activity=' + page + '&year=' + year);
     } else if (page === "history") {
         c3.generate(getFrequencyGraphOptions());
     } else {

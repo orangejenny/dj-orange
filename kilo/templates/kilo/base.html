@@ -41,7 +41,7 @@
                  hx-get="{% url "stats" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                   hx-on:htmx:after-request="navigateVisual('stats')"
+                 hx-on:htmx:after-request="navigateVisual('stats', '{% url "pace" %}')"
               >PRs</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="stats" %}
             </div>
@@ -52,7 +52,7 @@
                  hx-get="{% url "history" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('history')"
+                 hx-on:htmx:after-request="navigateVisual('history', '{% url "pace" %}')"
               >History</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="history" %}
             </div>
@@ -74,7 +74,7 @@
                  hx-get="{% url "lifting" %}"
                  hx-target="#panel"
                  hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('lifting')"
+                 hx-on:htmx:after-request="navigateVisual('lifting', '{% url "pace" %}')"
               >Lifting</a>
               {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
             </div>

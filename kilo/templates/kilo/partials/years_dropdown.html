@@ -8,7 +8,7 @@
          hx-get="{% url url_name %}?year={{ year }}"
          hx-target="#panel"
          hx-indicator="#loading"
-         hx-on:htmx:after-request="navigateVisual('{{ url_name }}', '{% url "pace" %}')"
+         hx-on:htmx:after-request="navigateVisual('{{ url_name }}', '{% url "pace" %}', '{{ year }}')"
       >{{ year }}</a>
     </li>
   {% endfor %}
