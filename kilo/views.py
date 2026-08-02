@@ -224,37 +224,44 @@ def _format_day(day):
 @require_GET
 @login_required
 def stats(request):
-    last_year_days = Day.get_recent_days(365)
-    last_month_days = Day.get_recent_days(30)
+    year = request.GET.get('year')
+    days = Day.get_year(year)
+
+    try:
+        year = int(year)
+    except (TypeError, ValueError):
+        year = None
 
     erging_stats = []
-    erging_stats.append({
-        "name": "Past Month",
-        "primary": sum_erging(last_month_days),
-        "secondary": "total m erged"}
-    )
-    workout = best_erg(last_month_days, km=2)
-    if workout:
+    if not year:
+        last_month_days = Day.get_recent_days(30)
         erging_stats.append({
-            "name": "Past Month's Best 2k",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_erg(last_month_days, km=6)
-    if workout:
-        erging_stats.append({
-            "name": "Past Month's Best 6k",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_erg(last_year_days, km=2)
+            "name": "Past Month",
+            "primary": sum_erging(last_month_days),
+            "secondary": "total m erged"}
+        )
+        workout = best_erg(last_month_days, km=2)
+        if workout:
+            erging_stats.append({
+                "name": "Past Month's Best 2k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+        workout = best_erg(last_month_days, km=6)
+        if workout:
+            erging_stats.append({
+                "name": "Past Month's Best 6k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+    workout = best_erg(days, km=2)
     if workout:
         erging_stats.append({
             "name": "Best 2k",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
-    workout = best_erg(last_year_days, km=6)
+    workout = best_erg(days, km=6)
     if workout:
         erging_stats.append({
             "name": "Best 6k",
@@ -263,34 +270,36 @@ def stats(request):
         })
 
     running_stats = []
-    running_stats.append({
-        "name": "Past Month",
-        "primary": sum_running(last_month_days),
-        "secondary": "total miles run",
-    })
     boundary = 7
-    workout = best_run(last_month_days, upper_mi=boundary)
-    if workout:
+    if not year:
+        last_month_days = Day.get_recent_days(30)
         running_stats.append({
-            "name": "Past Month's Best Short Run",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
+            "name": "Past Month",
+            "primary": sum_running(last_month_days),
+            "secondary": "total miles run",
         })
-    workout = best_run(last_month_days, lower_mi=boundary)
-    if workout:
-        running_stats.append({
-            "name": "Past Month's Best Long Run",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_run(last_year_days, upper_mi=boundary)
+        workout = best_run(last_month_days, upper_mi=boundary)
+        if workout:
+            running_stats.append({
+                "name": "Past Month's Best Short Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+        workout = best_run(last_month_days, lower_mi=boundary)
+        if workout:
+            running_stats.append({
+                "name": "Past Month's Best Long Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+    workout = best_run(days, upper_mi=boundary)
     if workout:
         running_stats.append({
             "name": "Best Short Run",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
-    workout = best_run(last_year_days, lower_mi=boundary)
+    workout = best_run(days, lower_mi=boundary)
     if workout:
         running_stats.append({
             "name": "Best Long Run",
@@ -298,9 +307,14 @@ def stats(request):
             "secondary": workout.secondary_stat(),
         })
 
-    last_year = datetime.now().date() - timedelta(days=365)
-    lifting_workouts = Workout.objects.filter(weight__isnull=False, day__day__gte=last_year)
+    lifting_workouts = Workout.objects.filter(weight__isnull=False)
+    if year:
+        lifting_workouts = lifting_workouts.filter(day__day__gte=f"{year}-01-01", day__day__lte=f"{year}-12-31")
+    else:
+        last_year = datetime.now().date() - timedelta(days=365)
+        lifting_workouts = lifting_workouts.filter(day__day__gte=last_year)
     lifting_stats = []
+
     for activity in lifting_workouts.order_by('activity').values_list('activity', flat=True).distinct():
         workout = lifting_workouts.filter(activity=activity).order_by('-weight').first()
         lifting_stats.append({
@@ -311,13 +325,13 @@ def stats(request):
 
     return render(request, "kilo/partials/stats.html", {
         "stats": [{
-            "title": "Erging",
+            "title": f"Erging {year or ''}",
             "stats": erging_stats,
         }, {
-            "title": "Running",
+            "title": f"Running {year or ''}",
             "stats": running_stats,
         }, {
-            "title": "Lifting",
+            "title": f"Lifting {year or ''}",
             "stats": lifting_stats,
         }],
     })

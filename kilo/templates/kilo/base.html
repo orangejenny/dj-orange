@@ -36,12 +36,15 @@
       <div class="collapse navbar-collapse" id="kilo-nav">
         <ul class="navbar-nav flex-grow-1">
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "stats" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-                 hx-on:htmx:after-request="navigateVisual('stats')"
-            >PRs</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "stats" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                   hx-on:htmx:after-request="navigateVisual('stats')"
+              >PRs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="stats" %}
+            </div>
           </li>
           <li class="nav-item">
             <div class="btn-group">
