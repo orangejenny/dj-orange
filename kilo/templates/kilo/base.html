@@ -66,20 +66,26 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "lifting" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="clearChart(); hideRecent()"
-            >Lifting</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "lifting" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="clearChart(); hideRecent()"
+              >Lifting</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
+            </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"
-               hx-get="{% url "long_runs" %}"
-               hx-target="#panel"
-               hx-indicator="#loading"
-               hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
-            >Long Runs</a>
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "long_runs" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="loadPaceChart('{% url "pace" %}?activity=running'); hideRecent()"
+              >Long Runs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="long_runs" %}
+            </div>
           </li>
         </ul>
       </div>
