@@ -1,45 +1,49 @@
-      <tr class="row" x-data="{ editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
+      <tr class="row" x-data="{ copyingWorkouts: false, editingWorkouts: false, workoutCount: {{ day.workouts|length }} }">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ day.id }}" />
-        <td class="col-2">
+        <td class="col-12 col-md-2">
           {{ day.day_of_week}}, {{ day.month_name }} {{ day.day_of_month }}, {{ day.year }}
           <input type="hidden" name="year" value="{{ day.year }}" />
           <input type="hidden" name="month" value="{{ day.month }}" />
           <input type="hidden" name="day_of_month" value="{{ day.day_of_month }}" />
         </td>
-        <td class="col-4">
+        <td class="col-12 col-md-4">
           <ul class="list-unstyled" id="workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}" x-show="workoutCount">
             {% for workout in day.workouts %}
               {% include "kilo/partials/workout_item.html" %}
             {% endfor %}
           </ul>
-          <button type="button" class="btn btn-outline-secondary btn-sm"
-            x-show="!editingWorkouts && !workoutCount"
-            x-on:click="editingWorkouts = true; workoutCount += 1"
-            hx-post="{% url "add_workout" %}"
-            hx-include="closest tr"
-            hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
-            hx-swap="beforeend"
-          >
-            <i class="fa fa-plus"></i> Add Workout
-          </button>
-          <div class="btn-group" role="group" x-show="editingWorkouts">
-              <button type="button" class="btn btn-outline-secondary btn-sm"
-                x-on:click="editingWorkouts = true; workoutCount += 1"
-                hx-post="{% url "add_workout" %}"
-                hx-include="closest tr"
-                hx-target="#workouts-{{ day.year }}-{{ day.month }}-{{ day.day.day }}"
-                hx-swap="beforeend"
-              >
-                <i class="fa fa-plus"></i> Add Workout
+          <form method="POST" action="{% url "copy" %}" x-show="!editingWorkouts && !workoutCount">
+            {% csrf_token %}
+            <div class="btn-group" role="group">
+                {% include "kilo/partials/add_workout.html" %}
+                <button type="button" class="btn btn-outline-secondary btn-sm"
+                  x-show="!copyingWorkouts"
+                  x-on:click="copyingWorkouts = true;"
+                >
+                  <i class="fa fa-copy"></i> Copy
+                </button>
+                <input type="hidden" name="to" value="{{ day.year }}-{{ day.month }}-{{ day.day.day }}" />
+                <input type="text" name="from"
+                  x-show="copyingWorkouts"
+                  style="width: 150px"
+                  xvalue="{{ today }}"
+                  value="{{ today.year }}-{{ today.month }}-{{ today.day }}"
+                />
+                <button type="submit" class="float-end btn btn-outline-success btn-sm"
+                  x-show="copyingWorkouts">
+                <i class="fa fa-copy"></i>
+                <button type="button" class="float-end btn btn-outline-danger btn-sm"
+                  x-on:click="editingWorkouts = !editingWorkouts">
+                <i class="fa fa-times"></i>
               </button>
-              <button type="button" class="float-end btn btn-outline-danger btn-sm"
-                x-on:click="editingWorkouts = !editingWorkouts">
-              <i class="fa fa-times"></i>
-            </button>
+            </div>
+          </form>
+          <div class="btn-group" role="group" x-show="editingWorkouts">
+              {% include "kilo/partials/add_workout.html" %}
           </div>
         </td>
-        <td class="col-6" x-data="{ editingNotes: false }">
+        <td class="col-12 col-md-6" x-data="{ editingNotes: false }">
           <button type="button" class="btn btn-outline-secondary btn-sm float-end"
             x-show="!editingNotes"
             x-on:click="editingNotes = true"

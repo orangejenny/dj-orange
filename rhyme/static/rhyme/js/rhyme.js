@@ -61,6 +61,7 @@ function filterModel (options) {
 function AlbumModel(options) {
     var self = _.extend({}, options);
     self.songs = ko.observableArray();
+    self.cover_art_filename = ko.observable(options.cover_art_filename);
     return self;
 }
 
@@ -348,7 +349,9 @@ function rhymeModel (options) {
             }, songListParams),
             success: function (data) {
                 self.isLoading(false);
-                self.modalSongs(_.map(data.items, SongModel));
+                self.modalSongs(_.map(data.items, function(item) {
+                    return SongModel(_.extend(item, {activePlaylistName: self.activePlaylistName()}));
+                }));
                 self.songListCount(data.items.length);
                 self.modalHeaders(data.disc_names.length > 1 ? data.disc_names.length : []);
                 var $backdrop = $(".modal-backdrop.in"),
@@ -387,33 +390,19 @@ function rhymeModel (options) {
 }
 
 $(function() {
-    // TODO: move to knockout
-    $(".select2").each(function (index, element) {
-        var $element = $(element),
-            data = $element.data(),
-            options = {
-                width: "100%",
-                placeholder: data.placeholder,
-                allowClear: data.allowClear,
-                tags: data.tags,
-            };
-        if ($element.hasClass("in-modal")) {
-            options.dropdownParent = $element.closest(".modal");
-        }
+    document.querySelectorAll(".choices-js").forEach(e => {
+        const data = e.dataset;
+        let widget = new Choices(e, {
+            itemSelectText: "",
+        });
         if (data.url) {
-            options.ajax = {
+            $.ajax({
+                method: 'GET',
                 url: reverse(data.url),
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: data.items,
-                        pagination: {
-                            more: false,
-                        },
-                    };
+                success: function (items) {
+                    widget.setChoices(items.items, 'id', 'text');
                 },
-            };
+            });
         }
-        $element.select2(options);
     });
 });

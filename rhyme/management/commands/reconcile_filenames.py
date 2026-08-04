@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand
 
 import os
+import re
 import shutil
+
+from Levenshtein import distance
 
 
 class Command(BaseCommand):
@@ -11,7 +14,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('playlist_file', help="M3U playlist")
+        parser.add_argument('--force', action='store_true')
         parser.add_argument('--quiet', action='store_true')
+        parser.add_argument('--root', help="Root directory to look for files in")
 
     def input_choice(self, options, message=None, display=None):
         if message:
@@ -53,6 +58,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         playlist_file = options.get("playlist_file")
+        force = options.get('force', False)
         quiet = options.get('quiet', False)
         if not os.path.exists(playlist_file):
             print(f"{playlist_file} does not exist")
@@ -65,32 +71,55 @@ class Command(BaseCommand):
         if not song_files:
             return
 
-        root_options = self.subpaths(song_files[0])
-        root_dir = self.input_choice(root_options, "Possible root directories:")
+        root_dir = options.get("root")
+        if not root_dir or not os.path.exists(root_dir):
+            root_options = self.subpaths(song_files[0])
+            root_dir = self.input_choice(root_options, "Possible root directories:")
         if not root_dir:
             print("No root directory identified")
             return
 
         existing_count = 0
-        moved = []
+        copied = []
         skipped = []
         failures = []
         for i, path in enumerate(song_files):
-            exists = os.path.exists(path)
+            exists = not force and os.path.exists(path)
             print(f"Checking if {i + 1} of {len(song_files)}, {path}, exists: {exists}")
             if exists:
                 existing_count += 1
                 continue
 
-            tail = os.path.split(path)[1]
+            tail = os.path.split(path)[1].lower()
             options = []
             for root, dirs, files in os.walk(root_dir):
-                if tail in files:
-                    options.append(os.path.join(root, tail))
+                for original in files:
+                    if not original.endswith(".mp3"):
+                        continue
+
+                    target = original.lower()
+
+                    target = re.sub("\.mp3$", "", target)
+                    tail = re.sub("\.mp3$", "", tail)
+
+                    if tail not in target:
+                        target = re.sub("^[0-9]*\s*", "", target)
+                    if tail not in target:
+                        target = re.sub("\s*[0-9]*$", "", target)
+                    if tail in target:
+                        options.append(os.path.join(root, original))
+                    else:
+                        tail_letters = re.sub("[^a-z]+", "", tail)
+                        target_letters = re.sub("[^a-z]+", "", target)
+                        if tail_letters in target_letters:
+                            options.append(os.path.join(root, original))
             if not options:
                 print(f"Could not find any likely candidate files for {tail}")
                 failures.append(path)
                 continue
+
+            options = sorted(options, key=lambda option: distance(path, option))
+            options = options[:10]
             source_path = self.input_choice(options, display=lambda x: x.replace(root_dir, "")[1:])
             if not source_path:
                 skipped.append(path)
@@ -104,13 +133,13 @@ class Command(BaseCommand):
                     continue
             source_path = os.path.join(root_dir, source_path)
             dest_path = os.path.join(root_dir, path)
-            if quiet or input(f"Move\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
-                moved.append(path)
-                shutil.move(source_path, dest_path)
+            if quiet or input(f"Copy\n\t{source_path} to\n\t{dest_path}? (y/n) ").lower() == "y":
+                copied.append(path)
+                shutil.copy(source_path, dest_path)
 
         print("=====================================")
         print(f"Examined {len(song_files)} songs")
         print(f"{existing_count} already existed")
-        self.print_list(moved, "moved")
+        self.print_list(copied, "copied")
         self.print_list(skipped, "skipped")
         self.print_list(failures, "not found")

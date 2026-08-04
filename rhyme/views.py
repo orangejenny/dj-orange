@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import re
 
@@ -74,6 +75,12 @@ def song_list(request):
         context.update({
             'cover_art_filename': album.cover_art_filename,
         })
+    elif request.GET.get("playlist_id"):
+        playlist = Playlist.objects.get(id=request.GET.get("playlist_id"))
+        tracks = [(None, None, song) for song in playlist.songs]
+        count = len(tracks)
+        more = False
+        disc_names = []
     else:
         page = int(request.GET.get('page', 1))
         album_filters = request.GET.get('album_filters')
@@ -136,24 +143,11 @@ def song_update(request):
     elif field == 'starred' and playlist_name is not None:
         playlist = Playlist.objects.filter(name=playlist_name).first()
         playlist_song = PlaylistSong.objects.filter(playlist_id=playlist.id, song_id=song.id)
-        is_natural = song.id in [s.id for s in playlist.natural_songs]
 
-        if value:
-            if is_natural:
-                if playlist_song:
-                    # delete presumable exclusion
-                    playlist_song.delete()
-            else:
-                # add inclusion
-                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=True).save()
+        if playlist_song:
+            playlist_song.delete()
         else:
-            if is_natural:
-                # add exclusion
-                PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=False).save()
-            else:
-                if playlist_song:
-                    # delete presumable inclusion
-                    playlist_song.delete()
+            PlaylistSong(playlist_id=playlist.id, song_id=song.id, inclusion=value).save()
     else:
         setattr(song, field, value)
     song.save()
@@ -194,23 +188,30 @@ def album_list(request):
 
 @require_GET
 @login_required
-def artist_select2(request):
-    return _select2_list(request, Artist.objects)
+def artist_choices(request):
+    return _choices_list(request, Artist.objects)
 
 
 @require_GET
 @login_required
-def playlist_select2(request):
-    return _select2_list(request, Playlist.objects)
+def playlist_choices(request):
+    return _choices_list(request, Playlist.objects)
+
+
+@require_POST
+@login_required
+def playlist_delete(request, playlist_id):
+    Playlist.objects.filter(id=playlist_id).delete()
+    return JsonResponse({"success": 1})
 
 
 @require_GET
 @login_required
-def tag_select2(request):
-    return _select2_list(request, Tag.objects)
+def tag_choices(request):
+    return _choices_list(request, Tag.objects)
 
 
-def _select2_list(request, objects):
+def _choices_list(request, objects):
     query = request.GET.get("term")
     if query:
         objects = objects.filter(name__icontains=query)
@@ -248,18 +249,54 @@ def album_export(request):
     return _playlist_response(request, songs, song_filters=song_filters)
 
 
+@require_POST
+@login_required
+def album_art_upload(request):
+    album_id = request.POST.get('album_id')
+    image = request.FILES.get('image')
+    if not album_id or not image:
+        return JsonResponse({'success': 0, 'message': 'Missing album_id or image'})
+
+    directory = os.path.join(settings.MEDIA_ROOT, 'rhyme', 'collections', str(album_id))
+    os.makedirs(directory, exist_ok=True)
+
+    for existing in os.listdir(directory):
+        os.remove(os.path.join(directory, existing))
+
+    ext = os.path.splitext(image.name)[1]
+    filename = f'cover{ext}'
+    with open(os.path.join(directory, filename), 'wb') as f:
+        for chunk in image.chunks():
+            f.write(chunk)
+
+    cover_art_filename = os.path.join(settings.MEDIA_URL, 'rhyme', 'collections', str(album_id), filename)
+    return JsonResponse({'success': 1, 'cover_art_filename': cover_art_filename})
+
+
 @require_GET
 @login_required
 def song_export(request):
     if request.GET.get('album_id'):
         return album_export(request)
 
+    if request.GET.get('playlist_ids'):
+        playlist_ids = [int(pid) for pid in request.GET['playlist_ids'].split(',')]
+        seen_ids = set()
+        songs = []
+        for playlist in Playlist.objects.filter(id__in=playlist_ids).order_by('name'):
+            for song in playlist.songs:
+                if song.id not in seen_ids:
+                    songs.append(song)
+                    seen_ids.add(song.id)
+        return _playlist_response(request, songs, save=len(playlist_ids) > 1)
+
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
         'song_filters': request.GET.get('song_filters'),
         'omni_filter': request.GET.get('omni_filter'),
     }
-    return _playlist_response(request, Song.list(**filter_kwargs), **filter_kwargs)
+    save = request.GET.get('source') != 'playlists'
+    return _playlist_response(request, Song.list(**filter_kwargs), save=save, **filter_kwargs)
 
 
 @require_GET
@@ -371,26 +408,30 @@ def json_tracks(request):
     return response
 
 
-def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None):
+def _playlist_response(request, songs, song_filters=None, album_filters=None, omni_filter=None, save=True):
     for song in songs:
         song.audit_export()
 
     playlist_name = request.GET.get("filename", "rhyme")
     config_name = request.GET.get("config")
-    if config_name == "plex":
-        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
-        return JsonResponse({
-            "success": 1,
-            "count": count,
-            "name": playlist_name,
-        })
-    elif config_name == "rhyme":
+
+    if save:
         Playlist(name=playlist_name,
                  song_filters=song_filters,
                  album_filters=album_filters,
                  omni_filter=omni_filter).save()
+
+    if config_name == "rhyme":
+        # Nothing else to do
         return JsonResponse({
             "success": 1,
+            "name": playlist_name,
+        })
+    elif config_name == "plex":
+        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
+        return JsonResponse({
+            "success": 1,
+            "count": count,
             "name": playlist_name,
         })
     else:
@@ -435,6 +476,16 @@ def matrix(request):
         "title": "Matrix",
         "has_export": True,
     }, request))
+
+
+def playlists(request):
+    template = loader.get_template('rhyme/playlists.html')
+    context = {
+        **_rhyme_context(),
+        "playlists": Playlist.objects.order_by("name"),
+        "has_export": True,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def network(request):

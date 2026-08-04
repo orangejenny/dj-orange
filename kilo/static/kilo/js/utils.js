@@ -2,17 +2,6 @@ function getFrequencyGraphOptions() {
     return getGraphOptions();
 }
 
-function getPaceGraphOptions() {
-    let options = getGraphOptions();
-    if (options?.axis?.y?.tick) {
-        options.axis.y.tick.format = getTime;
-    }
-    if (options?.axis?.y2?.tick) {
-        options.axis.y2.tick.format = getTime;
-    }
-    return options;
-}
-
 function getGraphOptions() {
     return JSON.parse(document.getElementById('graph-options').innerHTML);
 }
@@ -43,4 +32,45 @@ function getTime(seconds) {
       return [hours, minutes, seconds].join(":")
   }
   return [minutes, seconds].join(":");
+}
+
+function loadPaceChart(url) {
+    fetch(url)
+        .then(response => response.json())
+        .then(options => {
+            if (options?.axis?.y?.tick) {
+                options.axis.y.tick.format = getTime;
+            }
+            document.getElementById('chart').innerHTML = '';
+            c3.generate(options);
+        });
+}
+
+function clearChart() {
+    document.getElementById('chart').innerHTML = '';
+}
+
+function hideRecent() {
+    document.getElementById('recent').style.display = 'none';
+}
+
+function showRecent() {
+    document.getElementById('recent').style.display = '';
+}
+
+function initDropdowns(event) {
+    const dropdowns = event.detail.elt.querySelectorAll("select");
+    dropdowns.forEach(d => new Choices(d, {
+        itemSelectText: "",
+    }));
+}
+
+function navigateVisual(page, url, year) {
+    if (page === "erging" || page === "running") {
+        let url = document.getElementById('pace-url').innerHTML;
+        loadPaceChart(url + '?activity=' + page + '&year=' + year);
+    } else {
+        clearChart();
+    }
+    hideRecent();
 }

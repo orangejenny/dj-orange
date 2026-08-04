@@ -21,50 +21,103 @@
 
 {% block body %}
   <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#"
          hx-get="{% url "frequency" %}"
          hx-trigger="load, click"
          hx-target="#graph-options"
-         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions())"
+         hx-indicator="#loading"
+         hx-on:htmx:after-request="c3.generate(getFrequencyGraphOptions()); showRecent()"
       >Kilo</a>
-      <ul class="navbar-nav flex-grow-1">
-        <li class="nav-item">
-          <a class="nav-link" href="#"
-             hx-get="{% url "recent" %}"
-             hx-target="#panel"
-          >Recent</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"
-             hx-get="{% url "pace" %}"
-             hx-target="#graph-options"
-             hx-on:htmx:after-request="c3.generate(getPaceGraphOptions())"
-          >Speed</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"
-             hx-get="{% url "stats" %}"
-             hx-target="#panel"
-          >Achievement</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"
-             hx-get="{% url "history" %}"
-             hx-target="#panel"
-          >History</a>
-        </li>
-      </ul>
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#kilo-nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="kilo-nav">
+        <ul class="navbar-nav flex-grow-1">
+          <li class="nav-item">
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "stats" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('stats')"
+              >PRs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="stats" %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "history" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('history')"
+              >History</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="history" %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "erging" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('erging')"
+              >Erging</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="erging" %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "lifting" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('lifting')"
+              >Lifting</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="lifting" %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <div class="btn-group">
+              <a class="nav-link" href="#"
+                 hx-get="{% url "long_runs" %}"
+                 hx-target="#panel"
+                 hx-indicator="#loading"
+                 hx-on:htmx:after-request="navigateVisual('running')"
+              >Long Runs</a>
+              {% include "kilo/partials/years_dropdown.html" with url_name="long_runs" %}
+            </div>
+          </li>
+        </ul>
+      </div>
     </nav>
     <br />
-    <div id="panel">
-      <div class="loading">
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <div class="spinner-grow text-secondary m-3" role="status"></div>
-        <span class="visually-hidden">Loading...</span>
-      </div>
+    {% if messages %}
+      <ul class="list-unstyled">
+        {% for message in messages %}
+          <li{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      <br />
+    {% endif %}
+    <div id="loading" class="text-center htmx-indicator">
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <div class="spinner-grow text-secondary m-3" role="status"></div>
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div id="chart" class="d-none d-md-block"></div>
+    <div id="panel" hx-on:htmx:after-swap="initDropdowns(event)">
+    </div>
+    <div id="recent"
+         hx-get="{% url "recent" %}"
+         hx-trigger="load"
+         hx-indicator="#loading"
+         hx-on:htmx:after-swap="initDropdowns(event)">
     </div>
     <div id="graph-options" style="display: none;"></div>
+    <div id="pace-url" style="display: none;">{% url "pace" %}</div>
   </div>
 {% endblock body %}

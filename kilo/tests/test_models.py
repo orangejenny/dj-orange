@@ -11,7 +11,7 @@ class SimpleWorkoutTest(SimpleTestCase):
             activity="erging",
             km=6,
             seconds=24 * 60 + 47.9,
-        ).summary, "6 km in 24:47.9 (2:04.0)")
+        ).summary, "6 km in 24:47.9 (2:04)")
         self.assertEqual(Workout(
             activity="running",
             mi=4,
@@ -30,7 +30,7 @@ class SimpleWorkoutTest(SimpleTestCase):
             sets=5,
             reps=1,
             weight=185,
-        ).summary, "5 x 1 @ 185lb")
+        ).summary, "5 x 1 @ 185lb (84.1kg)")
 
     def test_time(self):
         self.assertIsNone(Workout().time)

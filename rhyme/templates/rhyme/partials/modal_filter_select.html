@@ -1,7 +1,7 @@
 {% extends 'rhyme/partials/modal_filter_base.html' %}
 
 {% block body %}
-    <select class="lhs form-control select2 in-modal" multiple data-url="{{ url }}">
+    <select class="lhs form-control choices-js" multiple data-url="{{ url }}">
         {% for option in options %}
             <option>{{ option }}</option>
         {% endfor %}

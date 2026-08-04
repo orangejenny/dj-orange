@@ -9,6 +9,14 @@ from django.db import models
 from django.utils.functional import cached_property
 
 
+class AuditModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class FilterMixin():
     bool_fields = []
     numeric_fields = []
@@ -94,12 +102,11 @@ class FilterMixin():
                 song_ids = set()
                 for value in rhs.split(","):
                     playlist = Playlist.objects.filter(name=value).first()
-                    if playlist is None:
-                        raise Exception("Could not find playlist: {}".format(value))
-                    if op == '=':   # all
-                        song_ids = song_ids & {s.id for s in playlist.songs}
-                    else:           # any, none
-                        song_ids = song_ids | {s.id for s in playlist.songs}
+                    if playlist:
+                        if op == '=':   # all
+                            song_ids = song_ids & {s.id for s in playlist.songs}
+                        else:           # any, none
+                            song_ids = song_ids | {s.id for s in playlist.songs}
 
                 if op == '!=':    # none
                     actions = [("id__in", song_ids, False)]
@@ -151,12 +158,12 @@ class FilterMixin():
 
 class ExportableMixin(object):
     def audit_export(self):
-        self.last_export = datetime.now(timezone.utc)
+        self.exported_at = datetime.now(timezone.utc)
         self.export_count = self.export_count + 1
         self.save()
 
 
-class Artist(models.Model):
+class Artist(AuditModel):
     name = models.CharField(max_length=63, unique=True)
     genre = models.CharField(max_length=63)
 
@@ -173,7 +180,7 @@ class Artist(models.Model):
         return sorted(list(set([artist.genre for artist in Artist.objects.all() if artist.genre])))
 
 
-class Song(models.Model, FilterMixin, ExportableMixin):
+class Song(AuditModel, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
@@ -183,6 +190,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         'tag': 'tag__name',
         'artist': 'artist__name',
         'genre': 'artist__genre',
+        'ordinal': 'track__ordinal',
     }
 
     omni_fields = ['name', 'artist', 'tag']
@@ -201,7 +209,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
     year = models.IntegerField(null=True)
 
     export_count = models.IntegerField(default=0)
-    last_export = models.DateTimeField(null=True)
+    exported_at = models.DateTimeField(null=True)
     play_count = models.IntegerField(default=0)
     last_play = models.DateTimeField(null=True)
 
@@ -264,7 +272,7 @@ class Song(models.Model, FilterMixin, ExportableMixin):
         return songs.distinct()
 
 
-class Playlist(models.Model):
+class Playlist(AuditModel):
     name = models.CharField(max_length=127, null=True)
     plex_guid = models.CharField(max_length=255, null=True)
     plex_key = models.CharField(max_length=255, null=True)
@@ -282,10 +290,41 @@ class Playlist(models.Model):
         if self.omni_filter:
             values.append(f"[{self.omni_filter}]")
         if self.song_filters:
-            values.append(self.song_filters)
+            values.append(self._format_filters(self.song_filters))
         if self.album_filters:
-            values.append(self.album_filters)
+            values.append(self._format_filters(self.album_filters))
         return "; ".join(values)
+
+    @staticmethod
+    def _format_filters(filters):
+        conjunction = "||" if "||" in filters else "&&"
+        conditions = filters.split(conjunction)
+        formatted = []
+        for condition in conditions:
+            m = re.match(r'(\w+)\s*([<>=*!?]*)\s*(\S.*)', condition.strip())
+            if m:
+                lhs, op, rhs = m.groups()
+                rhs = re.sub(r',\s*', ', ', rhs)
+                formatted.append(f"{lhs} {op} {rhs}")
+            else:
+                formatted.append(condition)
+        return f" {conjunction} ".join(formatted)
+
+    @property
+    def last_update(self):
+        from django.db.models import Max
+        ps_max = PlaylistSong.objects.filter(playlist=self).aggregate(Max('updated_at'))['updated_at__max']
+        if ps_max and ps_max > self.updated_at:
+            return ps_max
+        return self.updated_at
+
+    @property
+    def added_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=True).count()
+
+    @property
+    def removed_count(self):
+        return PlaylistSong.objects.filter(playlist=self, inclusion=False).count()
 
     @classmethod
     def empty_playlist(cls):
@@ -312,7 +351,7 @@ class Playlist(models.Model):
         return songs
 
 
-class PlaylistSong(models.Model):
+class PlaylistSong(AuditModel):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     inclusion = models.BooleanField(default=True)
@@ -325,7 +364,7 @@ class PlaylistSong(models.Model):
         return "{} {} {}".format(str(self.playlist), verb, str(self.song))
 
 
-class Album(models.Model, FilterMixin, ExportableMixin):
+class Album(AuditModel, FilterMixin, ExportableMixin):
     bool_fields = ['is_mix']
     text_fields = ['name']
     related_fields = {}
@@ -340,7 +379,7 @@ class Album(models.Model, FilterMixin, ExportableMixin):
     is_mix = models.BooleanField(default=False)
 
     export_count = models.IntegerField(default=0)
-    last_export = models.DateTimeField(null=True)
+    exported_at = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ["-date_acquired"]
@@ -438,10 +477,10 @@ class Album(models.Model, FilterMixin, ExportableMixin):
             return "Never exported"
 
         if self.export_count == 1:
-            return f"Exported once, on {self.last_export}"
+            return f"Exported once, on {self.exported_at}"
 
         times = "twice" if self.export_count == 2 else f"{self.export_count} times"
-        return f"Exported {times}<br>Last exported {self.last_export}"
+        return f"Exported {times}<br>Last exported {self._format_date(self.exported_at)}"
 
     @property
     def artist(self):
@@ -452,15 +491,11 @@ class Album(models.Model, FilterMixin, ExportableMixin):
 
     @cached_property
     def cover_art_filename(self):
-        # TODO: standardize handling of static files
-        root = os.path.dirname(os.path.abspath(__file__))
-        relative = os.path.join("rhyme", "img", "collections", str(self.id))
-        directory = os.path.join(root, "static", relative)
+        directory = os.path.join(settings.MEDIA_ROOT, "rhyme", "collections", str(self.id))
         if os.path.isdir(directory):
             files = os.listdir(directory)
-            if len(files):
-                # TODO: this is crufty, store one file per album instead of a directory
-                return os.path.join(settings.STATIC_URL, relative, files[0])
+            if files:
+                return os.path.join(settings.MEDIA_URL, "rhyme", "collections", str(self.id), files[0])
         return None
 
     @cached_property
@@ -505,14 +540,14 @@ class Album(models.Model, FilterMixin, ExportableMixin):
             "name": self.name,
             "date_acquired": self._format_date(self.date_acquired),
             "export_count": self.export_count,
-            "last_export": self._format_date(self.last_export),
+            "exported_at": self._format_date(self.exported_at),
             "starred": self.starred,
         }
 
     def _format_date(self, date):
         if not date:
             return ""
-        return date.strftime("%b %d, %Y")
+        return date.strftime("%b %e, %Y")
 
 
 # Only named discs have entries here
@@ -545,7 +580,7 @@ class Track(models.Model):
         return "{}: {}. {}".format(str(self.album), self.ordinal, str(self.song))
 
 
-class Tag(models.Model):
+class Tag(AuditModel):
     name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255, null=True)
     songs = models.ManyToManyField(Song)

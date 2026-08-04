@@ -9,9 +9,9 @@
 {% endblock js %}
 
 {% block filters %}
-    <div class="btn-group" role="group" id="active-playlist-container">
-        <select class="form-control select2" data-bind="value: activePlaylistName" id="active-playlist"
-                data-placeholder="No Active Playlist" data-allow-clear="1" data-tags="1">
+    <div class="btn-group d-none d-md-flex" role="group" id="active-playlist-container">
+        <select class="form-control choices-js" data-bind="value: activePlaylistName" id="active-playlist"
+                data-placeholder="No Active Playlist">
             <option></option>
             {% for playlist in playlists %}
                 <option>{{ playlist.name }}</option>
@@ -22,7 +22,7 @@
 {% endblock filters %}
 
 {% block content %}
-    <table class="song-table table table-striped table-condensed table-hover">
+    <table class="song-table table table-striped table-hover">
         <tbody class="item-page" data-url="{% url "song_list" %}" data-bind="foreach: items">
             {% include "rhyme/partials/song_row.html" %}
         </tbody>

@@ -4,10 +4,13 @@ import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
+from django.urls import reverse
 
 from kilo.models import Day, Workout
 from kilo.stats import best_erg, best_run, sum_erging, sum_running
@@ -15,7 +18,13 @@ from kilo.stats import best_erg, best_run, sum_erging, sum_running
 
 @login_required
 def base(request):
-    return HttpResponse(render(request, "kilo/base.html"))
+    year = datetime.now().year
+    years = [y for y in range(year - 5, year)]
+    years.reverse()
+
+    return HttpResponse(render(request, "kilo/base.html", {
+        "years": years,
+    }))
 
 
 @require_POST
@@ -39,6 +48,32 @@ def update(request):
         "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
+@require_POST
+@login_required
+def copy(request):
+    to_obj = datetime(*[int(p) for p in request.POST.get('to').split('-')])
+    to_day = Day.objects.filter(day=to_obj).first()
+    if to_day is None:
+        to_day = Day(day=to_obj)
+        to_day.save()
+
+    from_obj = datetime(*[int(p) for p in request.POST.get('from').split('-')])
+    from_day = Day.objects.filter(day=from_obj).first()
+    for workout in from_day.workout_set.all():
+        Workout(
+            day=to_day,
+            activity=workout.activity,
+            distance_unit=workout.distance_unit,
+            weight=workout.weight,
+            sets=workout.sets,
+            reps=workout.reps,
+            distance=workout.distance,
+            seconds=workout.seconds,
+        ).save()
+    messages.success(request, f"Copied {from_day.workout_set.count()} workouts from {from_day.day} to {to_day.day}.")
+
+    return redirect(reverse('base'))
+
 
 @require_POST
 @login_required
@@ -55,7 +90,13 @@ def add_workout(request):
         day.save()
 
     workout = Workout(day=day)
-    workout.activity = "running"
+    if day.workout_set.count():
+        last_workout = day.workout_set.last()
+        workout.activity = last_workout.activity
+        workout.distance = last_workout.distance
+        workout.distance_unit = last_workout.distance_unit
+    else:
+        workout.activity = "running"
     workout.save()
 
     return render(request, "kilo/partials/workout_item.html", {
@@ -124,8 +165,36 @@ def recent(request):
 @require_GET
 @login_required
 def history(request):
-    days = Day.get_recent_days(90)
+    year =  request.GET.get('year')
+    days = Day.get_year(year)
     return _days(request, days)
+
+
+@require_GET
+@login_required
+def erging(request):
+    year =  request.GET.get('year')
+    days = Day.get_year(year)
+    days = days.filter(workout__activity="erging")
+    return _days(request, days)
+
+
+@require_GET
+@login_required
+def lifting(request):
+    today = datetime.now().date()
+    days = Day.objects.filter(workout__weight__isnull=False, day__gte=today - timedelta(days=180))
+    return _days(request, days)
+
+
+@require_GET
+@login_required
+def long_runs(request):
+    today = datetime.now().date()
+    days = Day.objects.filter(workout__activity="running", day__gte=today - timedelta(days=365 * 3))
+    days = days.filter(Q(workout__distance_unit="mi", workout__distance__gt=5) | Q(workout__distance_unit="mi", workout__distance__gt=9))
+    return _days(request, days)
+
 
 
 def _days(request, days):
@@ -134,6 +203,7 @@ def _days(request, days):
         "days": [_format_day(d) for d in days],
         "all_activities": Workout.activity_options(),
         "all_distance_units": Workout.DISTANCE_UNITS,
+        "today": datetime.now().date(),
     })
 
 
@@ -154,87 +224,115 @@ def _format_day(day):
 @require_GET
 @login_required
 def stats(request):
-    last_year_days = Day.get_recent_days(365)
-    last_month_days = Day.get_recent_days(30)
+    year = request.GET.get('year')
+    days = Day.get_year(year)
+
+    try:
+        year = int(year)
+    except (TypeError, ValueError):
+        year = None
 
     erging_stats = []
-    erging_stats.append({
-        "name": "Past Month",
-        "primary": sum_erging(last_month_days),
-        "secondary": "total m erged"}
-    )
-    workout = best_erg(last_month_days, km=2)
+    if not year:
+        last_month_days = Day.get_recent_days(30)
+        erging_stats.append({
+            "name": "Past Month",
+            "primary": sum_erging(last_month_days),
+            "secondary": "total m erged"}
+        )
+        workout = best_erg(last_month_days, km=2)
+        if workout:
+            erging_stats.append({
+                "name": "Past Month's Best 2k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+        workout = best_erg(last_month_days, km=6)
+        if workout:
+            erging_stats.append({
+                "name": "Past Month's Best 6k",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+    workout = best_erg(days, km=2)
     if workout:
         erging_stats.append({
-            "name": "Past Month's Best 2k",
+            "name": "Best 2k",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
-    workout = best_erg(last_month_days, km=6)
+    workout = best_erg(days, km=6)
     if workout:
         erging_stats.append({
-            "name": "Past Month's Best 6k",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_erg(last_year_days, km=2)
-    if workout:
-        erging_stats.append({
-            "name": "Past Year's Best 2k",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_erg(last_year_days, km=6)
-    if workout:
-        erging_stats.append({
-            "name": "Past Year's Best 6k",
+            "name": "Best 6k",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
 
     running_stats = []
-    running_stats.append({
-        "name": "Past Month",
-        "primary": sum_running(last_month_days),
-        "secondary": "total miles run",
-    })
     boundary = 7
-    workout = best_run(last_month_days, upper_mi=boundary)
+    if not year:
+        last_month_days = Day.get_recent_days(30)
+        running_stats.append({
+            "name": "Past Month",
+            "primary": sum_running(last_month_days),
+            "secondary": "total miles run",
+        })
+        workout = best_run(last_month_days, upper_mi=boundary)
+        if workout:
+            running_stats.append({
+                "name": "Past Month's Best Short Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+        workout = best_run(last_month_days, lower_mi=boundary)
+        if workout:
+            running_stats.append({
+                "name": "Past Month's Best Long Run",
+                "primary": workout.primary_stat(),
+                "secondary": workout.secondary_stat(),
+            })
+    workout = best_run(days, upper_mi=boundary)
     if workout:
         running_stats.append({
-            "name": "Past Month's Best Short Run",
+            "name": "Best Short Run",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
-    workout = best_run(last_month_days, lower_mi=boundary)
+    workout = best_run(days, lower_mi=boundary)
     if workout:
         running_stats.append({
-            "name": "Past Month's Best Long Run",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_run(last_year_days, upper_mi=boundary)
-    if workout:
-        running_stats.append({
-            "name": "Past Year's Best Short Run",
-            "primary": workout.primary_stat(),
-            "secondary": workout.secondary_stat(),
-        })
-    workout = best_run(last_year_days, lower_mi=boundary)
-    if workout:
-        running_stats.append({
-            "name": "Past Year's Best Long Run",
+            "name": "Best Long Run",
             "primary": workout.primary_stat(),
             "secondary": workout.secondary_stat(),
         })
 
+    lifting_workouts = Workout.objects.filter(weight__isnull=False)
+    if year:
+        lifting_workouts = lifting_workouts.filter(day__day__gte=f"{year}-01-01", day__day__lte=f"{year}-12-31")
+    else:
+        last_year = datetime.now().date() - timedelta(days=365)
+        lifting_workouts = lifting_workouts.filter(day__day__gte=last_year)
+    lifting_stats = []
+
+    for activity in lifting_workouts.order_by('activity').values_list('activity', flat=True).distinct():
+        workout = lifting_workouts.filter(activity=activity).order_by('-weight').first()
+        lifting_stats.append({
+            'name': activity,
+            'primary': f"{round(workout.weight, 1)} lb",
+            'secondary': workout.day.day,
+        })
+
     return render(request, "kilo/partials/stats.html", {
         "stats": [{
-            "title": "Erging",
+            "title": f"Erging {year or ''}",
             "stats": erging_stats,
         }, {
-            "title": "Running",
+            "title": f"Running {year or ''}",
             "stats": running_stats,
+        }, {
+            "title": f"Lifting {year or ''}",
+            "stats": lifting_stats,
         }],
     })
 
@@ -282,7 +380,12 @@ def frequency(request):
 @require_GET
 @login_required
 def pace(request):
-    days = Day.get_recent_days(365)
+    activity_filter = request.GET.get('activity')
+    if activity_filter not in ('running', 'erging'):
+        return HttpResponse(f"Invalid activity '{activity_filter}', expected 'running' or 'erging'", status=400)
+
+    year =  request.GET.get('year')
+    days = Day.get_year(year)
 
     def interval_filter(wset, activity, distance_test):
         if any([w.activity != activity for w in wset.all()]):
@@ -294,31 +397,31 @@ def pace(request):
             return False
         if wset.first().activity != activity:
             return False
-        return distance_test(wset.first().km)
+        first = wset.first()
+        return distance_test(first.km) if first.km else False
 
     series_map = {
-        "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
-        "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
-        "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
-        "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
-        "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
-        "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
+        "erging": {
+            "500m": lambda wset: interval_filter(wset, "erging", lambda km: km == 0.5),
+            "1000m": lambda wset: interval_filter(wset, "erging", lambda km: km == 1),
+            "2k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 2),
+            "6k": lambda wset: single_workout_filter(wset, "erging", lambda km: km == 6),
+        },
+        "running": {
+            "short_run": lambda wset: single_workout_filter(wset, "running", lambda km: km < 15),
+            "long_run": lambda wset: single_workout_filter(wset, "running", lambda km: km > 15),
+        },
     }
+
+    active_series = series_map[activity_filter]
+
     data = {}
-    data["xs"] = {f"y_{k}": f"x_{k}" for k in series_map.keys()}
-    data["axes"] = {
-        "y_short_run": "y",
-        "y_long_run": "y",
-        "y_500m": "y2",
-        "y_1000m": "y2",
-        "y_2k": "y2",
-        "y_6k": "y2",
-    }
-    columns = {f"y_{k}": [] for k in series_map.keys()}
-    columns.update({f"x_{k}": [] for k in series_map.keys()})
+    data["xs"] = {f"y_{k}": f"x_{k}" for k in active_series.keys()}
+    columns = {f"y_{k}": [] for k in active_series.keys()}
+    columns.update({f"x_{k}": [] for k in active_series.keys()})
     for day in days:
         series_key = None
-        for key, test in series_map.items():
+        for key, test in active_series.items():
             if test(day.workout_set):
                 series_key = key
         if series_key:
@@ -338,27 +441,26 @@ def pace(request):
             "grouped": False,
         },
     })
-    options["axis"]["y"]["min"] = 0 * 60
-    options["axis"]["y"]["max"] = 11 * 60
-    options["axis"]["y"]["tick"] = {
-        "outer": False,
-        "values": [x * 60 for x in [7, 8, 9, 10]],
-    }
-    options["axis"]["y2"] = {
-        "show": True,
-        "min": 1.75 * 60,
-        "max": 2.5 * 60,
-        "tick": {
+    if activity_filter == "erging":
+        options["axis"]["y"]["min"] = 1.75 * 60
+        options["axis"]["y"]["max"] = 2.5 * 60
+        options["axis"]["y"]["tick"] = {
             "outer": False,
             "values": [105, 110, 115, 120, 125, 130, 135],
-        },
-    }
+        }
+    elif activity_filter == "running":
+        options["axis"]["y"]["min"] = 0 * 60
+        options["axis"]["y"]["max"] = 11 * 60
+        options["axis"]["y"]["tick"] = {
+            "outer": False,
+            "values": [x * 60 for x in [7, 8, 9, 10]],
+        }
     return JsonResponse(options)
 
 
 def _get_graph_options(data):
     return {
-        "bindto": "#panel",
+        "bindto": "#chart",
         "data": data,
         "axis": {
             "x": {
