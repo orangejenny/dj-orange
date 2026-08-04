@@ -1,5 +1,5 @@
 django>=2.2.13
-GitPython==3.1.41
+GitPython==3.1.57
 gunicorn==23.0.0
 levenshtein>=0.27.1
 mutagen>=1.47.0
