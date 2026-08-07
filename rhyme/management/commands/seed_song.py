@@ -1,7 +1,7 @@
 from django.db.models import Q
 
 from rhyme.management.commands.rhyme_command import Command as RhymeCommand
-from rhyme.models import Song, Tag, Track
+from rhyme.models import Playlist, PlaylistSong, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
 from datetime import datetime
