@@ -17,7 +17,7 @@
             {% csrf_token %}
             <div class="btn-group" role="group">
                 {% include "kilo/partials/add_workout.html" %}
-                <button type="button" class="btn btn-outline-secondary btn-sm"
+                <button type="button" class="btn btn-outline-secondary btn-lg"
                   x-show="!copyingWorkouts"
                   x-on:click="copyingWorkouts = true;"
                 >
@@ -30,10 +30,10 @@
                   xvalue="{{ today }}"
                   value="{{ today.year }}-{{ today.month }}-{{ today.day }}"
                 />
-                <button type="submit" class="float-end btn btn-outline-success btn-sm"
+                <button type="submit" class="float-end btn btn-outline-success btn-lg"
                   x-show="copyingWorkouts">
                 <i class="fa fa-copy"></i>
-                <button type="button" class="float-end btn btn-outline-danger btn-sm"
+                <button type="button" class="float-end btn btn-outline-danger btn-lg"
                   x-on:click="editingWorkouts = !editingWorkouts">
                 <i class="fa fa-times"></i>
               </button>
@@ -44,7 +44,7 @@
           </div>
         </td>
         <td class="col-12 col-md-6" x-data="{ editingNotes: false }">
-          <button type="button" class="btn btn-outline-secondary btn-sm float-end"
+          <button type="button" class="btn btn-outline-secondary btn-lg float-end"
             x-show="!editingNotes"
             x-on:click="editingNotes = true"
           ><i class="fa fa-pencil"></i></button>
@@ -55,13 +55,13 @@
           <div x-show="!editingNotes">{{ day.notes|default:"" }}</div>
 
           <div class="btn-group" role="group" x-show="editingNotes">
-            <button type="button" class="btn btn-sm btn-outline-success"
+            <button type="button" class="btn btn-lg btn-outline-success"
               hx-post="{% url "update" %}"
               hx-include="closest tr"
               hx-target="closest tr">
               <i class="fa fa-check"></i>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-danger"
+            <button type="button" class="btn btn-lg btn-outline-danger"
               x-on:click="editingNotes = false"
             >
               <i class="fa fa-times"></i>
