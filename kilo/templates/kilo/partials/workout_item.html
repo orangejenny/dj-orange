@@ -30,13 +30,13 @@
     </div>
     <div class="col-1">
       <div class="btn-group" role="group" x-show="editingWorkouts">
-        <button type="button" class="float-end btn btn-outline-success btn-sm"
+        <button type="button" class="float-end btn btn-outline-success btn-lg"
           hx-post="{% url "update_workout" %}"
           hx-include="closest li"
           hx-target="closest li">
           <i class="fa fa-check"></i>
         </button>
-        <button type="button" class="btn btn-outline-danger btn-sm"
+        <button type="button" class="btn btn-outline-danger btn-lg"
           x-on:click="workoutCount -= 1"
           hx-post="{% url "delete_workout" %}"
           hx-include="closest li"
