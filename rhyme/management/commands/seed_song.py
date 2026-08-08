@@ -1,8 +1,7 @@
 from django.db.models import Q
 
 from rhyme.management.commands.rhyme_command import Command as RhymeCommand
-from rhyme.models import Playlist, PlaylistSong, Song, Tag, Track
-from rhyme.plex import create_plex_playlist
+from rhyme.models import Song, Tag, Track
 
 from datetime import datetime
 import random
@@ -82,20 +81,7 @@ class Command(RhymeCommand):
             lake = pool
             print(f"Pool size: {len(pool)}, {min(lake.values())}-{max(lake.values())}")
 
-        # Display and export
-        for song_id in lake:
-            print(Song.objects.get(id=song_id))
-
-        command = input("\nExport to (r)hyme, (p)lex? ").lower()
-        if command == "r":
-            playlist = Playlist.empty_playlist()
-            playlist.name = input("Name? ")
-            playlist.save()
-            for song_id in lake.keys():
-                PlaylistSong(playlist_id=playlist.id, song_id=song_id, inclusion=True).save()
-        elif command == "p":
-            playlist_name = input("Name? ")
-            create_plex_playlist(playlist_name, Song.objects.filter(id__in=lake.keys()))
+        self.export_playlist(lake.keys(), display=True)
 
     def album_ids(self, song):
         return Track.objects.filter(song=song).values_list("album_id", flat=True)
