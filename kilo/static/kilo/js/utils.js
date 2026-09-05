@@ -62,6 +62,7 @@ function initDropdowns(event) {
     const dropdowns = event.detail.elt.querySelectorAll("select");
     dropdowns.forEach(d => new Choices(d, {
         itemSelectText: "",
+        addChoices: d.dataset.addChoices,
     }));
 }
 
