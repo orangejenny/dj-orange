@@ -16,7 +16,7 @@
       </select>
     </div>
     <div class="col-2">
-      <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
+      <input type="number" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
     </div>
     <div class="col-2">
       <select class="form-control" name="distance_unit">
@@ -50,11 +50,11 @@
   <div class="row g-1 mb-1" x-show="editingWorkouts">
      <div class="col-3"></div>
      <div class="col-2">
-       <input type="text" class="form-control" name="sets" placeholder="sets"
+       <input type="number" class="form-control" name="sets" placeholder="sets"
               value="{{ workout.sets|default:"" }}" />
      </div>
      <div class="col-2">
-       <input type="text" class="form-control" name="reps" placeholder="reps"
+       <input type="number" class="form-control" name="reps" placeholder="reps"
               value="{{ workout.reps|default:"" }}" />
      </div>
      <div class="col-2">
