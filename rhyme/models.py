@@ -184,7 +184,7 @@ class Song(AuditModel, FilterMixin, ExportableMixin):
     RATING_ATTRIBUTES = ['rating', 'energy', 'mood']
 
     bool_fields = ['starred']
-    numeric_fields = RATING_ATTRIBUTES + ['time', 'year']
+    numeric_fields = RATING_ATTRIBUTES + ['time', 'year', 'bpm']
     text_fields = ['name']
     related_fields = {
         'tag': 'tag__name',
@@ -201,6 +201,7 @@ class Song(AuditModel, FilterMixin, ExportableMixin):
     name = models.CharField(max_length=127, db_index=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     filename = models.CharField(max_length=255, null=True)
+    bpm = models.IntegerField(null=True)
     rating = models.IntegerField(null=True)
     mood = models.IntegerField(null=True)
     energy = models.IntegerField(null=True)
