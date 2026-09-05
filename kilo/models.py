@@ -116,7 +116,7 @@ class Workout(models.Model):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def activity_options(cls):
+    def recent_activities(cls):
         # Get activities for the past few years. That's typically enough.
         today = datetime.now().date()
         workouts = cls.objects.filter(day__day__gte=today - timedelta(days=365 * 4))
