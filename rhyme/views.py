@@ -428,10 +428,14 @@ def _playlist_response(request, songs, song_filters=None, album_filters=None, om
             "name": playlist_name,
         })
     elif config_name == "plex":
-        count = create_plex_playlist(playlist_name, songs, song_filters, album_filters, omni_filter)
+        plex_playlist = create_plex_playlist(playlist_name, songs)
+        if save:
+            playlist.plex_guid = plex_playlist.guid
+            playlist.plex_key = plex_playlist.key
+            playlist.plex_count = len(items)
+            playlist.save()
         return JsonResponse({
             "success": 1,
-            "count": count,
             "name": playlist_name,
         })
     else:
