@@ -118,12 +118,16 @@ class Workout(models.Model):
     @classmethod
     def recent_activities(cls):
         # Get activities for the past few years. That's typically enough.
+        # Returns an ordered dict where the key is the activity name and value is the most recent workout
         today = datetime.now().date()
         workouts = cls.objects.filter(day__day__gte=today - timedelta(days=365 * 4))
         activity_counter = Counter(workouts.values_list("activity", flat=True))
         common_activities = [a[0] for a in activity_counter.most_common(3)]
         other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
-        return common_activities + other_activities
+        return {
+            activity: workouts.filter(activity=activity).first()
+            for activity in common_activities + other_activities
+        }
 
     @property
     def m(self):

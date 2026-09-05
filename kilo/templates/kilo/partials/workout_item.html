@@ -14,9 +14,12 @@
         {% if workout.activity %}
           <option selected>{{ workout.activity }}</option>
         {% endif %}
-        {% for activity in all_activities %}
+        {% for activity, last_workout in all_activities.items %}
           {% if workout.activity != activity %}
-            <option>{{ activity }}</option>
+            <option
+              data-last-sets="{{ last_workout.sets }}"
+              data-last-reps="{{ last_workout.reps }}"
+              data-last-weight="{{ last_workout.weight }}">{{ activity }}</option>
           {% endif %}
         {% endfor %}
       </select>
