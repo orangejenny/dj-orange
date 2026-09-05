@@ -10,8 +10,9 @@
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Artist' icon='microphone' lhs='artist' url='artist_choices' disallow_null=True %}
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Genre' icon='folder' lhs='genre' options=RHYME_GENRES last=True %}
 
+{% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='BPM' icon='clock' lhs='bpm' %}
+{% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='hourglass-start' lhs='time' last=True %}
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' %}
-{% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='clock' lhs='time' last=True %}
 
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Year Acquired' icon='shopping-cart' lhs='acquired_year' disallow_null=True last=True %}
 
