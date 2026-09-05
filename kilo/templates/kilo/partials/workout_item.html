@@ -10,8 +10,14 @@
   <div class="row g-1 mb-1 align-items-center" x-show="editingWorkouts">
     <div class="col-3">
       <select class="form-control" name="activity" data-add-choices="1">
+        {# Be certain to show workout activity - if looking at an old workout, it might not be in all_activities #}
+        {% if workout.activity %}
+          <option selected>{{ workout.activity }}</option>
+        {% endif %}
         {% for activity in all_activities %}
-          <option{% if workout.activity == activity %} selected{% endif %}>{{ activity }}</option>
+          {% if workout.activity != activity %}
+            <option>{{ activity }}</option>
+          {% endif %}
         {% endfor %}
       </select>
     </div>

@@ -117,7 +117,10 @@ class Workout(models.Model):
 
     @classmethod
     def activity_options(cls):
-        activity_counter = Counter(cls.objects.all().values_list("activity", flat=True))
+        # Get activities for the past few years. That's typically enough.
+        today = datetime.now().date()
+        workouts = cls.objects.filter(day__day__gte=today - timedelta(days=365 * 4))
+        activity_counter = Counter(workouts.values_list("activity", flat=True))
         common_activities = [a[0] for a in activity_counter.most_common(3)]
         other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
         return common_activities + other_activities
