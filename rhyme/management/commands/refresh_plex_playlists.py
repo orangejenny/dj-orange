@@ -48,9 +48,7 @@ class Command(BaseCommand):
             if command == "d":
                 playlist.delete()
             elif command == "c":
-                create_plex_playlist(playlist.name, Song.list(song_filters=playlist.song_filters,
-                                                              album_filters=playlist.album_filters,
-                                                              omni_filter=playlist.omni_filter))
+                create_plex_playlist(playlist.name, playlist.songs)
             elif command == "r":
                 playlist.name = input("New name? ")
                 playlist.save()
