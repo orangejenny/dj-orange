@@ -9,14 +9,23 @@
   </span>
   <div class="row g-1 mb-1 align-items-center" x-show="editingWorkouts">
     <div class="col-3">
-      <select class="form-control" name="activity">
-        {% for activity in all_activities %}
-          <option{% if workout.activity == activity %} selected{% endif %}>{{ activity }}</option>
+      <select class="form-control" name="activity" data-add-choices="1">
+        {# Be certain to show workout activity - if looking at an old workout, it might not be in all_activities #}
+        {% if workout.activity %}
+          <option selected>{{ workout.activity }}</option>
+        {% endif %}
+        {% for activity, last_workout in all_activities.items %}
+          {% if workout.activity != activity %}
+            <option
+              data-last-sets="{{ last_workout.sets }}"
+              data-last-reps="{{ last_workout.reps }}"
+              data-last-weight="{{ last_workout.weight }}">{{ activity }}</option>
+          {% endif %}
         {% endfor %}
       </select>
     </div>
     <div class="col-2">
-      <input type="text" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
+      <input type="number" class="form-control" name="distance" placeholder="distance" value="{{ workout.distance|default:"" }}" />
     </div>
     <div class="col-2">
       <select class="form-control" name="distance_unit">
@@ -50,11 +59,11 @@
   <div class="row g-1 mb-1" x-show="editingWorkouts">
      <div class="col-3"></div>
      <div class="col-2">
-       <input type="text" class="form-control" name="sets" placeholder="sets"
+       <input type="number" class="form-control" name="sets" placeholder="sets"
               value="{{ workout.sets|default:"" }}" />
      </div>
      <div class="col-2">
-       <input type="text" class="form-control" name="reps" placeholder="reps"
+       <input type="number" class="form-control" name="reps" placeholder="reps"
               value="{{ workout.reps|default:"" }}" />
      </div>
      <div class="col-2">

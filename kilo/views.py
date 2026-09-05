@@ -44,7 +44,7 @@ def update(request):
 
     return render(request, "kilo/partials/day_row.html", {
         "day": _format_day(day),
-        "all_activities": Workout.activity_options(),
+        "all_activities": Workout.recent_activities(),
         "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
@@ -101,7 +101,7 @@ def add_workout(request):
 
     return render(request, "kilo/partials/workout_item.html", {
         "workout": workout.to_json(),
-        "all_activities": Workout.activity_options(),
+        "all_activities": Workout.recent_activities(),
         "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
@@ -141,7 +141,7 @@ def update_workout(request):
 
     return render(request, "kilo/partials/workout_item.html", {
         "workout": workout.to_json(),
-        "all_activities": Workout.activity_options(),
+        "all_activities": Workout.recent_activities(),
         "all_distance_units": Workout.DISTANCE_UNITS,
     })
 
@@ -201,7 +201,7 @@ def _days(request, days):
 
     return render(request, "kilo/partials/days_table.html", {
         "days": [_format_day(d) for d in days],
-        "all_activities": Workout.activity_options(),
+        "all_activities": Workout.recent_activities(),
         "all_distance_units": Workout.DISTANCE_UNITS,
         "today": datetime.now().date(),
     })
