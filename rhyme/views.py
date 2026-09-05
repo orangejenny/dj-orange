@@ -110,6 +110,7 @@ def song_list(request):
             'id': song.id,
             'name': song.name,
             'artist': song.artist.name,
+            'bpm': song.bpm,
             'rating': song.rating or '',
             'energy': song.energy or '',
             'mood': song.mood or '',
