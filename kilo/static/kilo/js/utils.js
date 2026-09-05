@@ -60,10 +60,46 @@ function showRecent() {
 
 function initDropdowns(event) {
     const dropdowns = event.detail.elt.querySelectorAll("select");
-    dropdowns.forEach(d => new Choices(d, {
-        itemSelectText: "",
-        addChoices: d.dataset.addChoices,
-    }));
+    dropdowns.forEach(function (d) {
+        new Choices(d, {
+            itemSelectText: "",
+            addChoices: d.dataset.addChoices,
+        })
+        if (d.name === "activity" ) {
+            d.addEventListener(
+                'choice',
+                function(event) {
+                    const el = event.detail.element;
+                    let container = el;
+                    do {
+                        container = container.parentElement;
+                    } while (
+                        container
+                        && container.nodeName.toLowerCase() != "li"
+                        && container.nodeName.toLowerCase() != "body"
+                    )
+
+                    const setLastValue = function (name, value) {
+                        const input = container.querySelector("input[name='" + name + "']");
+                        if (input) {
+                            input.value = value;
+                        }
+                    };
+
+                    if (el.dataset.lastSets) {
+                        setLastValue("sets", el.dataset.lastSets)
+                    }
+                    if (el.dataset.lastReps) {
+                        setLastValue("reps", el.dataset.lastReps)
+                    }
+                    if (el.dataset.lastWeight) {
+                        setLastValue("weight", el.dataset.lastWeight)
+                    }
+                },
+                false,
+            );
+        }
+    });
 }
 
 function navigateVisual(page, url, year) {
