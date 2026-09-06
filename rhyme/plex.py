@@ -60,7 +60,7 @@ def plex_options(library, song, plex_key=None):
         if not len(options):
             needle = re.sub("[^a-z]+", "", needle)
             options = [t for t in ancestor.tracks() if needle in re.sub("[^a-z]+", "", t.title)]
-    options = sorted(options, key=lambda option: distance(song.name, option))
+    options = sorted(options, key=lambda option: distance(song.name, option.title))
     options = options[:5]
     return options
 
