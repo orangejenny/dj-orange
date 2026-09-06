@@ -99,4 +99,4 @@ class Command(BaseCommand):
                     song.save()
 
         songs = missing_songs()
-        print("Finished. Remaining missing songs: {len(songs)}")
+        print(f"Finished. Remaining missing songs: {len(songs)}")
