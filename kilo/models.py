@@ -253,7 +253,7 @@ class Workout(models.Model):
               text += f" ({self.pace}) ";
 
         if self.weight:
-            text += f"@ {round(float(self.weight), 1)}lb ({round(float(self.weight) / 2.2, 1)}kg)"
+            text += f"@ {round(float(self.weight), 1):g}lb ({round(float(self.weight) / 2.2, 1):g}kg)"
 
         return text.strip()
 
