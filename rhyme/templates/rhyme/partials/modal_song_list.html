@@ -16,7 +16,7 @@
                         </table>
                     </div>
                 </div>
-                <table data-bind="ifnot: modalHeaders().length" class='song-table'>
+                <table data-bind="ifnot: modalHeaders().length" class='song-table table table-hover'>
                     <tbody data-bind="foreach: modalSongs">
                         {% include "rhyme/partials/song_row.html" %}
                     </tbody>
