@@ -125,7 +125,7 @@ class Workout(models.Model):
         common_activities = [a[0] for a in activity_counter.most_common(3)]
         other_activities = sorted([a for a in activity_counter.keys() if a not in common_activities])
         return {
-            activity: workouts.filter(activity=activity).first()
+            activity: workouts.filter(activity=activity).last()
             for activity in common_activities + other_activities
         }
 
