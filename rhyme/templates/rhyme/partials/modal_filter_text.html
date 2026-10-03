@@ -15,4 +15,11 @@
         <input class="form-control rhs" />
         <button class="btn btn-outline-secondary btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '=', getFilterValue(e)) }" data-bs-dismiss="modal">Onward</button>
     </div>
+    <div class="input-group mb-3">
+        <div class="input-group-text">
+            is not
+        </div>
+        <input class="form-control rhs" />
+        <button class="btn btn-outline-secondary btn-block" data-bind="click: function (model, e) { addFilter('{{ model }}', '{{ lhs }}', '!=', getFilterValue(e)) }" data-bs-dismiss="modal">Onward</button>
+    </div>
 {% endblock %}
