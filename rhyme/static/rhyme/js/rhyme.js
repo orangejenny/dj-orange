@@ -238,7 +238,7 @@ function rhymeModel (options) {
     });
 
     self.getFilterValue = function (e) {
-        var $input = $(e.target).closest(".form-group").find("input, select");
+        var $input = $(e.target).closest(".input-group").find("input, select");
         if (!$input.length) {
             $input = $(e.target).closest(".modal").find("input, select");
         }
@@ -250,7 +250,7 @@ function rhymeModel (options) {
     };
 
     self.getTimeFilterValue = function (e) {
-        var value = $(e.target).closest(".form-group").find("input").val(),
+        var value = $(e.target).closest(".input-group").find("input").val(),
             match = value.match(/^(\d+):(\d+)$/);
         if (!match) {
             alert("Invalid time, please enter MM:SS value")
