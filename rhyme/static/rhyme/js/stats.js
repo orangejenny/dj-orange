@@ -49,9 +49,9 @@ function rhymeStatsModel(options) {
 
     self.setClearVisibility = function () {
         if ($("svg .selected").length) {
-            $(".selection-buttons").removeClass("hide");
+            $(".selection-buttons").removeClass("d-none");
         } else {
-            $(".selection-buttons").addClass("hide");
+            $(".selection-buttons").addClass("d-none");
         }
     };
 
@@ -88,12 +88,12 @@ function rhymeStatsModel(options) {
             }
 
             if (show) {
-                $tooltip.removeClass("hide");
+                $tooltip.removeClass("d-none");
                 positionTooltip();
             }
         });
         d3.selectAll(selector).on("mouseleave.tooltip", function() {
-            $("#tooltip").addClass("hide");
+            $("#tooltip").addClass("d-none");
         });
         d3.selectAll(selector).on("mousemove.tooltip", function() {
             positionTooltip();
