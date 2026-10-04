@@ -47,17 +47,30 @@ document.querySelectorAll('.playlist-name, .playlist-filters').forEach(function(
     });
 });
 
+document.querySelectorAll('.playlist-model button').forEach(function(group) {
+    group.addEventListener('click', function() {
+        var button = this,
+            otherButton = button.previousElementSibling || button.nextElementSibling;
+        if (button.classList.contains("active")) {
+            return;
+        }
+        button.classList.add("active");
+        otherButton.classList.remove("active");
+    });
+});
+
 document.querySelectorAll('.playlist-export-cell').forEach(function(cell) {
     cell.addEventListener('click', function() {
-        var row = this.closest('tr');
+        var row = this.closest('tr'),
+            model = row.querySelector(".playlist-model button.active")?.dataset['model'] || 'song';
         ExportPlaylist({
             config: this.dataset.config,
-            model: 'song',
+            model: model,
             source: 'playlists',
             song_filters: row.dataset.songFilters,
             album_filters: row.dataset.albumFilters,
             omni_filter: row.dataset.omniFilter,
-            filename: row.dataset.name,
+            filename: row.dataset.name + (model === "album" ? " albums" : ""),
         });
     });
 });
