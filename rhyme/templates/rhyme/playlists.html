@@ -47,7 +47,9 @@
                 <th data-sort="name" style="cursor: pointer">Name <span class="sort-indicator"></span></th>
                 <th data-sort="filters" style="cursor: pointer">Filters <span class="sort-indicator"></span></th>
                 <th data-sort="songs" style="cursor: pointer">Songs <span class="sort-indicator"></span></th>
+                <th data-sort="albums" style="cursor: pointer">Albums <span class="sort-indicator"></span></th>
                 <th data-sort="updated_at" style="cursor: pointer">Updated <span class="sort-indicator"></span></th>
+                <th></th>
                 {% for config in RHYME_EXPORT_CONFIGS %}
                     <th class="text-center"><i class="fas {{ config.icon }}"></i></th>
                 {% endfor %}
@@ -73,7 +75,18 @@
                         {% endif %}
                     </td>
                     <td>{{ playlist.songs|length }}</td>
+                    <td>{{ playlist.albums|length }}</td>
                     <td data-value="{{ playlist.last_update|date:'U' }}">{{ playlist.last_update|timesince }} ago</td>
+                    <td>
+                        <div class="btn-group playlist-model" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-model="song">
+                                <i class="fas fa-music"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-model="album">
+                                <i class="fas fa-compact-disc"></i>
+                            </button>
+                        </div>
+                    </td>
                     {% for config in RHYME_EXPORT_CONFIGS %}
                         <td class="text-center playlist-export-cell" style="cursor: pointer" data-config="{{ config.name }}">
                             <i class="fas {{ config.icon }}"></i>

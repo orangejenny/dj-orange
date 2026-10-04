@@ -351,6 +351,16 @@ class Playlist(AuditModel):
 
         return songs
 
+    @property
+    def albums(self):
+        albums = set()
+
+        for song in self.songs:
+            tracks = Track.objects.filter(song=song)
+            albums = albums | {t.album for t in tracks}
+
+        return list(albums)
+
 
 class PlaylistSong(AuditModel):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
