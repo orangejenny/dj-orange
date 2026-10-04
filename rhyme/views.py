@@ -511,6 +511,15 @@ def network(request):
     }, request))
 
 
+def timeline(request):
+    template = loader.get_template('rhyme/timeline.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
+        "title": "Timeline",
+        "has_export": True,
+    }, request))
+
+
 @require_GET
 @login_required
 def _stats(request, extra_context):
@@ -629,3 +638,14 @@ def _network_tag_links(allow_song_id, strength, category=None):
         "target": key[1],
         "value": value,
     } for key, value in links.items() if value >= strength]
+
+
+@require_GET
+@login_required
+def timeline_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+    return JsonResponse({
+        "success": 1,
+    })
