@@ -246,8 +246,7 @@ def album_export(request):
     for album in albums:
         songs += album.songs
         album.audit_export()
-    song_filters = "album_id*=" + ",".join([str(a.id) for a in albums])
-    return _playlist_response(request, songs, song_filters=song_filters)
+    return _playlist_response(request, songs, **filter_kwargs)
 
 
 @require_POST
