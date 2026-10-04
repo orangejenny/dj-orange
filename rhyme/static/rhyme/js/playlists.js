@@ -27,12 +27,18 @@ function exportCheckedPlaylists(config) {
         alert('No playlists selected.');
         return;
     }
-    var ids = rows.map(function(row) { return row.dataset.id; }).join(',');
+    var playlists = rows.map(function(row) {
+        return {
+            id: row.dataset.id,
+            model: row.querySelector(".playlist-model button.active")?.dataset['model'] || 'song'
+        };
+    });
     var firstName = rows[0].dataset.name;
     ExportPlaylist({
         config: config,
         model: 'song',
-        playlist_ids: ids,
+        playlist_ids: playlists.map(p => p.id).join(","),
+        playlist_models: playlists.map(p => p.model).join(","),
         filename: firstName,
     });
 }

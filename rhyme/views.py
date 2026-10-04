@@ -18,7 +18,7 @@ from django.urls import NoReverseMatch, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from rhyme.exceptions import ExportConfigNotFoundException
+from rhyme.exceptions import ExportConfigNotFoundException, InvalidModelException
 from rhyme.models import Album, Artist, Color, Disc, Playlist, PlaylistSong, Song, Tag, Track
 from rhyme.plex import create_plex_playlist
 
@@ -281,14 +281,22 @@ def song_export(request):
 
     if request.GET.get('playlist_ids'):
         playlist_ids = [int(pid) for pid in request.GET['playlist_ids'].split(',')]
-        seen_ids = set()
-        songs = []
-        for playlist in Playlist.objects.filter(id__in=playlist_ids).order_by('name'):
-            for song in playlist.songs:
-                if song.id not in seen_ids:
-                    songs.append(song)
-                    seen_ids.add(song.id)
-        return _playlist_response(request, songs, save=len(playlist_ids) > 1)
+        playlist_models = request.GET.get('playlist_models', []).split(',')
+        if len(playlist_ids) != len(playlist_models):
+            playlist_models = ['song'] * len(playlist_ids)
+
+        songs = set()
+        for index, playlist in enumerate(Playlist.objects.filter(id__in=playlist_ids).order_by('name')):
+            model = playlist_models[index]
+            if model == "song":
+                for song in playlist.songs:
+                    songs.add(song)
+            elif model == "album":
+                for album in playlist.albums:
+                    songs = songs | set(album.songs)
+            else:
+                raise InvalidModelException(f"Invalid model {model}")
+        return _playlist_response(request, list(songs), save=len(playlist_ids) > 1)
 
     filter_kwargs = {
         'album_filters': request.GET.get('album_filters'),
