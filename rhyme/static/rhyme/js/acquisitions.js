@@ -43,14 +43,14 @@ function rhymeStatsAcquisitionsModel(options) {
             minYear = d3.min(_.pluck(data, "date")).getFullYear(),
             maxYear = d3.max(_.pluck(data, "date")).getFullYear(),
             xScale = d3.scaleLinear().range([0, self.width]).domain([minYear, maxYear + 1]);
-        self.xAxis = d3.axisBottom(xScale)
+        let xAxis = d3.axisBottom(xScale)
                         .tickValues(_.map(_.range(minYear, maxYear + 1), function(t) { return t + 0.5; }))
                         .tickFormat(function(t) { return Math.floor(t); });
 
         self.svg.append("g")
                 .attr("class", "axis")
                 .attr("transform", "translate(0," + (self.height - self.xAxisMargin) + ")")
-                .call(self.xAxis);
+                .call(xAxis);
         self.svg.selectAll(".axis text").attr("y", 2);
     };
 
