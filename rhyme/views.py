@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
@@ -646,6 +646,30 @@ def timeline_json(request):
     omni_filter = request.GET.get('omni_filter', '')
     album_filters = request.GET.get('album_filters')
     song_filters = request.GET.get('song_filters')
-    return JsonResponse({
-        "success": 1,
-    })
+
+    songs = Song.list(song_filters=song_filters,
+                      album_filters=album_filters,
+                      omni_filter=omni_filter)
+
+    def _filter_tags(songs, tags):
+        if not len(tags):
+            return songs
+
+        qcondition = Q(**{"tag__name__exact": tags[0]})
+        for tag in tags[1:]:
+            qcondition = qcondition | Q(**{"tag__name__exact": tag})
+
+        return songs.filter(qcondition)
+
+    seasons = Tag.objects.filter(category='seasons').values_list('name', flat=True)
+    songs = _filter_tags(songs, seasons)
+
+    years = Tag.objects.filter(category='years').values_list('name', flat=True)
+    songs = _filter_tags(songs, years)
+
+    stats = defaultdict(dict)
+    for year in years:
+        for season in seasons:
+            stats[year][season] = songs.filter(tag__name__exact=year).filter(tag__name__exact=season).count()
+
+    return JsonResponse({"stats": stats})
