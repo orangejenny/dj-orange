@@ -481,6 +481,15 @@ def plex_in(request, api_key):
     return JsonResponse({"success": 0, "message": "Could not find song"})
 
 
+def acquisitions(request):
+    template = loader.get_template('rhyme/acquisitions.html')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
+        "title": "Acquisitions",
+        "has_export": True,
+    }, request))
+
+
 def matrix(request):
     template = loader.get_template('rhyme/matrix.html')
     return HttpResponse(template.render({
@@ -530,6 +539,27 @@ def _stats(request, extra_context):
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))
+
+
+@require_GET
+@login_required
+def acquisitions_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+
+    songs = Song.list(song_filters=song_filters,
+                      album_filters=album_filters,
+                      omni_filter=omni_filter)
+
+    albums = set()
+    for song in songs:
+        albums = albums | set(song.albums)
+
+    stats = defaultdict(lambda: 0)
+    for album in albums:
+        stats[album.date_acquired.strftime("%Y-%m")] += 1
+    return JsonResponse({"stats": stats})
 
 
 @require_GET

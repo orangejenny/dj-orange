@@ -8,11 +8,11 @@ function rhymeStatsTimelineModel(options) {
     self.svg = d3.select(self.selector + " svg");
 
     self.getSelectionFilter = function (selection) {
-        var conditions = _.uniq(_.map(selection.data(), function (s) { return "tag=" + s.year + (s.season ? "," + self.seasonIndex[s.season] : ""); }));
-        if (conditions.length > 1) {
+        var filters = _.uniq(_.map(selection.data(), function (s) { return "tag=" + s.year + (s.season ? "," + self.seasonIndex[s.season] : ""); }));
+        if (filters.length > 1) {
             alert("TODO: handle multiple bars");
         }
-        return conditions[0];
+        return filters[0];
     };
 
     self.refresh = function () {
