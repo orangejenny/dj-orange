@@ -8,7 +8,7 @@ function rhymeStatsAcquisitionsModel(options) {
     self.svg = d3.select(self.selector + " svg");
 
     self.getSelectionFilter = function (selection) {
-        // TODO
+        return _.uniq(_.flatten(_.pluck(selection.data(), 'filter'))).join("||");
     };
 
     self.refresh = function () {
