@@ -42,8 +42,8 @@ class Command(BaseCommand):
         self.add_album(song_filters=f"rating>=3&&tag={this_year - 1},{this_season}", count=2)
 
         # Undiscovered
-        self.add_album(album_filters="acquired_year>={this_year - 1}", song_filters="rating=?false")
-        self.add_album(album_filters="acquired_year<={this_year - 5}", song_filters="rating=?false")
+        self.add_album(album_filters="date_acquired>={this_year - 1}", song_filters="rating=?false")
+        self.add_album(album_filters="date_acquired<={this_year - 5}", song_filters="rating=?false")
 
         # Happy
         self.add_album(song_filters=f"rating>=4&&mood>=4", count=2)

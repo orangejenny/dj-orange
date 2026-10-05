@@ -14,7 +14,7 @@
 {% include 'rhyme/partials/modal_filter_time.html' with model='song' name='Song Length' icon='hourglass-start' lhs='time' last=True %}
 {% include 'rhyme/partials/modal_filter_numeric.html' with model='song' name='Release Year' icon='calendar' lhs='year' %}
 
-{% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Year Acquired' icon='shopping-cart' lhs='acquired_year' disallow_null=True last=True %}
+{% include 'rhyme/partials/modal_filter_numeric.html' with model='album' name='Date Acquired' icon='shopping-cart' lhs='date_acquired' disallow_null=True last=True %}
 
 {% include 'rhyme/partials/modal_filter_select.html' with model='song' name='Playlist' icon='list' lhs='playlist' url='playlist_choices' include_all=True disallow_null=True %}
 

@@ -86,15 +86,18 @@ class FilterMixin():
                 qcondition = models.Q(**{"tag__name__exact": year_tags[0]})
                 for value in year_tags[1:]:
                     qcondition = qcondition | models.Q(**{"tag__name__exact": value})
-            elif lhs == "acquired_year":
-                lhs = "date_acquired"
-                rhs = int(rhs)
+            elif lhs == "date_acquired":
                 if op == '>=':
                     lhs = lhs + "__gte"
-                    rhs = f"{rhs}-01-01"
+                    template = "2000-01"
+                    rhs = rhs + template[len(rhs):]
+                    rhs += "-01"
                 elif op == '<=':
                     lhs = lhs + "__lte"
-                    rhs = f"{rhs}-12-31"
+                    template = "2020-12"
+                    rhs = rhs + template[len(rhs):]
+                    max_days = [None, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                    rhs += f"-{max_days[int(rhs[-2:])]}"
                 else:
                     raise Exception("Unrecognized op for {}: {}".format(lhs, op))
                 actions = [(lhs, rhs, True)]
