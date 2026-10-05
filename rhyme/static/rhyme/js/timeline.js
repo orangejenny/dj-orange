@@ -1,13 +1,16 @@
 function rhymeStatsTimelineModel(options) {
     options.init = false;
     var self = rhymeStatsModel(options);
+
+    self.seasonIndex = ['winter', 'spring', 'summer', 'autumn'];
+    self.xAxisMargin = 20;
     self.selector = ".chart-container";
     self.svg = d3.select(self.selector + " svg");
 
-    /*self.getSelectionFilter = function (selection) {
-        var conditions = _.uniq(_.map(selection.data(), function (s) { return "mood=" + s.mood + "&&energy=" + s.energy; }));
+    self.getSelectionFilter = function (selection) {
+        var conditions = _.uniq(_.map(selection.data(), function (s) { return "tag=" + s.year + (s.season ? "," + self.seasonIndex[s.season] : ""); }));
         if (conditions.length > 1) {
-            alert("TODO: handle multiple bubbles");
+            alert("TODO: handle multiple bars");
         }
         return conditions[0];
     };
@@ -23,9 +26,8 @@ function rhymeStatsTimelineModel(options) {
                 data = self.reformatData(data.stats);
                 self.setDimensions();
                 $(self.selector + " svg").empty();
-                self.drawAxes();
-                var bubbles = self.drawBubbles(data);
-                self.drawLabels(bubbles);
+                self.drawBars(data);
+                self.drawAxes(data);
                 self.attachTooltip(self.selector + " g");
                 self.attachSelectionHandlers(self.selector + " g");
             },
@@ -34,85 +36,91 @@ function rhymeStatsTimelineModel(options) {
 
     self.setDimensions = function () {
         self.width = $(self.selector).width();
-        self.height = self.width;
-        self.bubbleSize = self.width / (self.range + 1);
+        self.height = self.width / 3;
         self.svg.attr("width", self.width)
         self.svg.attr("height", self.height);
     };
 
-    self.drawAxes = function () {
-        self.svg.append("line")
+    self.drawAxes = function (data) {
+        self.xAxis = d3.axisBottom(self.getXScale(data))
+                       .scale(self.getXScale(data))
+                       .tickFormat(function(y) { return parseInt(y); })
+                       .tickValues(_.map(_.range(self.getMinYear(data), self.getMaxYear(data) + 1), function(y) { return y + .5; }));
+        self.svg.append("g")
                 .attr("class", "axis")
-                .attr("x1", 0)
-                .attr("y1", self.height / 2)
-                .attr("x2", self.width)
-                .attr("y2", self.height / 2);
-        self.svg.append("line")
-                .attr("class", "axis")
-                .attr("x1", self.width / 2)
-                .attr("y1", 0)
-                .attr("x2", self.width / 2)
-                .attr("y2", self.height);
+                .attr("transform", "translate(0," + (self.height - self.xAxisMargin) + ")")
+                .call(self.xAxis);
+        self.svg.selectAll(".axis text").attr("y", 2);
     };
 
-    self.drawBubbles = function (data) {
-        var scale = self.getScale(data);
-        var margin = self.bubbleSize / 2;
-        var bubbles = self.svg.selectAll("g")
-                                    .data(data)
-                                    .enter().append("g")
-                                    .attr("transform", function(d, i) {
-                                        var x = self.bubbleSize * (d.energy - 1) + margin;
-                                        var y = self.bubbleSize * (self.range - d.mood) + margin;
-                                        return "translate(" + x + ", " + y + ")";
-                                    });
-    
-        bubbles.append("circle")
-                    .attr("cx", self.bubbleSize / 2)
-                    .attr("cy", self.bubbleSize / 2)
-                    .attr("r", function(d) { return scale(d.count) / 2; });
-        return bubbles;
+    self.getMaxYear = function(data) {
+        const allYears = _.pluck(data, 'year').sort();
+        return +allYears[allYears.length - 1];
     };
 
-    self.drawLabels = function (bubbles) {
-        bubbles.append("text")
-                    .attr("x", self.bubbleSize / 2)
-                    .attr("y", self.bubbleSize / 2)
-                    .attr("dy", "0.35em")
-                    .text(function(d) { return d.count || ""; });
+    self.getMinYear = function(data) {
+        const allYears = _.pluck(data, 'year').sort();
+        return +allYears[0];
     };
 
-    self.getScale = function (data) {
-        var scale = d3.scaleLinear().range([0, self.bubbleSize * 2]);
-        scale.domain([0, _.max(_.pluck(data, 'count'))]);
+    self.getXScale = function(data) {
+        var scale = d3.scaleLinear().range([0, self.width]);
+        scale.domain([self.getMinYear(data), self.getMaxYear(data) + 1]);
         return scale;
     };
 
+    self.getYScale = function(data) {
+        var scale = d3.scaleLinear().range([0, self.height - self.xAxisMargin]);
+        scale.domain([_.reduce(data, function(memo, d) { return Math.max(memo, d.count); }, 0), 0]);
+        return scale;
+    };
+
+    self.drawBars = function (data) {
+        const minYear = self.getMinYear(data),
+            maxYear = self.getMaxYear(data),
+            barSize = self.width / (maxYear - minYear + 1);
+        let bars = self.svg.selectAll("g")
+                                    .data(data)
+                                    .enter().append("g")
+                                    .attr("transform", function(d, i) {
+                                        return "translate(" + self.getXScale(data).call(null, d.year) + ", 0)";
+                                    });
+        bars.append("rect")
+                .attr("x", function(d) { return d.season === undefined ? 0 : d.season * (barSize / 4); })
+                .attr("y", function(d) { return self.getYScale(data).call(null, d.count); })
+                .attr("width", function(d) { return d.season === undefined ? barSize - 2 : (barSize - 8) / 4; })
+                .attr("height", function(d) { return self.height - self.xAxisMargin - self.getYScale(data).call(null, d.count); })
+                .style("opacity", function(d) { return d.season === undefined ? 0.25 : 1; });
+    };
+
     self.reformatData = function(data) {
-        var moodDescriptions = ['very unhappy', 'unhappy', 'neutral', 'happy', 'very happy'];
-        var energyDescriptions = ['very slow', 'slow', 'medium tempo', 'energetic', 'very energetic'];
-        var bubbles = [];
-        for (e = 1; e <= self.range; e++) {
-            for (m = 1; m <= self.range; m++) {
-                var relevant = _.filter(data, function(d) {
-                    return d.energy == e && d.mood == m;
+        const yearData = [];
+        const seasonData = [];
+
+        for (year in data) {
+            let yearCount = 0;
+            for (season in data[year]) {
+                const seasonCount = data[year][season],
+                    text = year + " " + season;
+                seasonData.push({
+                    year: +year,
+                    season: self.seasonIndex.indexOf(season),
+                    count: seasonCount,
+                    description: seasonCount + " " + text + " " + pluralize(seasonCount.count, "song"),
+                    filename: text,
                 });
-                var bubble = {
-                    energy: e,
-                    mood: m,
-                    count: _.reduce(relevant, function(memo, d) {
-                        return memo + +d.count;
-                    }, 0),
-                    condition: 'mood=' + m + ' and energy=' + e,
-                    filename: [moodDescriptions[m - 1], energyDescriptions[e - 1]].join(" "),
-                };
-                bubble.description = bubble.count + " " + bubble.filename + " " + pluralize(bubble.count, "song");
-                bubbles.push(bubble);
+                yearCount += seasonCount;
             }
+            yearData.push({
+                year: +year,
+                count: yearCount,
+                description: yearCount + " " + year + " " + pluralize(yearCount, "song"),
+                filename: year,
+            });
         }
-        bubbles = _.sortBy(bubbles, 'count').reverse();
-        return bubbles;
-    };*/
+
+        return yearData.concat(seasonData);
+    };
 
     self.refresh();
 
@@ -122,7 +130,7 @@ function rhymeStatsTimelineModel(options) {
 $(function() {
     var model = rhymeStatsTimelineModel({
         model: 'song',
-        url: reverse('matrix_json'),
+        url: reverse('timeline_json'),
     });
     ko.applyBindings(model);
 });
