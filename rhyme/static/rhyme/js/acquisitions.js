@@ -2,6 +2,8 @@ function rhymeStatsAcquisitionsModel(options) {
     options.init = false;
     var self = rhymeStatsModel(options);
 
+    self.xAxisMargin = 20;
+    self.barMargin = 0;
     self.selector = ".chart-container";
     self.svg = d3.select(self.selector + " svg");
 
@@ -36,16 +38,23 @@ function rhymeStatsAcquisitionsModel(options) {
     };
 
     self.drawAxes = function (data) {
-        // TODO
-        /*self.xAxis = d3.axisBottom(self.getXScale(data))
-                       .scale(self.getXScale(data))
-                       .tickFormat(function(y) { return parseInt(y); })
-                       .tickValues(_.map(_.range(self.getMinYear(data), self.getMaxYear(data) + 1), function(y) { return y + .5; }));
+        const barSize = self.getBarSize(self.getMinMonthCount(data), self.getMaxMonthCount(data)),
+            minYear = d3.min(_.pluck(data, "date")).getFullYear(),
+            maxYear = d3.max(_.pluck(data, "date")).getFullYear(),
+            xScale = d3.scaleLinear().range([0, self.width]).domain([minYear, maxYear + 1]);
+        self.xAxis = d3.axisBottom(xScale)
+                        .tickValues(_.map(_.range(minYear, maxYear + 1), function(t) { return t + 0.5; }))
+                        .tickFormat(function(t) { return Math.floor(t); });
+
         self.svg.append("g")
                 .attr("class", "axis")
                 .attr("transform", "translate(0," + (self.height - self.xAxisMargin) + ")")
                 .call(self.xAxis);
-        self.svg.selectAll(".axis text").attr("y", 2);*/
+        self.svg.selectAll(".axis text").attr("y", 2);
+    };
+
+    self.getBarSize = function(minMonthCount, maxMonthCount) {
+        return self.width / (maxMonthCount - minMonthCount + 1) - self.barMargin;
     };
 
     self.getMaxYear = function(data) {
@@ -58,19 +67,17 @@ function rhymeStatsAcquisitionsModel(options) {
         return +allYears[0];
     };
 
+    self.getMaxMonthCount = function(data) {
+        return self.getMinMonthCount(data) + 12;
+    };
+
     self.getMinMonthCount = function(data) {
         return d3.min(_.pluck(data, "date")).getFullYear() * 12;
     };
 
-    self.getXScale = function(data) {
-        var scale = d3.scaleLinear().range([0, self.width]);
-        scale.domain([self.getMinYear(data), self.getMaxYear(data) + 1]);
-        return scale;
-    };
-
     self.getYScale = function(data) {
         var scale = d3.scaleLinear().range([0, self.height - self.xAxisMargin]);
-        scale.domain([_.reduce(data, function(memo, d) { return Math.max(memo, d.count); }, 0), 0]);
+        scale.domain([0, d3.max(_.pluck(data, 'count'))]);
         return scale;
     };
 
