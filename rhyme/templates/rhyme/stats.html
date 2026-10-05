@@ -10,7 +10,7 @@
 {% endblock js %}
 
 {% block controls %}
-    <span class="selection-buttons hide">
+    <span class="selection-buttons d-none">
         <button class="btn btn-primary btn-sm" data-bind="click: viewSelection">
             <i class="fas fa-eye"></i>
             View Songs
@@ -25,7 +25,7 @@
 
 {% block content %}
     {% block visualization %}{% endblock %}
-    <div id="tooltip" class="hide"></div>
+    <div id="tooltip" class="d-none"></div>
 {% endblock content %}
 
 {% block modals %}{{ block.super }}

@@ -24,6 +24,8 @@ from rhyme.views import (
     playlist_delete,
     playlists,
     plex_in,
+    timeline,
+    timeline_json,
     song_list,
     song_update,
     song_export,
@@ -57,5 +59,7 @@ urlpatterns = [
     path('stats/matrix/json/', matrix_json, name='matrix_json'),
     path('stats/network/', network, name='network'),
     path('stats/network/json/', network_json, name='network_json'),
+    path('stats/timeline/', timeline, name='timeline'),
+    path('stats/timeline/json/', timeline_json, name='timeline_json'),
     path('tags/choices/', tag_choices, name='tag_choices'),
 ]
