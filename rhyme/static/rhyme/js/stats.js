@@ -82,7 +82,7 @@ function rhymeStatsModel(options) {
             var show = false;
 
             $tooltip.html("");
-            if (data.description) {
+            if (data?.description) {
                 show = true;
                 var description = data.description;
                 $tooltip.html(description);
