@@ -57,18 +57,8 @@ function rhymeStatsAcquisitionsModel(options) {
         return self.width / (maxMonthCount - minMonthCount + 1) - self.barMargin;
     };
 
-    self.getMaxYear = function(data) {
-        const allYears = _.pluck(data, 'year').sort();
-        return +allYears[allYears.length - 1];
-    };
-
-    self.getMinYear = function(data) {
-        const allYears = _.pluck(data, 'year').sort();
-        return +allYears[0];
-    };
-
     self.getMaxMonthCount = function(data) {
-        return self.getMinMonthCount(data) + 12;
+        return d3.max(_.pluck(data, "date")).getFullYear() * 12 + 12;
     };
 
     self.getMinMonthCount = function(data) {
@@ -82,22 +72,19 @@ function rhymeStatsAcquisitionsModel(options) {
     };
 
     self.drawBars = function (data) {
-        const minYear = self.getMinYear(data),
-            maxYear = self.getMaxYear(data),
-            barSize = self.width / (maxYear - minYear + 1);
-        // TODO
-        /*let bars = self.svg.selectAll("g")
-                                    .data(data)
-                                    .enter().append("g")
-                                    .attr("transform", function(d, i) {
-                                        return "translate(" + self.getXScale(data).call(null, d.year) + ", 0)";
-                                    });
+        const barSize = self.getBarSize(self.getMinMonthCount(data), self.getMaxMonthCount(data));
+        let bars = self.svg.selectAll("g")
+                                .data(data)
+                                .enter().append("g")
+                                .attr("transform", function(d, i) {
+                                    return "translate(" + d.monthCount * barSize + ", 0)";
+                                });
+
+        const yScale = self.getYScale(data);
         bars.append("rect")
-                .attr("x", function(d) { return d.season === undefined ? 0 : d.season * (barSize / 4); })
-                .attr("y", function(d) { return self.getYScale(data).call(null, d.count); })
-                .attr("width", function(d) { return d.season === undefined ? barSize - 2 : (barSize - 8) / 4; })
-                .attr("height", function(d) { return self.height - self.xAxisMargin - self.getYScale(data).call(null, d.count); })
-                .style("opacity", function(d) { return d.season === undefined ? 0.25 : 1; });*/
+                .attr("y", function(d) { return self.height - self.xAxisMargin - yScale(d.count); })
+                .attr("width", barSize - self.barMargin)
+                .attr("height", function(d) { return yScale(d.count); });
     };
 
     self.reformatData = function(data) {
@@ -128,11 +115,11 @@ function rhymeStatsAcquisitionsModel(options) {
                 count: count,
                 filter: "date_acquired>=" + monthYear + "&&date_acquired<=" + [thisYear, thisMonth].join("-"),
                 filename: "acquired " + text,
-                description: text + "\n" + count + pluralize(count, " song"),
+                description: text + "\n" + count + pluralize(count, " album"),
             });
         }
-        var minMonthCount = self.getMinMonthCount(dataAsList);
 
+        const minMonthCount = self.getMinMonthCount(dataAsList);
         dataAsList = _.map(dataAsList, function(d) {
             return _.extend(d, {
                 monthCount: d.date.getFullYear() * 12 + d.date.getMonth() - minMonthCount,
