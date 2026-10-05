@@ -1,6 +1,7 @@
 function rhymeStatsModel(options) {
     options.init = false;
     var self = rhymeModel(options);
+    self.model = 'song';
 
     self.viewSelection = function () {
         self.showModal(
@@ -22,10 +23,10 @@ function rhymeStatsModel(options) {
         if (!selectionFilter) {
             return filters;
         }
-        if (filters.song_filters) {
-            filters.song_filters += "&&" + selectionFilter;
+        if (filters[self.model + "_filters"]) {
+            filters[self.model + "_filters"] += "&&" + selectionFilter;
         } else {
-            filters.song_filters = selectionFilter;
+            filters[self.model + "_filters"] = selectionFilter;
         }
         return filters;
     };
