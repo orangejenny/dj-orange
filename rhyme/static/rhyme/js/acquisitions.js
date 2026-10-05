@@ -58,6 +58,10 @@ function rhymeStatsAcquisitionsModel(options) {
         return +allYears[0];
     };
 
+    self.getMinMonthCount = function(data) {
+        return d3.min(_.pluck(data, "date")).getFullYear() * 12;
+    };
+
     self.getXScale = function(data) {
         var scale = d3.scaleLinear().range([0, self.width]);
         scale.domain([self.getMinYear(data), self.getMaxYear(data) + 1]);
@@ -90,31 +94,45 @@ function rhymeStatsAcquisitionsModel(options) {
     };
 
     self.reformatData = function(data) {
-        // TODO
-        /*for (year in data) {
-            let yearCount = 0;
-            for (season in data[year]) {
-                const seasonCount = data[year][season],
-                    text = year + " " + season;
-                seasonData.push({
-                    year: +year,
-                    season: self.seasonIndex.indexOf(season),
-                    count: seasonCount,
-                    description: seasonCount + " " + text + " " + pluralize(seasonCount.count, "song"),
-                    filename: text,
-                });
-                yearCount += seasonCount;
+        var dateFormat = d3.timeFormat("%b %Y");
+        var dataAsList = []
+        for (monthYear in data) {
+            const date = new Date(monthYear + "-15"),
+                text = dateFormat(date),
+                count = data[monthYear],
+                monthYearParts = monthYear.split("-");
+
+            let thisYear = monthYearParts[0],
+                thisMonth = parseInt(monthYearParts[1]);
+            if (thisMonth === 12) {
+                thisMonth = 1;
+                thisYear += 1;
+            } else {
+                thisMonth += 1;
             }
-            yearData.push({
-                year: +year,
-                count: yearCount,
-                description: yearCount + " " + year + " " + pluralize(yearCount, "song"),
-                filename: year,
+            if (thisMonth < 10) {
+                thisMonth = "0" + thisMonth;
+            }
+
+            dataAsList.push({
+                date: date,
+                month: date.getMonth() + 1,
+                year: date.getFullYear(),
+                count: count,
+                filter: "date_acquired>=" + monthYear + "&&date_acquired<=" + [thisYear, thisMonth].join("-"),
+                filename: "acquired " + text,
+                description: text + "\n" + count + pluralize(count, " song"),
             });
         }
+        var minMonthCount = self.getMinMonthCount(dataAsList);
 
-        return yearData.concat(seasonData);*/
-        return data;
+        dataAsList = _.map(dataAsList, function(d) {
+            return _.extend(d, {
+                monthCount: d.date.getFullYear() * 12 + d.date.getMonth() - minMonthCount,
+            });
+        });
+
+        return dataAsList;
     };
 
     self.refresh();
