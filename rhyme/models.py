@@ -356,8 +356,7 @@ class Playlist(AuditModel):
         albums = set()
 
         for song in self.songs:
-            tracks = Track.objects.filter(song=song)
-            albums = albums | {t.album for t in tracks}
+            albums = albums | set(song.albums)
 
         return list(albums)
 
