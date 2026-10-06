@@ -542,18 +542,6 @@ def timeline(request):
 
 @require_GET
 @login_required
-def _stats(request, extra_context):
-    template = loader.get_template('rhyme/stats.html')
-    context = {
-        **_rhyme_context(),
-        **extra_context,
-        "has_export": True,
-    }
-    return HttpResponse(template.render(context, request))
-
-
-@require_GET
-@login_required
 def acquisitions_json(request):
     omni_filter = request.GET.get('omni_filter', '')
     album_filters = request.GET.get('album_filters')
