@@ -38,9 +38,6 @@ function rhymeStatsNetworkModel(options) {
     };
 
     self.refresh = function () {
-        var condition = function(tags) {
-            return _.map(_.uniq(_.compact(tags)), function(t) { return "taglist like '% " + t + " %'" }).join(" and ");
-        };
         var filename = function(tags) {
             return _.map(_.uniq(_.compact(tags)), function(t) { return "[" + t + "]"; }).join("");
         };
