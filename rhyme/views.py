@@ -5,6 +5,7 @@ import re
 
 from collections import defaultdict
 from datetime import datetime, timezone
+from functools import reduce
 from json.decoder import JSONDecodeError
 
 from django.conf import settings
@@ -581,10 +582,20 @@ def facet_json(request):
     song_filters = request.GET.get('song_filters')
 
     facet = request.GET.get('facet')
-    stats = Song.list(song_filters=song_filters,
+    songs = Song.list(song_filters=song_filters,
                       album_filters=album_filters,
-                      omni_filter=omni_filter).values(*attrs).annotate(count=Count('id')).order_by(*attrs)
-    return JsonResponse({'stats': facet})
+                      omni_filter=omni_filter)
+
+    def _increment_facet(ratings, song):
+        ratings[song['rating']] += 1
+        return ratings
+
+    stats = reduce(_increment_facet, songs.values("rating"), defaultdict(lambda: 0))
+
+    return JsonResponse({
+        'facet': facet,
+        'stats': stats,
+    })
 
 
 @require_GET
