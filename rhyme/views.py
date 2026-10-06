@@ -490,6 +490,17 @@ def acquisitions(request):
     }, request))
 
 
+def facet(request):
+    template = loader.get_template('rhyme/facet.html')
+    facet = request.GET.get('facet', '')
+    return HttpResponse(template.render({
+        **_rhyme_context(),
+        "title": facet[0].upper() + facet[1:],
+        "has_export": True,
+        "facet": facet,
+    }, request))
+
+
 def matrix(request):
     template = loader.get_template('rhyme/matrix.html')
     return HttpResponse(template.render({
@@ -560,6 +571,20 @@ def acquisitions_json(request):
     for album in albums:
         stats[album.date_acquired.strftime("%Y-%m")] += 1
     return JsonResponse({"stats": stats})
+
+
+@require_GET
+@login_required
+def facet_json(request):
+    omni_filter = request.GET.get('omni_filter', '')
+    album_filters = request.GET.get('album_filters')
+    song_filters = request.GET.get('song_filters')
+
+    facet = request.GET.get('facet')
+    stats = Song.list(song_filters=song_filters,
+                      album_filters=album_filters,
+                      omni_filter=omni_filter).values(*attrs).annotate(count=Count('id')).order_by(*attrs)
+    return JsonResponse({'stats': facet})
 
 
 @require_GET
