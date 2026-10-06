@@ -481,6 +481,8 @@ def plex_in(request, api_key):
     return JsonResponse({"success": 0, "message": "Could not find song"})
 
 
+@require_GET
+@login_required
 def acquisitions(request):
     template = loader.get_template('rhyme/acquisitions.html')
     return HttpResponse(template.render({
@@ -490,6 +492,8 @@ def acquisitions(request):
     }, request))
 
 
+@require_GET
+@login_required
 def facet(request):
     template = loader.get_template('rhyme/facet.html')
     facet = request.GET.get('facet', '')
@@ -501,6 +505,8 @@ def facet(request):
     }, request))
 
 
+@require_GET
+@login_required
 def matrix(request):
     template = loader.get_template('rhyme/matrix.html')
     return HttpResponse(template.render({
@@ -510,6 +516,8 @@ def matrix(request):
     }, request))
 
 
+@require_GET
+@login_required
 def playlists(request):
     template = loader.get_template('rhyme/playlists.html')
     context = {
@@ -520,6 +528,8 @@ def playlists(request):
     return HttpResponse(template.render(context, request))
 
 
+@require_GET
+@login_required
 def network(request):
     template = loader.get_template('rhyme/network.html')
     return HttpResponse(template.render({
@@ -531,6 +541,8 @@ def network(request):
     }, request))
 
 
+@require_GET
+@login_required
 def timeline(request):
     template = loader.get_template('rhyme/timeline.html')
     return HttpResponse(template.render({
