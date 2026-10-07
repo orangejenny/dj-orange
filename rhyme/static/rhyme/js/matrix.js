@@ -12,24 +12,11 @@ function rhymeStatsMatrixModel(options) {
         return conditions[0];
     };
 
-    self.refresh = function () {
-        self.isLoading(true);
-        $.ajax({
-            method: 'GET',
-            url: self.url,
-            data: self.serializeFilters(),
-            success: function(data) {
-                self.isLoading(false);
-                data = self.reformatData(data.stats);
-                self.setDimensions();
-                $(self.selector + " svg").empty();
-                self.drawAxes();
-                var bubbles = self.drawBubbles(data);
-                self.drawLabels(bubbles);
-                self.attachTooltip(self.selector + " g");
-                self.attachSelectionHandlers(self.selector + " g");
-            },
-        });
+    self.draw = function (data) {
+        self.drawAxes();
+        let bubbles = self.drawBubbles(data);
+        self.drawLabels(bubbles);
+
     };
 
     self.setDimensions = function () {

@@ -18,23 +18,9 @@ function rhymeStatsFacetModel(options) {
         // TODO
     }
 
-    self.refresh = function () {
-        self.isLoading(true);
-        $.ajax({
-            method: 'GET',
-            url: self.url,
-            data: self.serializeFilters(),
-            success: function(data) {
-                self.isLoading(false);
-                data = self.reformatData(data.stats);
-                self.setDimensions();
-                $(self.selector + " svg").empty();
-                self.drawBars(data);
-                self.drawLabels(data);
-                self.attachTooltip(self.selector + " g");
-                self.attachSelectionHandlers(self.selector + " g");
-            },
-        });
+    self.draw = function (data) {
+        self.drawBars(data);
+        self.drawLabels(data);
     };
 
     self.setDimensions = function () {
