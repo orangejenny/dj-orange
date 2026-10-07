@@ -5,11 +5,11 @@ function rhymeStatsMatrixModel(options) {
     self.svg = d3.select(self.selector + " svg");
 
     self.getSelectionFilter = function (selection) {
-        var conditions = _.uniq(_.map(selection.data(), function (s) { return "mood=" + s.mood + "&&energy=" + s.energy; }));
-        if (conditions.length > 1) {
+        var filters = _.uniq(_.map(selection.data(), function (s) { return "mood=" + s.mood + "&&energy=" + s.energy; }));
+        if (filters.length > 1) {
             alert("TODO: handle multiple bubbles");
         }
-        return conditions[0];
+        return filters[0];
     };
 
     self.draw = function (data) {
@@ -90,7 +90,6 @@ function rhymeStatsMatrixModel(options) {
                     count: _.reduce(relevant, function(memo, d) {
                         return memo + +d.count;
                     }, 0),
-                    condition: 'mood=' + m + ' and energy=' + e,
                     filename: [moodDescriptions[m - 1], energyDescriptions[e - 1]].join(" "),
                 };
                 bubble.description = bubble.count + " " + bubble.filename + " " + pluralize(bubble.count, "song");
