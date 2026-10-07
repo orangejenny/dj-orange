@@ -571,7 +571,7 @@ def acquisitions_json(request):
     stats = defaultdict(lambda: 0)
     for album in albums:
         stats[album.date_acquired.strftime("%Y-%m")] += 1
-    return JsonResponse({"stats": stats})
+    return JsonResponse(stats)
 
 
 @require_GET
@@ -738,4 +738,4 @@ def timeline_json(request):
         for season in seasons:
             stats[year][season] = songs.filter(tag__name__exact=year).filter(tag__name__exact=season).count()
 
-    return JsonResponse({"stats": stats})
+    return JsonResponse(stats)

@@ -56,7 +56,7 @@ function rhymeStatsFacetModel(options) {
     self.reformatData = function(data) {
         let dataAsList = [];
         _.each(_.range(1, 6), function (value) {
-            const count = data[value];
+            const count = data.stats[value];
             dataAsList.push({
                 value: value,
                 filter: self.facet + '=' + value,

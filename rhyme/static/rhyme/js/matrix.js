@@ -14,8 +14,8 @@ function rhymeStatsMatrixModel(options) {
 
     self.draw = function (data) {
         self.drawAxes();
-        let bubbles = self.drawBubbles(data);
-        self.drawLabels(bubbles);
+        data = self.drawBubbles(data);
+        self.drawLabels(data);
 
     };
 
@@ -81,7 +81,7 @@ function rhymeStatsMatrixModel(options) {
         var bubbles = [];
         for (e = 1; e <= self.range; e++) {
             for (m = 1; m <= self.range; m++) {
-                var relevant = _.filter(data, function(d) {
+                var relevant = _.filter(data.stats, function(d) {
                     return d.energy == e && d.mood == m;
                 });
                 var bubble = {

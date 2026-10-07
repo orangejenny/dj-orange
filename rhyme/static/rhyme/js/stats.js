@@ -48,7 +48,7 @@ function rhymeStatsModel(options) {
             data: self.serializeFilters(),
             success: function(data) {
                 self.isLoading(false);
-                data = self.reformatData(data.stats);
+                data = self.reformatData(data);
                 self.setDimensions();
                 $(self.selector + " svg").empty();
                 self.draw(data);
