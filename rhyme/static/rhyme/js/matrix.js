@@ -1,5 +1,4 @@
 function rhymeStatsMatrixModel(options) {
-    options.init = false;
     var self = rhymeStatsModel(options);
     self.range = 5;
     self.selector = ".chart-container";

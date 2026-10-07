@@ -1,3 +1,8 @@
+/**
+  *  Base class for visualization pages.
+  *
+  *  Subclasses should call self.refresh() to initialize themselves.
+  */
 function rhymeStatsModel(options) {
     options.init = false;
     var self = rhymeModel(options);
@@ -148,11 +153,6 @@ function rhymeStatsModel(options) {
         obj.selectAll("rect, circle").classed("selected", !isSelected);
         self.setClearVisibility();
     };
-
-    // Initialize
-    if (options.init || options.init === undefined) {
-        self.refresh();
-    }
 
     return self;
 }

@@ -1,5 +1,4 @@
 function rhymeStatsFacetModel(options) {
-    options.init = false;
     var self = rhymeStatsModel(options);
     self.selector = ".chart-container";
     self.svg = d3.select(self.selector + " svg");

@@ -30,7 +30,6 @@ function ticked(link, node) {
 }
 
 function rhymeStatsNetworkModel(options) {
-    options.init = false;
     var self = rhymeStatsModel(options);
 
     self.getSelectionFilter = function (selection) {
@@ -121,7 +120,6 @@ function rhymeStatsNetworkModel(options) {
         });
     };
 
-    // Initialize
     self.refresh();
 
     return self;

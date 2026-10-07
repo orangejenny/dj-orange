@@ -1,5 +1,4 @@
 function rhymeStatsAcquisitionsModel(options) {
-    options.init = false;
     var self = rhymeStatsModel(options);
     self.model = 'album';
 
