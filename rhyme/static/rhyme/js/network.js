@@ -77,11 +77,7 @@ function rhymeStatsNetworkModel(options) {
     }
 
     self.refresh = function () {
-        var filename = function(tags) {
-            return _.map(_.uniq(_.compact(tags)), function(t) { return "[" + t + "]"; }).join("");
-        };
-
-        self.svg.html("");
+        $(self.selector + " svg").empty();
         self.svg.attr("viewBox", [0, 0, self.width, self.height]);
 
         var $filters = $("#network-controls"),
@@ -97,32 +93,41 @@ function rhymeStatsNetworkModel(options) {
             }, self.serializeFilters()),
             success: function(data) {
                 self.isLoading(false);
-                data.nodes = _.map(data.nodes, function(node) {
-                    return _.extend(node, {
-                        count: +node.count,
-                        tags: [node.name],
-                        filename: filename([node.name]),
-                    });
-                });
-                var nodesById = _.indexBy(data.nodes, "id"),
-                    nodeNameById = function (id) {
-                        return nodesById[id].name;
-                    };
-
-
-                data.links = _.map(data.links, function(link) {
-                    return _.extend(link, {
-                        tags: [nodeNameById(link.source), nodeNameById(link.target)],
-                        filename: filename([nodeNameById(link.source), nodeNameById(link.target)]),
-                    });
-                });
-
+                data = self.reformatData(data);
                 self.draw(data);
 
                 self.attachTooltip(self.selector + " g circle, " + self.selector + " g line");
                 self.attachSelectionHandlers(self.selector + " g circle, " + self.selector + " g line");
             },
         });
+    };
+
+    self.reformatData = function(data) {
+        var filename = function(tags) {
+            return _.map(_.uniq(_.compact(tags)), function(t) { return "[" + t + "]"; }).join("");
+        };
+
+        data.nodes = _.map(data.nodes, function(node) {
+            return _.extend(node, {
+                count: +node.count,
+                tags: [node.name],
+                filename: filename([node.name]),
+            });
+        });
+        var nodesById = _.indexBy(data.nodes, "id"),
+            nodeNameById = function (id) {
+                return nodesById[id].name;
+            };
+
+
+        data.links = _.map(data.links, function(link) {
+            return _.extend(link, {
+                tags: [nodeNameById(link.source), nodeNameById(link.target)],
+                filename: filename([nodeNameById(link.source), nodeNameById(link.target)]),
+            });
+        });
+
+        return data;
     };
 
     self.refresh();
