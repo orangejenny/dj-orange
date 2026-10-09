@@ -34,10 +34,9 @@ class Command(BaseCommand):
             key = input("Playlist? ")
             try:
                 key = int(key) - 1
-                return playlists[key]
             except (IndexError, ValueError):
-                pass
-            key = None
+                key = None
+        return playlists[key]
 
     def export_playlist(self, song_ids, display=True):
         if display:
