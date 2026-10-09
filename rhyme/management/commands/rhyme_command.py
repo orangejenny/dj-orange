@@ -27,7 +27,16 @@ class Command(BaseCommand):
         return seed
 
     def get_playlist(self):
-        playlists = Playlist.objects.all().order_by("name")
+        name = input("Playlist name? ")
+        if name:
+            playlists = Playlist.objects.filter(name__icontains=name)
+            if playlists.count() == 1:
+                return playlists.first()
+            if playlists.count() == 0:
+                playlists = Playlist.objects.all().order_by("name")
+        else:
+            playlists = Playlist.objects.all().order_by("name")
+
         key = None
         while key is None:
             self.print_numbered_list(playlists)
