@@ -15,11 +15,11 @@ class Command(RhymeCommand):
         selected = None
         while key != "q":
             if selected is None:
-                selected = self.select_playlist()
+                selected = self.get_playlist()
             self.print_details(selected)
             key = input("What to do? (S)elect a different playlist, (L)ist, (R)ename, (D)elete, (C)reate, (Q)uit? ").lower()
             if key == "s":
-                selected = self.select_playlist()
+                selected = self.get_playlist()
             elif key == "l":
                 for index, song in enumerate(selected.songs):
                     print(f"{index + 1}) {song}")
@@ -49,15 +49,3 @@ class Command(RhymeCommand):
             exclusions = playlist_songs.filter(inclusion=False)
             print(f"        +{inclusions.count()} songs(s), -{exclusions.count()} songs")
 
-    def select_playlist(self):
-        playlists = Playlist.objects.all().order_by("name")
-        key = None
-        while key is None:
-            self.print_numbered_list(playlists)
-            key = input("Playlist? ")
-            try:
-                key = int(key) - 1
-                return playlists[key]
-            except (IndexError, ValueError):
-                pass
-            key = None

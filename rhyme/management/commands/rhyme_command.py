@@ -26,6 +26,19 @@ class Command(BaseCommand):
                     pass
         return seed
 
+    def get_playlist(self):
+        playlists = Playlist.objects.all().order_by("name")
+        key = None
+        while key is None:
+            self.print_numbered_list(playlists)
+            key = input("Playlist? ")
+            try:
+                key = int(key) - 1
+                return playlists[key]
+            except (IndexError, ValueError):
+                pass
+            key = None
+
     def export_playlist(self, song_ids, display=True):
         if display:
             for song_id in song_ids:
