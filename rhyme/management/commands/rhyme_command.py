@@ -18,14 +18,34 @@ class Command(BaseCommand):
             if songs.count() == 1:
                 seed = songs.first()
             elif songs.count() > 1:
-                for i, song in enumerate(songs):
-                    print(f"{i + 1}) {song}")
+                self.print_numbered_list(songs)
                 ordinal = input("Which song? ")
                 try:
                     seed = songs[int(ordinal) - 1]
                 except (ValueError, IndexError):
                     pass
         return seed
+
+    def get_playlist(self):
+        name = input("Playlist name? ")
+        if name:
+            playlists = Playlist.objects.filter(name__icontains=name)
+            if playlists.count() == 1:
+                return playlists.first()
+            if playlists.count() == 0:
+                playlists = Playlist.objects.all().order_by("name")
+        else:
+            playlists = Playlist.objects.all().order_by("name")
+
+        key = None
+        while key is None:
+            self.print_numbered_list(playlists)
+            key = input("Playlist? ")
+            try:
+                key = int(key) - 1
+            except (IndexError, ValueError):
+                key = None
+        return playlists[key]
 
     def export_playlist(self, song_ids, display=True):
         if display:

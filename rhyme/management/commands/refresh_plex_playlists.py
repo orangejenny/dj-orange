@@ -1,12 +1,11 @@
-from django.core.management.base import BaseCommand
-
 from plexapi.exceptions import NotFound
 
+from rhyme.management.commands.rhyme_command import Command as RhymeCommand
 from rhyme.models import Playlist, Song
 from rhyme.plex import create_plex_playlist, plex_server, plex_library
 
 
-class Command(BaseCommand):
+class Command(RhymeCommand):
     @property
     def help(self):
         return "Update song list for all plex-based playlists"
@@ -14,18 +13,23 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--playlist-id', help="Update only this playlist")
         parser.add_argument('--force', action='store_true')
+        parser.add_argument('--playlist', action='store_true', help="Select a playlist")
         parser.add_argument('--quiet', action='store_true')
 
     def handle(self, *args, **options):
-        self.server = plex_server()
-        self.library = plex_library(self.server)
-
         if options.get('playlist_id'):
             playlists = Playlist.objects.filter(id=options.get('playlist_id'))
+        elif options.get('playlist', False):
+            playlists = [self.get_playlist()]
         else:
             playlists = Playlist.objects.all()
 
-        print(f"Found {playlists.count()} playlists")
+        print(f"Found {len(playlists)} playlists")
+
+        # These are slow, so do them after the potential user input
+        self.server = plex_server()
+        self.library = plex_library(self.server)
+
         for index, playlist in enumerate(playlists):
             print(f"({index} of {len(playlists)}) Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
             self.refresh_playlist(playlist, force=options.get('force', False), quiet=options.get('quiet', False))
