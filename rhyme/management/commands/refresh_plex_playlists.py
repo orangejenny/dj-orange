@@ -1,12 +1,11 @@
-from django.core.management.base import BaseCommand
-
 from plexapi.exceptions import NotFound
 
+from rhyme.management.commands.rhyme_command import Command as RhymeCommand
 from rhyme.models import Playlist, Song
 from rhyme.plex import create_plex_playlist, plex_server, plex_library
 
 
-class Command(BaseCommand):
+class Command(RhymeCommand):
     @property
     def help(self):
         return "Update song list for all plex-based playlists"
