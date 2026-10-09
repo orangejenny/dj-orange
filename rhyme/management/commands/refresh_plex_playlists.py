@@ -24,7 +24,7 @@ class Command(RhymeCommand):
         else:
             playlists = Playlist.objects.all()
 
-        print(f"Found {playlists.count()} playlists")
+        print(f"Found {len(playlists)} playlists")
 
         # These are slow, so do them after the potential user input
         self.server = plex_server()
