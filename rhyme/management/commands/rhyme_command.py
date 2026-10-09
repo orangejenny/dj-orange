@@ -18,8 +18,7 @@ class Command(BaseCommand):
             if songs.count() == 1:
                 seed = songs.first()
             elif songs.count() > 1:
-                for i, song in enumerate(songs):
-                    print(f"{i + 1}) {song}")
+                self.print_numbered_list(songs)
                 ordinal = input("Which song? ")
                 try:
                     seed = songs[int(ordinal) - 1]

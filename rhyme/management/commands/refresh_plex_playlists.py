@@ -22,6 +22,8 @@ class Command(BaseCommand):
 
         if options.get('playlist_id'):
             playlists = Playlist.objects.filter(id=options.get('playlist_id'))
+        elif options.get('playlist', False):
+            pass
         else:
             playlists = Playlist.objects.all()
 
