@@ -13,20 +13,23 @@ class Command(RhymeCommand):
     def add_arguments(self, parser):
         parser.add_argument('--playlist-id', help="Update only this playlist")
         parser.add_argument('--force', action='store_true')
+        parser.add_argument('--playlist', action='store_true', help="Select a playlist")
         parser.add_argument('--quiet', action='store_true')
 
     def handle(self, *args, **options):
-        self.server = plex_server()
-        self.library = plex_library(self.server)
-
         if options.get('playlist_id'):
             playlists = Playlist.objects.filter(id=options.get('playlist_id'))
         elif options.get('playlist', False):
-            pass
+            playlists = [self.get_playlist()]
         else:
             playlists = Playlist.objects.all()
 
         print(f"Found {playlists.count()} playlists")
+
+        # These are slow, so do them after the potential user input
+        self.server = plex_server()
+        self.library = plex_library(self.server)
+
         for index, playlist in enumerate(playlists):
             print(f"({index} of {len(playlists)}) Refreshing {playlist.name} ({playlist.id}) which has {playlist.plex_count} songs")
             self.refresh_playlist(playlist, force=options.get('force', False), quiet=options.get('quiet', False))
