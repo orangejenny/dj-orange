@@ -22,7 +22,7 @@ class Command(RhymeCommand):
         elif options.get('playlist', False):
             playlists = [self.get_playlist()]
         else:
-            playlists = Playlist.objects.all()
+            playlists = Playlist.objects.all().reverse()
 
         print(f"Found {len(playlists)} playlists")
 
