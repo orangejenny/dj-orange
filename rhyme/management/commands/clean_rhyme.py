@@ -11,9 +11,6 @@ class Command(RhymeCommand):
         return "Command-line playlist management"
 
     def handle(self, *args, **options):
-        key = None
-        selected = None
-
         print("Searching for tags without any songs attached...")
         tags = Tag.objects.filter(songs__isnull=True)
         for tag in tags:
