@@ -506,10 +506,17 @@ def matrix(request):
 @require_GET
 @login_required
 def playlists(request):
+    start = int(request.GET.get('start', 0))
+    count = int(request.GET.get('count', 0))
+    playlists = list(Playlist.objects.order_by("name"))
+
+    if start and count:
+        playlists = playlists[start - 1:start + count]
+
     template = loader.get_template('rhyme/playlists.html')
     context = {
         **_rhyme_context(),
-        "playlists": Playlist.objects.order_by("name"),
+        "playlists": playlists,
         "has_export": True,
     }
     return HttpResponse(template.render(context, request))
